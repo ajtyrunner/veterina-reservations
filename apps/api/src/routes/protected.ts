@@ -319,7 +319,7 @@ router.post('/doctor/slots', async (req, res) => {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
     const userRole = req.user?.role
-    const { startTime, endTime, room, equipment, doctorId } = req.body
+    const { startTime, endTime, equipment, doctorId, roomId, serviceTypeId } = req.body
 
     console.log('=== DEBUG: Creating slot ===')
     console.log('userId:', userId)
@@ -397,7 +397,8 @@ router.post('/doctor/slots', async (req, res) => {
         doctorId: targetDoctorId,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
-        room,
+        roomId: roomId || null,
+        serviceTypeId: serviceTypeId || null,
         equipment,
         tenantId,
       },
@@ -478,7 +479,28 @@ router.get('/doctor/slots', async (req, res) => {
             },
           },
         },
+        room: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+        serviceType: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            duration: true,
+            color: true,
+          },
+        },
         reservations: {
+          where: {
+            status: {
+              in: ['PENDING', 'CONFIRMED']
+            }
+          },
           include: {
             user: {
               select: {
@@ -508,7 +530,7 @@ router.put('/doctor/slots/:id', async (req, res) => {
     const tenantId = req.user?.tenant
     const userRole = req.user?.role
     const { id } = req.params
-    const { startTime, endTime, room, equipment } = req.body
+    const { startTime, endTime, equipment, roomId, serviceTypeId } = req.body
 
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
@@ -567,7 +589,8 @@ router.put('/doctor/slots/:id', async (req, res) => {
       data: {
         startTime: new Date(startTime),
         endTime: new Date(endTime),
-        room,
+        roomId: roomId || null,
+        serviceTypeId: serviceTypeId || null,
         equipment,
       },
       include: {
@@ -649,6 +672,252 @@ router.delete('/doctor/slots/:id', async (req, res) => {
     res.json({ message: 'Slot byl úspěšně smazán' })
   } catch (error) {
     console.error('Chyba při mazání slotu:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// === SPRÁVA REZERVACÍ ===
+
+// Získání všech rezervací pro doktora/admina
+router.get('/doctor/reservations', async (req, res) => {
+  try {
+    const userId = req.user?.sub
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+    const { status } = req.query
+
+    if (!userId || !tenantId) {
+      return res.status(400).json({ error: 'Chybí uživatelské údaje' })
+    }
+
+    if (userRole !== 'DOCTOR' && userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
+    }
+
+    let whereCondition: any = { tenantId }
+
+    // Filtrovat podle statusu pokud je zadán
+    if (status && ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'].includes(status as string)) {
+      whereCondition.status = status
+    }
+
+    if (userRole === 'DOCTOR') {
+      // DOCTOR vidí pouze své rezervace
+      const doctor = await prisma.doctor.findFirst({
+        where: { userId, tenantId },
+      })
+
+      if (!doctor) {
+        return res.status(404).json({ error: 'Profil doktora nenalezen' })
+      }
+      whereCondition.doctorId = doctor.id
+    }
+
+    const reservations = await prisma.reservation.findMany({
+      where: whereCondition,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+        doctor: {
+          include: {
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        slot: {
+          include: {
+            room: {
+              select: {
+                name: true,
+                description: true,
+              },
+            },
+            serviceType: {
+              select: {
+                name: true,
+                duration: true,
+                color: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: [
+        { status: 'asc' }, // PENDING první
+        { slot: { startTime: 'asc' } }, // pak podle času
+      ],
+    })
+
+    res.json(reservations)
+  } catch (error) {
+    console.error('Chyba při načítání rezervací:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Aktualizace statusu rezervace
+router.put('/doctor/reservations/:id/status', async (req, res) => {
+  try {
+    const userId = req.user?.sub
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+    const { id } = req.params
+    const { status, notes } = req.body
+
+    if (!userId || !tenantId) {
+      return res.status(400).json({ error: 'Chybí uživatelské údaje' })
+    }
+
+    if (userRole !== 'DOCTOR' && userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
+    }
+
+    if (!['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'].includes(status)) {
+      return res.status(400).json({ error: 'Neplatný status rezervace' })
+    }
+
+    // Najdi rezervaci a ověř oprávnění
+    const existingReservation = await prisma.reservation.findFirst({
+      where: { id, tenantId },
+      include: { doctor: true },
+    })
+
+    if (!existingReservation) {
+      return res.status(404).json({ error: 'Rezervace nenalezena' })
+    }
+
+    // Pro DOCTOR role ověř, že je to jeho rezervace
+    if (userRole === 'DOCTOR') {
+      const doctor = await prisma.doctor.findFirst({
+        where: { userId, tenantId },
+      })
+
+      if (!doctor || existingReservation.doctorId !== doctor.id) {
+        return res.status(403).json({ error: 'Nemáte oprávnění upravit tuto rezervaci' })
+      }
+    }
+
+    const updatedReservation = await prisma.reservation.update({
+      where: { id },
+      data: {
+        status,
+        ...(notes && { description: notes }), // Aktualizuj poznámky pokud jsou poskytnuty
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+        doctor: {
+          include: {
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        slot: {
+          include: {
+            room: {
+              select: {
+                name: true,
+                description: true,
+              },
+            },
+            serviceType: {
+              select: {
+                name: true,
+                duration: true,
+                color: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    res.json(updatedReservation)
+  } catch (error) {
+    console.error('Chyba při úpravě rezervace:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Přidání poznámky k rezervaci
+router.put('/doctor/reservations/:id/notes', async (req, res) => {
+  try {
+    const userId = req.user?.sub
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+    const { id } = req.params
+    const { notes } = req.body
+
+    if (!userId || !tenantId) {
+      return res.status(400).json({ error: 'Chybí uživatelské údaje' })
+    }
+
+    if (userRole !== 'DOCTOR' && userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
+    }
+
+    // Najdi rezervaci a ověř oprávnění
+    const existingReservation = await prisma.reservation.findFirst({
+      where: { id, tenantId },
+    })
+
+    if (!existingReservation) {
+      return res.status(404).json({ error: 'Rezervace nenalezena' })
+    }
+
+    // Pro DOCTOR role ověř, že je to jeho rezervace
+    if (userRole === 'DOCTOR') {
+      const doctor = await prisma.doctor.findFirst({
+        where: { userId, tenantId },
+      })
+
+      if (!doctor || existingReservation.doctorId !== doctor.id) {
+        return res.status(403).json({ error: 'Nemáte oprávnění upravit tuto rezervaci' })
+      }
+    }
+
+    const updatedReservation = await prisma.reservation.update({
+      where: { id },
+      data: { description: notes },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+        slot: {
+          select: {
+            startTime: true,
+            endTime: true,
+          },
+        },
+      },
+    })
+
+    res.json(updatedReservation)
+  } catch (error) {
+    console.error('Chyba při úpravě poznámek:', error)
     res.status(500).json({ error: 'Interní chyba serveru' })
   }
 })

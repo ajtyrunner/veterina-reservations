@@ -60,46 +60,62 @@ export default function Header() {
       </div>
 
       {/* Main header */}
-      <header className="bg-white shadow-md">
+      <header className="bg-orange-400 shadow-lg">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
+            {/* Logo a název */}
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-orange-400 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xl">🐕</span>
+              <Link href="/" className="flex items-center space-x-3">
+                <div className="w-16 h-16 rounded-full overflow-hidden shadow-lg">
+                  <img 
+                    src="/images/veterina-logo.png" 
+                    alt="Veterina Svahy Logo" 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <Link href="/" className="text-2xl font-bold text-gray-800">
-                  {tenantInfo?.name || 'Veterina Svahy'}
-                </Link>
-              </div>
+                <div className="text-white">
+                  <h1 className="text-2xl font-bold">
+                    {tenantInfo?.name || 'Veterina Svahy'}
+                  </h1>
+                  <p className="text-orange-100 text-sm">Veterinární ordinace</p>
+                </div>
+              </Link>
             </div>
 
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link href="/" className="text-gray-700 hover:text-orange-500 font-medium transition-colors">
-                Domů
-              </Link>
+            {/* Navigace */}
+            <nav className="hidden lg:flex items-center space-x-8">
               {session && (
                 <>
+                  <Link href="/" className="text-white hover:text-orange-100 font-medium transition-colors">
+                    Rezervovat termín
+                  </Link>
                   <Link 
                     href="/rezervace" 
-                    className="text-green-600 hover:text-green-700 font-medium transition-colors"
+                    className="text-white hover:text-orange-100 font-medium transition-colors"
                   >
-                    Rezervace
+                    Moje rezervace
                   </Link>
                   
                   {(session.user.role === 'DOCTOR' || session.user.role === 'ADMIN') && (
                     <>
+                      <div className="h-6 border-l border-orange-300"></div>
                       <Link 
                         href="/slots" 
-                        className="text-green-600 hover:text-green-700 font-medium transition-colors"
+                        className="text-white hover:text-orange-100 font-medium transition-colors"
                       >
                         Správa slotů
                       </Link>
                       <Link 
                         href="/rezervace/sprava" 
-                        className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                        className="text-white hover:text-orange-100 font-medium transition-colors"
                       >
                         Správa rezervací
+                      </Link>
+                      <Link 
+                        href="/ciselnik/ordinace" 
+                        className="text-white hover:text-orange-100 font-medium transition-colors"
+                      >
+                        Číselníky
                       </Link>
                     </>
                   )}
@@ -107,27 +123,30 @@ export default function Header() {
               )}
             </nav>
 
+            {/* Uživatelské menu */}
             <div className="flex items-center space-x-4">
               {session ? (
                 <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3 bg-white bg-opacity-20 rounded-lg px-3 py-2">
                     {session.user?.image && (
                       <img 
                         src={session.user.image} 
                         alt={session.user.name || 'Uživatel'}
-                        className="h-8 w-8 rounded-full"
+                        className="h-8 w-8 rounded-full border-2 border-white"
                       />
                     )}
-                    <span className="text-sm text-gray-600">
-                      {session.user?.name}
-                    </span>
-                    <span className="text-xs px-2 py-1 rounded bg-green-500 text-white">
-                      {session.user.role}
-                    </span>
+                    <div className="text-white">
+                      <div className="text-sm font-medium">
+                        {session.user?.name}
+                      </div>
+                      <div className="text-xs text-orange-100">
+                        {session.user.role}
+                      </div>
+                    </div>
                   </div>
                   <button
                     onClick={handleAuth}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                    className="bg-white text-orange-400 hover:bg-orange-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-md"
                   >
                     Odhlásit se
                   </button>
@@ -135,7 +154,7 @@ export default function Header() {
               ) : (
                 <Link
                   href="/login"
-                  className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="bg-white text-orange-400 hover:bg-orange-50 px-6 py-2 rounded-lg text-sm font-medium transition-colors shadow-md"
                 >
                   {status === 'loading' ? 'Načítám...' : 'Přihlásit se'}
                 </Link>

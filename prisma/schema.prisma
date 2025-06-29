@@ -21,6 +21,8 @@ model Tenant {
   doctors     Doctor[]
   slots       Slot[]
   reservations Reservation[]
+  rooms       Room[]
+  serviceTypes ServiceType[]
 
   @@map("tenants")
 }
@@ -66,23 +68,69 @@ model Doctor {
   @@map("doctors")
 }
 
-model Slot {
-  id          String    @id @default(cuid())
-  doctorId    String
-  startTime   DateTime
-  endTime     DateTime
-  isAvailable Boolean   @default(true)
-  room        String?
-  equipment   String?
+// Nový model pro Ordinace/Místnosti
+model Room {
+  id          String   @id @default(cuid())
+  name        String   // např. "Ordinace 1", "Operační sál"
+  description String?  // popis místnosti
+  capacity    Int      @default(1) // kolik pacientů současně
   tenantId    String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  slots  Slot[]
+
+  @@unique([tenantId, name]) // unikátní název v rámci tenantu
+  @@map("rooms")
+}
+
+// Nový model pro Úkony/Vybavení/Služby
+model ServiceType {
+  id          String   @id @default(cuid())
+  name        String   // např. "Základní vyšetření", "Očkování", "RTG"
+  description String?  // popis úkonu
+  duration    Int      // doba trvání v minutách
+  price       Decimal? @db.Decimal(10,2) // cena služby (volitelné)
+  color       String?  // barva pro kalendář
+  tenantId    String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  slots  Slot[]
+
+  @@unique([tenantId, name]) // unikátní název v rámci tenantu
+  @@map("service_types")
+}
+
+// Upravený model Slot
+model Slot {
+  id            String    @id @default(cuid())
+  doctorId      String
+  roomId        String?   // reference na Room
+  serviceTypeId String?   // reference na ServiceType
+  startTime     DateTime
+  endTime       DateTime
+  isAvailable   Boolean   @default(true)
+  equipment     String?   // volitelné vybavení/poznámky
+  notes         String?   // poznámky k slotu
+  tenantId      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   doctor       Doctor        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  room         Room?         @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  serviceType  ServiceType?  @relation(fields: [serviceTypeId], references: [id], onDelete: SetNull)
   reservations Reservation[]
 
-  @@unique([doctorId, startTime, endTime])
+  // Upravené unique constraint - doktor může mít více slotů ve stejný čas,
+  // ale ne se stejnou místností nebo službou
+  @@unique([doctorId, startTime, endTime, roomId])
+  @@unique([doctorId, startTime, endTime, serviceTypeId])
   @@map("slots")
 }
 

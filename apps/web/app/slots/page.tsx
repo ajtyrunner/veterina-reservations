@@ -4,18 +4,39 @@ import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
+interface Room {
+  id: string
+  name: string
+  description?: string
+  capacity: number
+  isActive: boolean
+}
+
+interface ServiceType {
+  id: string
+  name: string
+  description?: string
+  duration: number
+  price?: number
+  color?: string
+  isActive: boolean
+}
+
 interface Slot {
   id: string
   startTime: string
   endTime: string
-  room?: string
   equipment?: string
+  roomId?: string
+  serviceTypeId?: string
   isAvailable: boolean
   doctor?: {
     user: {
       name: string
     }
   }
+  room?: Room
+  serviceType?: ServiceType
   reservations: Array<{
     id: string
     petName?: string
@@ -41,11 +62,14 @@ export default function SlotsPage() {
   const [slots, setSlots] = useState<Slot[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [rooms, setRooms] = useState<Room[]>([])
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([])
   const [formData, setFormData] = useState({
     startTime: '',
     endTime: '',
-    room: '',
     equipment: '',
+    roomId: '',
+    serviceTypeId: '',
   })
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isCreating, setIsCreating] = useState(false)
@@ -53,10 +77,18 @@ export default function SlotsPage() {
   const [editFormData, setEditFormData] = useState({
     startTime: '',
     endTime: '',
-    room: '',
     equipment: '',
+    roomId: '',
+    serviceTypeId: '',
   })
   const [deletingSlot, setDeletingSlot] = useState<string | null>(null)
+  const [filters, setFilters] = useState({
+    serviceTypeId: '',
+    roomId: '',
+    date: '',
+    status: '', // 'available', 'reserved', nebo ''
+  })
+  const [filteredSlots, setFilteredSlots] = useState<Slot[]>([])
 
   const addNotification = (type: NotificationType, message: string) => {
     const id = Math.random().toString(36).substring(7)
@@ -86,6 +118,8 @@ export default function SlotsPage() {
 
     if (session?.user?.userId) {
       loadSlots()
+      loadRooms()
+      loadServiceTypes()
     }
   }, [session, status, router])
 
@@ -107,6 +141,30 @@ export default function SlotsPage() {
       console.error('Chyba při načítání slotů:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadRooms = async () => {
+    try {
+      const response = await fetch('/api/rooms')
+      if (response.ok) {
+        const data = await response.json()
+        setRooms(data.filter((room: Room) => room.isActive))
+      }
+    } catch (error) {
+      console.error('Chyba při načítání ordinací:', error)
+    }
+  }
+
+  const loadServiceTypes = async () => {
+    try {
+      const response = await fetch('/api/service-types')
+      if (response.ok) {
+        const data = await response.json()
+        setServiceTypes(data.filter((service: ServiceType) => service.isActive))
+      }
+    } catch (error) {
+      console.error('Chyba při načítání druhů služeb:', error)
     }
   }
 
@@ -133,7 +191,7 @@ export default function SlotsPage() {
       if (response.ok) {
         const newSlot = await response.json()
         setSlots(prev => [...prev, newSlot])
-        setFormData({ startTime: '', endTime: '', room: '', equipment: '' })
+        setFormData({ startTime: '', endTime: '', equipment: '', roomId: '', serviceTypeId: '' })
         setShowCreateForm(false)
         addNotification('success', 'Slot byl úspěšně vytvořen.')
       } else {
@@ -159,14 +217,15 @@ export default function SlotsPage() {
     setEditFormData({
       startTime: new Date(slot.startTime).toISOString().slice(0, 16),
       endTime: new Date(slot.endTime).toISOString().slice(0, 16),
-      room: slot.room || '',
       equipment: slot.equipment || '',
+      roomId: slot.roomId || '',
+      serviceTypeId: slot.serviceTypeId || '',
     })
   }
 
   const cancelEdit = () => {
     setEditingSlot(null)
-    setEditFormData({ startTime: '', endTime: '', room: '', equipment: '' })
+    setEditFormData({ startTime: '', endTime: '', equipment: '', roomId: '', serviceTypeId: '' })
   }
 
   const updateSlot = async (slotId: string) => {
@@ -188,7 +247,7 @@ export default function SlotsPage() {
         const updatedSlot = await response.json()
         setSlots(prev => prev.map(slot => slot.id === slotId ? updatedSlot : slot))
         setEditingSlot(null)
-        setEditFormData({ startTime: '', endTime: '', room: '', equipment: '' })
+        setEditFormData({ startTime: '', endTime: '', equipment: '', roomId: '', serviceTypeId: '' })
         addNotification('success', 'Slot byl úspěšně upraven.')
       } else {
         let errorMessage = 'Chyba při úpravě slotu'
@@ -256,6 +315,120 @@ export default function SlotsPage() {
     tomorrow.setDate(tomorrow.getDate() + 1)
     tomorrow.setHours(9, 0, 0, 0)
     return tomorrow.toISOString().slice(0, 16)
+  }
+
+  // Utility funkce pro správné přidání minut k datetime-local
+  const addMinutesToDateTimeLocal = (dateTimeLocal: string, addMinutes: number): string => {
+    // Parsujeme datetime-local string manuálně
+    const [datePart, timePart] = dateTimeLocal.split('T')
+    const [year, month, day] = datePart.split('-').map(Number)
+    const [hour, minute] = timePart.split(':').map(Number)
+    
+    // Vytvoříme Date v lokálním čase (month-1 protože Date používá 0-based měsíce)
+    const date = new Date(year, month - 1, day, hour, minute)
+    
+    // Přidáme minuty
+    date.setMinutes(date.getMinutes() + addMinutes)
+    
+    // Formatujeme výsledek manuálně (bez toISOString aby se vyhnuli UTC)
+    const resultYear = date.getFullYear()
+    const resultMonth = String(date.getMonth() + 1).padStart(2, '0')
+    const resultDay = String(date.getDate()).padStart(2, '0')
+    const resultHour = String(date.getHours()).padStart(2, '0')
+    const resultMinute = String(date.getMinutes()).padStart(2, '0')
+    
+    return `${resultYear}-${resultMonth}-${resultDay}T${resultHour}:${resultMinute}`
+  }
+
+  const handleServiceTypeChange = (serviceTypeId: string) => {
+    if (serviceTypeId) {
+      // Vybrána služba - automaticky nastav čas konce
+      const selectedService = serviceTypes.find(s => s.id === serviceTypeId)
+      if (selectedService && formData.startTime) {
+        const endTime = addMinutesToDateTimeLocal(formData.startTime, selectedService.duration)
+        setFormData(prev => ({ 
+          ...prev, 
+          serviceTypeId,
+          endTime
+        }))
+      } else {
+        setFormData(prev => ({ ...prev, serviceTypeId }))
+      }
+    } else {
+      // Zrušen výběr služby - vymaž čas konce, aby ho uživatel mohl zadat manuálně
+      setFormData(prev => ({ 
+        ...prev, 
+        serviceTypeId: '',
+        endTime: ''
+      }))
+    }
+  }
+
+  const handleStartTimeChange = (startTime: string) => {
+    if (formData.serviceTypeId && startTime) {
+      // Pokud je vybrána služba, automaticky nastav čas konce
+      const selectedService = serviceTypes.find(s => s.id === formData.serviceTypeId)
+      if (selectedService) {
+        const endTime = addMinutesToDateTimeLocal(startTime, selectedService.duration)
+        setFormData(prev => ({ 
+          ...prev, 
+          startTime,
+          endTime
+        }))
+        return
+      }
+    }
+    
+    // Pokud není vybrána služba, jen nastav čas začátku
+    setFormData(prev => ({ ...prev, startTime }))
+  }
+
+  const applyFilters = () => {
+    let filtered = [...slots]
+
+    // Filtr podle druhu služby
+    if (filters.serviceTypeId) {
+      filtered = filtered.filter(slot => slot.serviceTypeId === filters.serviceTypeId)
+    }
+
+    // Filtr podle ordinace
+    if (filters.roomId) {
+      filtered = filtered.filter(slot => slot.roomId === filters.roomId)
+    }
+
+    // Filtr podle data
+    if (filters.date) {
+      const filterDate = new Date(filters.date)
+      filtered = filtered.filter(slot => {
+        const slotDate = new Date(slot.startTime)
+        return slotDate.toDateString() === filterDate.toDateString()
+      })
+    }
+
+    // Filtr podle stavu
+    if (filters.status) {
+      if (filters.status === 'available') {
+        filtered = filtered.filter(slot => slot.isAvailable && slot.reservations.length === 0)
+      } else if (filters.status === 'reserved') {
+        filtered = filtered.filter(slot => slot.reservations.length > 0)
+      }
+    }
+
+    setFilteredSlots(filtered)
+  }
+
+  // Aplikuj filtry při změně slotů nebo filtrů
+  useEffect(() => {
+    applyFilters()
+  }, [slots, filters])
+
+  const clearFilters = () => {
+    setFilters({
+      serviceTypeId: '',
+      roomId: '',
+      date: '',
+      status: '',
+    })
   }
 
   if (status === 'loading' || loading) {
@@ -349,7 +522,7 @@ export default function SlotsPage() {
                 <input
                   type="datetime-local"
                   value={formData.startTime}
-                  onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
+                  onChange={(e) => handleStartTimeChange(e.target.value)}
                   min={getTomorrowDateTime()}
                   required
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -357,7 +530,9 @@ export default function SlotsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Konec *
+                  Konec * {formData.serviceTypeId && (
+                    <span className="text-xs text-green-600">(automaticky podle služby)</span>
+                  )}
                 </label>
                 <input
                   type="datetime-local"
@@ -365,76 +540,228 @@ export default function SlotsPage() {
                   onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
                   min={formData.startTime || getTomorrowDateTime()}
                   required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={!!formData.serviceTypeId}
+                  className={`w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    formData.serviceTypeId ? 'bg-gray-100 cursor-not-allowed' : ''
+                  }`}
                 />
+                {formData.serviceTypeId && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Konec se automaticky vypočítá podle doby trvání vybrané služby
+                  </p>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Místnost
+                  Ordinace
                 </label>
-                <input
-                  type="text"
-                  value={formData.room}
-                  onChange={(e) => setFormData(prev => ({ ...prev, room: e.target.value }))}
-                  placeholder="např. Ordinace 1"
+                <select
+                  value={formData.roomId}
+                  onChange={(e) => setFormData(prev => ({ ...prev, roomId: e.target.value }))}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                >
+                  <option value="">Vyberte ordinaci...</option>
+                  {rooms.map(room => (
+                    <option key={room.id} value={room.id}>
+                      {room.name} {room.description && `(${room.description})`}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Vybavení
+                  Druh služby
                 </label>
-                <input
-                  type="text"
-                  value={formData.equipment}
-                  onChange={(e) => setFormData(prev => ({ ...prev, equipment: e.target.value }))}
-                  placeholder="např. Základní vyšetření"
+                <select
+                  value={formData.serviceTypeId}
+                  onChange={(e) => handleServiceTypeChange(e.target.value)}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                >
+                  <option value="">Vyberte druh služby...</option>
+                  {serviceTypes.map(service => (
+                    <option key={service.id} value={service.id}>
+                      {service.name} • {service.duration} min
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowCreateForm(false)
-                  setFormData({ startTime: '', endTime: '', room: '', equipment: '' })
-                }}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                Zrušit
-              </button>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Poznámky
+              </label>
+              <input
+                type="text"
+                placeholder="Poznámky o vybavení"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                value={formData.equipment}
+                onChange={(e) => setFormData(prev => ({ ...prev, equipment: e.target.value }))}
+              />
+            </div>
+
+            <div className="flex gap-4 pt-4">
               <button
                 type="submit"
                 disabled={isCreating}
-                className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2"
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md disabled:opacity-50"
               >
-                {isCreating && (
-                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                )}
-                <span>{isCreating ? 'Vytváří se...' : 'Vytvořit slot'}</span>
+                {isCreating ? 'Vytváření...' : 'Vytvořit slot'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData({ startTime: '', endTime: '', equipment: '', roomId: '', serviceTypeId: '' })}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                Zrušit
               </button>
             </div>
           </form>
         </div>
       )}
 
+      {/* Filtry */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-lg font-semibold mb-4">Filtry</h2>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Druh služby
+            </label>
+            <select
+              value={filters.serviceTypeId}
+              onChange={(e) => setFilters(prev => ({ ...prev, serviceTypeId: e.target.value }))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Všechny služby</option>
+              {serviceTypes.map(service => (
+                <option key={service.id} value={service.id}>
+                  {service.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Ordinace
+            </label>
+            <select
+              value={filters.roomId}
+              onChange={(e) => setFilters(prev => ({ ...prev, roomId: e.target.value }))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Všechny ordinace</option>
+              {rooms.map(room => (
+                <option key={room.id} value={room.id}>
+                  {room.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Datum
+            </label>
+            <input
+              type="date"
+              value={filters.date}
+              onChange={(e) => setFilters(prev => ({ ...prev, date: e.target.value }))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Stav
+            </label>
+            <select
+              value={filters.status}
+              onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Všechny stavy</option>
+              <option value="available">Volné</option>
+              <option value="reserved">Rezervované</option>
+            </select>
+          </div>
+          
+          <div className="flex items-end">
+            <button
+              onClick={clearFilters}
+              className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              Vymazat filtry
+            </button>
+          </div>
+        </div>
+        
+        {/* Rychlé filtry */}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="text-sm font-medium text-gray-700">Rychlé filtry:</span>
+          <button
+            onClick={() => setFilters(prev => ({ ...prev, date: new Date().toISOString().split('T')[0] }))}
+            className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors"
+          >
+            Dnes
+          </button>
+          <button
+            onClick={() => {
+              const tomorrow = new Date()
+              tomorrow.setDate(tomorrow.getDate() + 1)
+              setFilters(prev => ({ ...prev, date: tomorrow.toISOString().split('T')[0] }))
+            }}
+            className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors"
+          >
+            Zítra
+          </button>
+          <button
+            onClick={() => {
+              const nextWeek = new Date()
+              nextWeek.setDate(nextWeek.getDate() + 7)
+              setFilters(prev => ({ ...prev, date: nextWeek.toISOString().split('T')[0] }))
+            }}
+            className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors"
+          >
+            Za týden
+          </button>
+          <button
+            onClick={() => setFilters(prev => ({ ...prev, status: 'available' }))}
+            className="px-3 py-1 text-xs bg-emerald-100 text-emerald-700 rounded-full hover:bg-emerald-200 transition-colors"
+          >
+            Pouze volné
+          </button>
+          <button
+            onClick={() => setFilters(prev => ({ ...prev, status: 'reserved' }))}
+            className="px-3 py-1 text-xs bg-orange-100 text-orange-700 rounded-full hover:bg-orange-200 transition-colors"
+          >
+            Pouze rezervované
+          </button>
+        </div>
+
+        {/* Počítadlo výsledků */}
+        <div className="mt-4 text-sm text-gray-600">
+          Zobrazeno: <span className="font-medium">{filteredSlots.length}</span> z <span className="font-medium">{slots.length}</span> slotů
+        </div>
+      </div>
+
       {/* Seznam slotů */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4">Vaše sloty</h2>
         
-        {slots.length === 0 ? (
+        {filteredSlots.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            Zatím nemáte žádné sloty. Vytvořte první slot pomocí tlačítka výše.
+            {slots.length === 0 
+              ? "Zatím nemáte žádné sloty. Vytvořte první slot pomocí tlačítka výše."
+              : "Žádné sloty nevyhovují zvoleným filtrům."
+            }
           </div>
         ) : (
           <div className="space-y-4">
-            {slots.map(slot => (
+            {filteredSlots.map(slot => (
               <div 
                 key={slot.id} 
                 className={`border rounded-lg p-4 ${slot.reservations.length > 0 ? 'border-green-200 bg-green-50' : 'border-gray-200'}`}
@@ -475,23 +802,47 @@ export default function SlotsPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Místnost
                         </label>
-                        <input
-                          type="text"
-                          value={editFormData.room}
-                          onChange={(e) => setEditFormData(prev => ({ ...prev, room: e.target.value }))}
-                          placeholder="např. Ordinace 1"
+                        <select
+                          value={editFormData.roomId}
+                          onChange={(e) => setEditFormData(prev => ({ ...prev, roomId: e.target.value }))}
                           className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                        >
+                          <option value="">Vyberte místnost (volitelné)</option>
+                          {rooms.map(room => (
+                            <option key={room.id} value={room.id}>
+                              {room.name} {room.description && `(${room.description})`}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Vybavení
+                          Druh služby
+                        </label>
+                        <select
+                          value={editFormData.serviceTypeId}
+                          onChange={(e) => setEditFormData(prev => ({ ...prev, serviceTypeId: e.target.value }))}
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Vyberte druh služby (volitelné)</option>
+                          {serviceTypes.map(serviceType => (
+                            <option key={serviceType.id} value={serviceType.id}>
+                              {serviceType.name} ({serviceType.duration} min)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Poznámky
                         </label>
                         <input
                           type="text"
                           value={editFormData.equipment}
                           onChange={(e) => setEditFormData(prev => ({ ...prev, equipment: e.target.value }))}
-                          placeholder="např. Základní vyšetření"
+                          placeholder="Volitelné poznámky o slotu"
                           className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
@@ -522,12 +873,31 @@ export default function SlotsPage() {
                           {formatDateTime(slot.startTime)} - {formatDateTime(slot.endTime)}
                         </h3>
                         <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
-                          {slot.room && (
-                            <span>📍 {slot.room}</span>
-                          )}
-                          {slot.equipment && (
-                            <span>🔧 {slot.equipment}</span>
-                          )}
+                          <div className="space-y-2">
+                            {slot.room && (
+                              <div className="flex items-center text-sm text-gray-600">
+                                <span>📍</span>
+                                <span>{slot.room.name}</span>
+                                {slot.room.description && (
+                                  <span className="text-xs text-gray-500">({slot.room.description})</span>
+                                )}
+                              </div>
+                            )}
+                            
+                            {slot.serviceType && (
+                              <div className="flex items-center text-sm text-gray-600">
+                                <span>🔧</span>
+                                <span>{slot.serviceType.name}</span>
+                              </div>
+                            )}
+
+                            {slot.equipment && (
+                              <div className="flex items-center text-sm text-gray-600">
+                                <span>📋</span>
+                                <span>{slot.equipment}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">

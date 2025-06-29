@@ -1,12 +1,9 @@
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { AuthOptions } from 'next-auth';
-import { PrismaClient } from '@prisma/client';
 import { getTenantSlugFromHeaders } from './lib/tenant';
+import { prisma } from './lib/prisma';
 import bcrypt from 'bcryptjs';
-
-// Inicializace Prisma klienta
-const prisma = new PrismaClient();
 
 // Debug výpis pro kontrolu proměnných prostředí
 if (process.env.NODE_ENV === 'development') {

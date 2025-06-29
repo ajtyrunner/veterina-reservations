@@ -20,8 +20,9 @@ export async function GET(request: NextRequest, { params }: { params: { tenantId
     
     const { searchParams } = new URL(request.url)
     const doctorId = searchParams.get('doctorId')
+    const serviceTypeId = searchParams.get('serviceTypeId')
     const date = searchParams.get('date')
-    console.log('[Next.js API] Query params - doctorId:', doctorId, 'date:', date)
+    console.log('[Next.js API] Query params - doctorId:', doctorId, 'serviceTypeId:', serviceTypeId, 'date:', date)
 
     // Vytvoř JWT token pro API
     const token = jwt.sign(
@@ -41,6 +42,7 @@ export async function GET(request: NextRequest, { params }: { params: { tenantId
     const apiUrl = `http://localhost:4000/api/public/slots/${tenantId}`
     const queryParams = new URLSearchParams()
     if (doctorId) queryParams.append('doctorId', doctorId)
+    if (serviceTypeId) queryParams.append('serviceTypeId', serviceTypeId)
     if (date) queryParams.append('date', date)
     
     const fullUrl = queryParams.toString() ? `${apiUrl}?${queryParams}` : apiUrl

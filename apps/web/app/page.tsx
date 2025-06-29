@@ -10,13 +10,26 @@ interface Slot {
   id: string
   startTime: string
   endTime: string
-  room?: string
   equipment?: string
+  roomId?: string
+  serviceTypeId?: string
   doctor: {
     specialization?: string
     user: {
       name: string
     }
+  }
+  room?: {
+    id: string
+    name: string
+    description?: string
+  }
+  serviceType?: {
+    id: string
+    name: string
+    description?: string
+    duration: number
+    color?: string
   }
 }
 
@@ -29,6 +42,14 @@ interface Doctor {
   }
 }
 
+interface ServiceType {
+  id: string
+  name: string
+  description?: string
+  duration: number
+  color?: string
+}
+
 type NotificationType = 'success' | 'error' | 'info'
 
 interface Notification {
@@ -37,11 +58,186 @@ interface Notification {
   message: string
 }
 
+// Hero Component for non-authenticated users
+function HeroSection() {
+  return (
+    <div className="relative bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+      <div className="absolute inset-0 bg-black opacity-20"></div>
+      <div className="relative container mx-auto px-4 py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Text Content */}
+          <div className="space-y-6">
+            <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+              Rezervujte si termín 
+              <span className="block text-orange-200">online</span>
+            </h1>
+            <p className="text-xl lg:text-2xl text-orange-100 leading-relaxed">
+              Jednoduché a rychlé rezervace veterinárních služeb přímo z pohodlí domova
+            </p>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-orange-200 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
+                </div>
+                <span className="text-lg">Online rezervace 24/7</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-orange-200 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
+                </div>
+                <span className="text-lg">Kvalifikovaní veterináři</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-orange-200 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
+                </div>
+                <span className="text-lg">Moderní vybavení</span>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 pt-6">
+              <Link
+                href="/login"
+                className="bg-white text-orange-500 hover:bg-orange-50 px-8 py-4 rounded-lg text-lg font-semibold transition-colors shadow-lg text-center"
+              >
+                🐾 Rezervovat termín
+              </Link>
+              <Link
+                href="/jak-to-funguje"
+                className="border-2 border-white text-white hover:bg-white hover:text-orange-500 px-8 py-4 rounded-lg text-lg font-semibold transition-colors text-center"
+              >
+                Jak to funguje?
+              </Link>
+            </div>
+          </div>
+          
+          {/* Image/Illustration */}
+          <div className="hidden lg:block">
+            <div className="bg-white bg-opacity-20 rounded-2xl p-8 backdrop-blur-sm">
+              <div className="text-center space-y-6">
+                <div className="text-8xl">🏥</div>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="bg-white bg-opacity-20 rounded-lg p-4">
+                    <div className="text-2xl mb-2">📅</div>
+                    <div>Online rezervace</div>
+                  </div>
+                  <div className="bg-white bg-opacity-20 rounded-lg p-4">
+                    <div className="text-2xl mb-2">⏰</div>
+                    <div>Flexibilní časy</div>
+                  </div>
+                  <div className="bg-white bg-opacity-20 rounded-lg p-4">
+                    <div className="text-2xl mb-2">👨‍⚕️</div>
+                    <div>Zkušení veterináři</div>
+                  </div>
+                  <div className="bg-white bg-opacity-20 rounded-lg p-4">
+                    <div className="text-2xl mb-2">❤️</div>
+                    <div>Péče o zvířata</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Services Section for non-authenticated users
+function ServicesSection() {
+  const services = [
+    {
+      icon: '🔍',
+      name: 'Základní vyšetření',
+      description: 'Rutinní kontrola zdravotního stavu'
+    },
+    {
+      icon: '💉',
+      name: 'Očkování',
+      description: 'Preventivní očkování podle věku'
+    },
+    {
+      icon: '🏥',
+      name: 'Chirurgický zákrok',
+      description: 'Operativní výkony'
+    },
+    {
+      icon: '📸',
+      name: 'RTG vyšetření',
+      description: 'Rentgenové snímkování'
+    },
+    {
+      icon: '🔊',
+      name: 'Ultrazvuk',
+      description: 'Ultrazvukové vyšetření'
+    },
+    {
+      icon: '🦷',
+      name: 'Dentální péče',
+      description: 'Ošetření zubů a dásní'
+    }
+  ]
+
+  return (
+    <div className="py-16 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            Naše služby
+          </h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Poskytujeme komplexní veterinární péči pro vaše domácí mazlíčky
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {services.map((service, index) => (
+            <div key={index} className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div className="text-4xl mb-4">{service.icon}</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{service.name}</h3>
+              <p className="text-gray-600">{service.description}</p>
+            </div>
+          ))}
+        </div>
+        
+        <div className="text-center mt-12">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto">
+            <div className="flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-blue-900 mb-2">
+              Připraveni na rezervaci?
+            </h3>
+            <p className="text-blue-700 mb-4">
+              Pro rezervaci termínu se přihlaste pomocí Google účtu
+            </p>
+            <Link
+              href="/login"
+              className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              Přihlásit se a rezervovat
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const { data: session } = useSession()
   const [slots, setSlots] = useState<Slot[]>([])
   const [doctors, setDoctors] = useState<Doctor[]>([])
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([])
   const [selectedDoctor, setSelectedDoctor] = useState<string>('')
+  const [selectedServiceType, setSelectedServiceType] = useState<string>('')
   const [selectedDate, setSelectedDate] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -57,12 +253,13 @@ export default function Home() {
 
   useEffect(() => {
     loadDoctors()
+    loadServiceTypes()
     loadSlots()
   }, [session])
 
   useEffect(() => {
     loadSlots()
-  }, [selectedDoctor, selectedDate])
+  }, [selectedDoctor, selectedServiceType, selectedDate])
 
   const addNotification = (type: NotificationType, message: string) => {
     const id = Math.random().toString(36).substring(7)
@@ -155,6 +352,23 @@ export default function Home() {
     }
   }
 
+  const loadServiceTypes = async () => {
+    if (!session?.user?.tenantId) return
+
+    try {
+      const response = await fetch(`/api/public/service-types/${session.user.tenantId}`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        setServiceTypes(data)
+      } else {
+        console.error('Chyba při načítání druhů služeb:', await response.text())
+      }
+    } catch (error) {
+      console.error('Chyba při načítání druhů služeb:', error)
+    }
+  }
+
   const loadSlots = async () => {
     if (!session?.user?.tenantId) return
 
@@ -162,6 +376,7 @@ export default function Home() {
     try {
       const params = new URLSearchParams()
       if (selectedDoctor) params.append('doctorId', selectedDoctor)
+      if (selectedServiceType) params.append('serviceTypeId', selectedServiceType)
       if (selectedDate) params.append('date', selectedDate)
 
       const response = await fetch(`/api/public/slots/${session.user.tenantId}?${params}`)
@@ -200,7 +415,15 @@ export default function Home() {
     return tomorrow.toISOString().split('T')[0]
   }
 
-  // Odstraněna sekce Hero a další nerelevantní části
+  // Show different content based on authentication status
+  if (!session) {
+    return (
+      <div>
+        <HeroSection />
+        <ServicesSection />
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -263,6 +486,16 @@ export default function Home() {
                 <p className="text-sm text-blue-800">
                   <strong>Veterinář:</strong> {selectedSlotForReservation.doctor.user.name}
                 </p>
+                {selectedSlotForReservation.serviceType && (
+                  <p className="text-sm text-blue-800">
+                    <strong>Služba:</strong> {selectedSlotForReservation.serviceType.name} ({selectedSlotForReservation.serviceType.duration} min)
+                  </p>
+                )}
+                {selectedSlotForReservation.room && (
+                  <p className="text-sm text-blue-800">
+                    <strong>Místnost:</strong> {selectedSlotForReservation.room.name}
+                  </p>
+                )}
               </div>
 
               <form onSubmit={createReservation} className="space-y-4">
@@ -365,7 +598,22 @@ export default function Home() {
         </div>
 
         {/* Filtry */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-700">Druh služby</label>
+            <select
+              value={selectedServiceType}
+              onChange={(e) => setSelectedServiceType(e.target.value)}
+              className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            >
+              <option value="">Všechny služby</option>
+              {serviceTypes.map((serviceType) => (
+                <option key={serviceType.id} value={serviceType.id}>
+                  {serviceType.name} ({serviceType.duration} min)
+                </option>
+              ))}
+            </select>
+          </div>
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">Veterinář</label>
             <select
@@ -394,11 +642,52 @@ export default function Home() {
           )}
         </div>
 
+        {/* Rychlé filtry pro druhy služeb */}
+        {serviceTypes.length > 0 && (
+          <div className="mb-8">
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Rychlý výběr služby:</h3>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSelectedServiceType('')}
+                className={`px-3 py-2 text-sm rounded-full transition-colors ${
+                  selectedServiceType === '' 
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Všechny služby
+              </button>
+              {serviceTypes.map((serviceType) => (
+                <button
+                  key={serviceType.id}
+                  onClick={() => setSelectedServiceType(serviceType.id)}
+                  className={`px-3 py-2 text-sm rounded-full transition-colors ${
+                    selectedServiceType === serviceType.id
+                      ? 'text-white' 
+                      : 'text-gray-700 hover:opacity-80'
+                  }`}
+                  style={{
+                    backgroundColor: selectedServiceType === serviceType.id 
+                      ? serviceType.color || '#3B82F6'
+                      : '#f3f4f6',
+                    color: selectedServiceType === serviceType.id 
+                      ? 'white'
+                      : '#374151'
+                  }}
+                >
+                  {serviceType.name} ({serviceType.duration} min)
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Zobrazení podle vybraného módu */}
         {viewMode === 'calendar' ? (
           <CalendarView
             slots={slots}
             selectedDoctor={selectedDoctor}
+            selectedServiceType={selectedServiceType}
             onReserveSlot={openReservationForm}
             loading={loading}
           />
@@ -429,11 +718,29 @@ export default function Home() {
                       )}
                     </div>
 
+                    {/* Zobrazení nových polí s fallbackem na stará */}
                     {slot.room && (
-                      <p className="text-xs text-gray-600 mb-1">📍 {slot.room}</p>
+                      <p className="text-xs text-gray-600 mb-1">
+                        🏥 {slot.room.name}
+                        {slot.room.description && ` (${slot.room.description})`}
+                      </p>
                     )}
-                    {slot.equipment && (
-                      <p className="text-xs text-gray-600 mb-3">🔧 {slot.equipment}</p>
+                    {slot.serviceType && (
+                      <div className="mb-2">
+                        <span 
+                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white"
+                          style={{ backgroundColor: slot.serviceType.color || '#3B82F6' }}
+                        >
+                          ⚕️ {slot.serviceType.name} • {slot.serviceType.duration} min
+                        </span>
+                        {slot.serviceType.description && (
+                          <p className="text-xs text-gray-500 mt-1">{slot.serviceType.description}</p>
+                        )}
+                      </div>
+                    )}
+                    {/* Fallback pro stará pole */}
+                    {!slot.serviceType && slot.equipment && (
+                      <p className="text-xs text-gray-600 mb-1">🔧 {slot.equipment}</p>
                     )}
 
                     <button

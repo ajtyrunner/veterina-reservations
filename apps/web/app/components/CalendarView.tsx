@@ -6,19 +6,33 @@ interface Slot {
   id: string
   startTime: string
   endTime: string
-  room?: string
   equipment?: string
+  roomId?: string
+  serviceTypeId?: string
   doctor: {
     specialization?: string
     user: {
       name: string
     }
   }
+  room?: {
+    id: string
+    name: string
+    description?: string
+  }
+  serviceType?: {
+    id: string
+    name: string
+    description?: string
+    duration: number
+    color?: string
+  }
 }
 
 interface CalendarViewProps {
   slots: Slot[]
   selectedDoctor: string
+  selectedServiceType?: string
   onReserveSlot: (slot: Slot) => void
   loading: boolean
 }
@@ -29,7 +43,7 @@ interface CalendarDay {
   slots: Slot[]
 }
 
-export default function CalendarView({ slots, selectedDoctor, onReserveSlot, loading }: CalendarViewProps) {
+export default function CalendarView({ slots, selectedDoctor, selectedServiceType, onReserveSlot, loading }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([])
@@ -196,9 +210,25 @@ export default function CalendarView({ slots, selectedDoctor, onReserveSlot, loa
                         {slot.doctor.user.name}
                         {slot.doctor.specialization && ` • ${slot.doctor.specialization}`}
                       </div>
+                      {slot.serviceType && (
+                        <div className="text-xs mb-1">
+                          <span 
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white"
+                            style={{ backgroundColor: slot.serviceType.color || '#3B82F6' }}
+                          >
+                            ⚕️ {slot.serviceType.name} • {slot.serviceType.duration} min
+                          </span>
+                        </div>
+                      )}
                       {slot.room && (
                         <div className="text-xs text-gray-500">
-                          📍 {slot.room}
+                          🏥 {slot.room.name}
+                          {slot.room.description && ` (${slot.room.description})`}
+                        </div>
+                      )}
+                      {slot.equipment && (
+                        <div className="text-xs text-gray-500">
+                          🔧 {slot.equipment}
                         </div>
                       )}
                     </div>

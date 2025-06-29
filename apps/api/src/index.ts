@@ -52,10 +52,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() })
 })
 
-// Chráněné routes
-app.use('/api', authMiddleware, protectedRoutes)
-
-// Veřejné API pro získání informací o tenantovi (chráněné autentizací)
+// Veřejné API pro získání informací o tenantovi
 app.get('/api/public/tenant/:slug', async (req, res) => {
   try {
     const { slug } = req.params
@@ -86,7 +83,7 @@ app.get('/api/public/tenant/:slug', async (req, res) => {
 app.get('/api/public/slots/:tenantId', async (req, res) => {
   try {
     const { tenantId } = req.params
-    const { doctorId, date } = req.query
+    const { doctorId, serviceTypeId, date } = req.query
 
     const where: any = {
       tenantId,
@@ -95,6 +92,10 @@ app.get('/api/public/slots/:tenantId', async (req, res) => {
 
     if (doctorId) {
       where.doctorId = doctorId
+    }
+
+    if (serviceTypeId) {
+      where.serviceTypeId = serviceTypeId
     }
 
     if (date) {
@@ -120,10 +121,28 @@ app.get('/api/public/slots/:tenantId', async (req, res) => {
             },
           },
         },
-        _count: {
+        room: {
           select: {
-            reservations: true,
+            id: true,
+            name: true,
+            description: true,
           },
+        },
+        serviceType: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            duration: true,
+            color: true,
+          },
+        },
+        reservations: {
+          where: {
+            status: {
+              in: ['PENDING', 'CONFIRMED']
+            }
+          }
         },
       },
       orderBy: {
@@ -131,8 +150,8 @@ app.get('/api/public/slots/:tenantId', async (req, res) => {
       },
     })
 
-    // Filtrovat pouze dostupné sloty (bez rezervací)
-    const availableSlots = slots.filter((slot: any) => slot._count.reservations === 0)
+    // Filtrovat pouze dostupné sloty (bez aktivních rezervací)
+    const availableSlots = slots.filter((slot: any) => slot.reservations.length === 0)
 
     res.json(availableSlots)
   } catch (error) {
@@ -165,7 +184,8 @@ app.get('/api/public/doctors/:tenantId', async (req, res) => {
   }
 })
 
-
+// Chráněné routes - vše ostatní pod /api vyžaduje autentizaci
+app.use('/api', authMiddleware, protectedRoutes)
 
 const PORT = process.env.PORT || 4000
 

@@ -1,0 +1,9 @@
+# Standardní ignorované soubory
+node_modules/
+dist/
+build/
+.git/
+
+# Explicitně povolit .env soubory
+!.env
+!.env.* 

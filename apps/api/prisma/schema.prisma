@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  logoUrl   String?
+  primaryColor String @default("#4F46E5")
+  secondaryColor String @default("#7C3AED")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  doctors     Doctor[]
+  slots       Slot[]
+  reservations Reservation[]
+
+  @@map("tenants")
+}
+
+enum UserRole {
+  CLIENT
+  DOCTOR
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  role      UserRole @default(CLIENT)
+  tenantId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  doctor       Doctor?
+  reservations Reservation[]
+
+  @@map("users")
+}
+
+model Doctor {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  specialization String?
+  description String?
+  tenantId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slots        Slot[]
+  reservations Reservation[]
+
+  @@map("doctors")
+}
+
+model Slot {
+  id          String    @id @default(cuid())
+  doctorId    String
+  startTime   DateTime
+  endTime     DateTime
+  isAvailable Boolean   @default(true)
+  room        String?
+  equipment   String?
+  tenantId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  doctor       Doctor        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  reservations Reservation[]
+
+  @@unique([doctorId, startTime, endTime])
+  @@map("slots")
+}
+
+model Reservation {
+  id          String   @id @default(cuid())
+  userId      String
+  doctorId    String
+  slotId      String   @unique
+  petName     String?
+  petType     String?
+  description String?
+  status      ReservationStatus @default(PENDING)
+  tenantId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  slot   Slot   @relation(fields: [slotId], references: [id], onDelete: Cascade)
+
+  @@map("reservations")
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}

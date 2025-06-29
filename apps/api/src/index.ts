@@ -1,0 +1,176 @@
+import * as dotenv from 'dotenv'
+import path from 'path'
+import fs from 'fs'
+
+// Načtení .env souboru z kořenového adresáři projektu
+const envPath = path.resolve(__dirname, '../../../.env')
+console.log('Current directory:', __dirname)
+console.log('Loading .env from:', envPath)
+console.log('File exists:', fs.existsSync(envPath))
+if (fs.existsSync(envPath)) {
+  console.log('File contents:', fs.readFileSync(envPath, 'utf8'))
+}
+
+const result = dotenv.config({ path: envPath })
+if (result.error) {
+  console.error('Error loading .env:', result.error)
+} else {
+  console.log('.env loaded successfully')
+}
+
+// Debug výpis pro kontrolu proměnných prostředí
+console.log('Environment variables:')
+console.log('DATABASE_URL:', process.env.DATABASE_URL)
+console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'is set' : 'is not set')
+console.log('PORT:', process.env.PORT)
+
+// Až po načtení .env importujeme ostatní moduly
+import express from 'express'
+import cors from 'cors'
+import { PrismaClient } from '@prisma/client'
+import jwt from 'jsonwebtoken'
+import { authMiddleware } from './middleware/auth'
+import protectedRoutes from './routes/protected'
+
+const app = express()
+
+// Inicializace Prisma klienta až po načtení proměnných prostředí
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL
+    }
+  }
+})
+
+// Middleware
+app.use(cors())
+app.use(express.json())
+
+// Healthcheck endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() })
+})
+
+// Chráněné routes
+app.use('/api', authMiddleware, protectedRoutes)
+
+// Veřejné API pro získání informací o tenantovi (chráněné autentizací)
+app.get('/api/public/tenant/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params
+    const tenant = await prisma.tenant.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        logoUrl: true,
+        primaryColor: true,
+        secondaryColor: true,
+      },
+    })
+
+    if (!tenant) {
+      return res.status(404).json({ error: 'Tenant nenalezen' })
+    }
+
+    res.json(tenant)
+  } catch (error) {
+    console.error('Chyba při načítání tenanta:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Veřejné API pro získání dostupných slotů
+app.get('/api/public/slots/:tenantId', async (req, res) => {
+  try {
+    const { tenantId } = req.params
+    const { doctorId, date } = req.query
+
+    const where: any = {
+      tenantId,
+      isAvailable: true,
+    }
+
+    if (doctorId) {
+      where.doctorId = doctorId
+    }
+
+    if (date) {
+      const startDate = new Date(date as string)
+      const endDate = new Date(startDate)
+      endDate.setDate(startDate.getDate() + 1)
+      
+      where.startTime = {
+        gte: startDate,
+        lt: endDate,
+      }
+    }
+
+    const slots = await prisma.slot.findMany({
+      where,
+      include: {
+        doctor: {
+          include: {
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            reservations: true,
+          },
+        },
+      },
+      orderBy: {
+        startTime: 'asc',
+      },
+    })
+
+    // Filtrovat pouze dostupné sloty (bez rezervací)
+    const availableSlots = slots.filter((slot: any) => slot._count.reservations === 0)
+
+    res.json(availableSlots)
+  } catch (error) {
+    console.error('Chyba při načítání slotů:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Veřejné API pro získání doktorů
+app.get('/api/public/doctors/:tenantId', async (req, res) => {
+  try {
+    const { tenantId } = req.params
+
+    const doctors = await prisma.doctor.findMany({
+      where: { tenantId },
+      include: {
+        user: {
+          select: {
+            name: true,
+            image: true,
+          },
+        },
+      },
+    })
+
+    res.json(doctors)
+  } catch (error) {
+    console.error('Chyba při načítání doktorů:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+
+
+const PORT = process.env.PORT || 4000
+
+app.listen(PORT, () => {
+  console.log(`🚀 API server běží na portu ${PORT}`)
+})
+
+export default app

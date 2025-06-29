@@ -1,6 +1,12 @@
 import * as dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs'
+import express from 'express'
+import cors from 'cors'
+import { PrismaClient } from '@prisma/client'
+import jwt from 'jsonwebtoken'
+import { authMiddleware } from './middleware/auth'
+import protectedRouter from './routes/protected'
 
 // Načtení .env souboru z kořenového adresáři projektu
 const envPath = path.resolve(__dirname, '../../../.env')
@@ -25,13 +31,6 @@ console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'is set' : 'is not
 console.log('PORT:', process.env.PORT)
 
 // Až po načtení .env importujeme ostatní moduly
-import express from 'express'
-import cors from 'cors'
-import { PrismaClient } from '@prisma/client'
-import jwt from 'jsonwebtoken'
-import { authMiddleware } from './middleware/auth'
-import protectedRoutes from './routes/protected'
-
 const app = express()
 
 // Inicializace Prisma klienta až po načtení proměnných prostředí
@@ -49,7 +48,11 @@ app.use(express.json())
 
 // Healthcheck endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() })
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    service: 'veterina-api'
+  })
 })
 
 // Veřejné API pro získání informací o tenantovi
@@ -185,12 +188,25 @@ app.get('/api/public/doctors/:tenantId', async (req, res) => {
 })
 
 // Chráněné routes - vše ostatní pod /api vyžaduje autentizaci
-app.use('/api', authMiddleware, protectedRoutes)
+app.use('/api', authMiddleware, protectedRouter)
 
-const PORT = process.env.PORT || 4000
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({ error: 'Endpoint nenalezen' })
+})
+
+// Error handler
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Server error:', err)
+  res.status(500).json({ error: 'Interní chyba serveru' })
+})
+
+const PORT = process.env.PORT || 8000
 
 app.listen(PORT, () => {
   console.log(`🚀 API server běží na portu ${PORT}`)
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
+  console.log(`💚 Health check: http://localhost:${PORT}/health`)
 })
 
 export default app

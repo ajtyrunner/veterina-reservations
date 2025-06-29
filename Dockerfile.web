@@ -1,0 +1,46 @@
+# Dockerfile pro Next.js aplikaci
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Kopíruj package.json files
+COPY apps/web/package*.json ./apps/web/
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install dependencies včetně dev dependencies pro build
+RUN cd apps/web && npm ci
+
+# Kopíruj zdrojové kódy
+COPY apps/web ./apps/web/
+
+# Generuj Prisma klienta
+RUN npx prisma generate
+
+# Build aplikace
+RUN cd apps/web && npm run build
+
+# Production stage
+FROM node:18-alpine AS runner
+
+WORKDIR /app
+
+# Vytvoř non-root uživatele
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Kopíruj nutné soubory
+COPY --from=builder /app/apps/web/next.config.js ./
+COPY --from=builder /app/apps/web/package*.json ./
+COPY --from=builder /app/apps/web/.next/standalone ./
+COPY --from=builder /app/apps/web/.next/static ./.next/static
+COPY --from=builder /app/apps/web/public ./public
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+ENV NODE_ENV production
+
+CMD ["node", "server.js"] 

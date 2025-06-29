@@ -11,7 +11,8 @@
     "build:web": "cd apps/web && npm run build",
     "build:api": "cd apps/api && npm run build",
     "db:setup": "npx prisma generate && npx prisma db push && npx prisma db seed",
-    "install:all": "cd apps/web && npm install && cd ../api && npm install"
+    "install:all": "cd apps/web && npm install && cd ../api && npm install",
+    "postinstall": "npm run install:all && npx prisma generate"
   },
   "devDependencies": {
     "@types/node": "^24.0.7",

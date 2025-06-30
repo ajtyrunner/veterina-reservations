@@ -7,10 +7,17 @@ const prisma = new PrismaClient()
 
 // Endpoint pro NextAuth credentials ověření
 router.post('/credentials', async (req, res) => {
+  console.log('🔐 AUTH REQUEST:', {
+    email: req.body.email,
+    tenantSlug: req.body.tenantSlug,
+    hasPassword: !!req.body.password
+  })
+  
   try {
     const { email, password, tenantSlug } = req.body
 
     if (!email || !password) {
+      console.log('❌ Chybí email nebo heslo')
       return res.status(400).json({ error: 'Email a heslo jsou povinné' })
     }
 
@@ -32,14 +39,20 @@ router.post('/credentials', async (req, res) => {
     `
     
     const userRecord = user[0]
+    console.log('🔍 User found:', userRecord ? 'YES' : 'NO')
 
     if (!userRecord || !userRecord.password) {
+      console.log('❌ User not found or no password')
       return res.status(401).json({ error: 'Neplatné přihlašovací údaje' })
     }
 
     // Ověř heslo
+    console.log('🔑 Checking password...')
     const passwordMatch = await bcrypt.compare(password, userRecord.password)
+    console.log('🔑 Password match:', passwordMatch ? 'YES' : 'NO')
+    
     if (!passwordMatch) {
+      console.log('❌ Password mismatch')
       return res.status(401).json({ error: 'Neplatné přihlašovací údaje' })
     }
 
@@ -54,6 +67,7 @@ router.post('/credentials', async (req, res) => {
     }
 
     // Vrať údaje pro NextAuth
+    console.log('✅ Auth successful for:', userRecord.email)
     res.json({
       id: userRecord.id,
       email: userRecord.email,

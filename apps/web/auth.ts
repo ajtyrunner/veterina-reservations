@@ -8,8 +8,7 @@ import bcrypt from 'bcryptjs';
 // Debug výpis pro kontrolu proměnných prostředí
 if (process.env.NODE_ENV === 'development') {
   console.log('Next.js Environment variables:')
-  console.log('DATABASE_URL:', process.env.DATABASE_URL)
-  console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'is set' : 'is not set')
+console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'is set' : 'is not set')
 }
 
 export const authOptions: AuthOptions = {

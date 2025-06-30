@@ -186,4 +186,4 @@ Každý tenant může mít:
 
 ---
 
-**Tip:** Pro produkční nasazení  změň `lvh.me` domény na vlastní domény a nastav SSL certifikáty..
+**Tip:** Pro produkční nasazení změň `lvh.me` domény na vlastní domény a nastav SSL certifikáty..

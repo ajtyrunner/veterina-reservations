@@ -201,12 +201,18 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
   res.status(500).json({ error: 'Interní chyba serveru' })
 })
 
+// Keepalive pro Railway databázi
+import { startDatabaseKeepalive } from './utils/keepalive'
+
 const PORT = process.env.PORT || 8000
 
 app.listen(PORT, () => {
   console.log(`🚀 API server běží na portu ${PORT}`)
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
   console.log(`💚 Health check: http://localhost:${PORT}/health`)
+  
+  // Spustit keepalive po startu serveru
+  startDatabaseKeepalive(prisma)
 })
 
 export default app

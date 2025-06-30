@@ -29,7 +29,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     )
 
     // Volej Express API
-    const response = await fetch(`http://localhost:4000/api/reservations/${reservationId}`, {
+    const response = await fetch(`${process.env.API_URL}/api/reservations/${reservationId}`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -86,7 +86,7 @@ export async function DELETE(
     )
 
     // Volej Express API
-    const response = await fetch(`http://localhost:4000/api/reservations/${reservationId}`, {
+    const response = await fetch(`${process.env.API_URL}/api/reservations/${reservationId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,

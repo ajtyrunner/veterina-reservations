@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     )
 
     // Sestavit URL s parametry
-    let apiUrl = `http://localhost:4000/api/doctor/reservations`
+    let apiUrl = `${process.env.API_URL}/api/doctor/reservations`
     if (status) {
       apiUrl += `?status=${status}`
     }
@@ -92,7 +92,7 @@ export async function PATCH(request: NextRequest) {
     )
 
     // Volej Express API pro aktualizaci statusu
-    const response = await fetch(`http://localhost:4000/api/doctor/reservations/${reservationId}/status`, {
+    const response = await fetch(`${process.env.API_URL}/api/doctor/reservations/${reservationId}/status`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,

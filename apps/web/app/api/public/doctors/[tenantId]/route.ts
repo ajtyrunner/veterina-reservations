@@ -32,7 +32,7 @@ export async function GET(request: NextRequest, { params }: { params: { tenantId
     )
 
     // Volej Express API (použij localhost pro server-side kód)
-    const response = await fetch(`http://localhost:4000/api/public/doctors/${tenantId}`, {
+    const response = await fetch(`${process.env.API_URL}/api/public/doctors/${tenantId}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',

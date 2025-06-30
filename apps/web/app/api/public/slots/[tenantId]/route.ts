@@ -38,8 +38,8 @@ export async function GET(request: NextRequest, { params }: { params: { tenantId
     )
     console.log('[Next.js API] JWT token created')
 
-    // Sestavit URL s parametry (použij localhost pro server-side kód)
-    const apiUrl = `http://localhost:4000/api/public/slots/${tenantId}`
+    // Sestavit URL s parametry (použij API_URL pro server-side kód)
+    const apiUrl = `${process.env.API_URL}/api/public/slots/${tenantId}`
     const queryParams = new URLSearchParams()
     if (doctorId) queryParams.append('doctorId', doctorId)
     if (serviceTypeId) queryParams.append('serviceTypeId', serviceTypeId)

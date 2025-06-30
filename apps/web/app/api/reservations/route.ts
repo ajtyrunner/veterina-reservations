@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     )
 
     // Volej Express API (použij localhost pro server-side kód)
-    const response = await fetch(`http://localhost:4000/api/reservations`, {
+    const response = await fetch(`${process.env.API_URL}/api/reservations`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
     )
 
     // Volej Express API (použij localhost pro server-side kód)
-    const response = await fetch(`http://localhost:4000/api/reservations`, {
+    const response = await fetch(`${process.env.API_URL}/api/reservations`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',

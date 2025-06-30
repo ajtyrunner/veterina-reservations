@@ -1,22 +1,11 @@
 {
-  "buildCommand": "cd apps/web && npm run build",
-  "outputDirectory": "apps/web/.next",
-  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
   "installCommand": "npm install",
-  "build": {
-    "env": {
-      "SKIP_ENV_VALIDATION": "1"
-    }
-  },
+  "framework": "nextjs",
   "functions": {
-    "apps/web/app/api/auth/[...nextauth]/route.ts": {
-      "maxDuration": 30
+    "apps/web/app/api/**/*.ts": {
+      "runtime": "nodejs18.x"
     }
-  },
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://veterina-api.onrender.com/api/:path*"
-    }
-  ]
+  }
 } 

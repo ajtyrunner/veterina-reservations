@@ -28,7 +28,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     )
 
     // Volej Express API
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctor/slots/${slotId}`, {
+    const response = await fetch(`${process.env.API_URL}/api/doctor/slots/${slotId}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -81,7 +81,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     )
 
     // Volej Express API
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctor/slots/${slotId}`, {
+    const response = await fetch(`${process.env.API_URL}/api/doctor/slots/${slotId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,

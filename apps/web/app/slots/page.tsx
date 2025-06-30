@@ -125,20 +125,14 @@ export default function SlotsPage() {
 
   const loadSlots = async () => {
     try {
-      const response = await fetch('/api/slots', {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setSlots(data)
-      } else {
-        console.error('Chyba při načítání slotů:', response.statusText)
-      }
+      console.log('🔄 Načítám sloty přímo z Railway API...')
+      const { getSlots } = await import('../../lib/api-client')
+      const data = await getSlots()
+      console.log('✅ Sloty načteny z Railway:', data)
+      setSlots(data)
     } catch (error) {
-      console.error('Chyba při načítání slotů:', error)
+      console.error('Chyba při načítání slotů z Railway:', error)
+      addNotification('error', 'Chyba při načítání slotů')
     } finally {
       setLoading(false)
     }
@@ -180,33 +174,18 @@ export default function SlotsPage() {
     setIsCreating(true)
     
     try {
-      const response = await fetch('/api/slots', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (response.ok) {
-        const newSlot = await response.json()
-        setSlots(prev => [...prev, newSlot])
-        setFormData({ startTime: '', endTime: '', equipment: '', roomId: '', serviceTypeId: '' })
-        setShowCreateForm(false)
-        addNotification('success', 'Slot byl úspěšně vytvořen.')
-      } else {
-        let errorMessage = 'Chyba při vytváření slotu'
-        try {
-          const errorData = await response.json()
-          errorMessage = errorData.error || errorMessage
-        } catch (parseError) {
-          errorMessage = await response.text() || errorMessage
-        }
-        addNotification('error', errorMessage)
-      }
-    } catch (error) {
-      console.error('Chyba při vytváření slotu:', error)
-      addNotification('error', 'Chyba při vytváření slotu. Zkuste to prosím znovu.')
+      console.log('🔄 Vytvářím slot přímo přes Railway API...')
+      const { createSlot } = await import('../../lib/api-client')
+      const newSlot = await createSlot(formData)
+      console.log('✅ Slot vytvořen přes Railway:', newSlot)
+      
+      setSlots(prev => [...prev, newSlot])
+      setFormData({ startTime: '', endTime: '', equipment: '', roomId: '', serviceTypeId: '' })
+      setShowCreateForm(false)
+      addNotification('success', 'Slot byl úspěšně vytvořen přes Railway API!')
+    } catch (error: any) {
+      console.error('Chyba při vytváření slotu přes Railway:', error)
+      addNotification('error', error.message || 'Chyba při vytváření slotu')
     } finally {
       setIsCreating(false)
     }

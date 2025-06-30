@@ -252,6 +252,26 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<'grid' | 'calendar'>('calendar')
 
   useEffect(() => {
+    // Test přímého Railway spojení
+    console.log('🔧 Testování přímého Railway spojení...')
+    const testConnection = async () => {
+      try {
+        const railwayUrl = process.env.NEXT_PUBLIC_API_URL || 'https://veterina-reservations-production.up.railway.app'
+        console.log('🎯 Railway URL:', railwayUrl)
+        
+        const response = await fetch(`${railwayUrl}/health`)
+        if (response.ok) {
+          const data = await response.json()
+          console.log('✅ Railway API je DOSTUPNÉ přímo z frontendu!', data)
+        } else {
+          console.error('❌ Railway API nedostupné:', response.status, response.statusText)
+        }
+      } catch (error) {
+        console.error('❌ Chyba při přímém Railway spojení:', error)
+      }
+    }
+    testConnection()
+    
     loadDoctors()
     loadServiceTypes()
     loadSlots()

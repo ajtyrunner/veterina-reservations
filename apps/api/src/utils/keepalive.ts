@@ -1,27 +1,41 @@
 import { PrismaClient } from '@prisma/client'
 
-// Keepalive pro Railway databázi s retry logikou
+// Keepalive pro Railway databázi s agresivnějším probouzením
 export function startDatabaseKeepalive(prisma: PrismaClient) {
-  console.log('🔄 Spouštím database keepalive s probuzením...')
+  console.log('🔄 Spouštím agresivní database keepalive...')
   
-  // Nejdřív zkusíme probudit databázi
   let isConnected = false
+  let retryCount = 0
   
   const pingDatabase = async () => {
     try {
+      // Zkusíme se připojit a restartovat Prisma
+      await prisma.$connect()
       await prisma.$queryRaw`SELECT 1`
+      
       if (!isConnected) {
-        console.log('✅ Databáze probuzen! Keepalive běží')
+        console.log(`✅ Databáze probuzen po ${retryCount} pokusech! Keepalive běží`)
         isConnected = true
+        retryCount = 0
       } else {
         console.log('💚 DB ping - OK')
       }
-    } catch (error) {
+    } catch (error: any) {
+      retryCount++
+      
       if (isConnected) {
-        console.log('❌ DB ping - spadla, zkoušíme znovu...')
+        console.log('❌ DB ping - spadla, restartuji spojení...')
         isConnected = false
       } else {
-        console.log('🔄 Probouzím databázi...')
+        console.log(`🔄 Probouzím databázi... (pokus ${retryCount})`)
+      }
+      
+      // Pokus o odpojení a připojení
+      try {
+        await prisma.$disconnect()
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      } catch (e) {
+        // Ignoruj chyby při odpojování
       }
     }
   }
@@ -29,6 +43,6 @@ export function startDatabaseKeepalive(prisma: PrismaClient) {
   // Okamžitý první pokus
   pingDatabase()
   
-  // Pak každých 5 sekund
-  setInterval(pingDatabase, 5000)
+  // Pak každých 10 sekund (místo 5)
+  setInterval(pingDatabase, 10000)
 } 

@@ -2,8 +2,6 @@ import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { AuthOptions } from 'next-auth';
 import { getTenantSlugFromHeaders } from './lib/tenant';
-import { prisma } from './lib/prisma';
-import bcrypt from 'bcryptjs';
 
 // Debug výpis pro kontrolu proměnných prostředí
 if (process.env.NODE_ENV === 'development') {
@@ -33,39 +31,35 @@ export const authOptions: AuthOptions = {
         }
 
         try {
-          // Najdi uživatele v databázi
-          const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
-            include: { tenant: true, doctor: true },
+          // Volej Railway API pro autentizaci
+          const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://veterina-reservations-production.up.railway.app'
+          
+          const response = await fetch(`${apiUrl}/api/auth/credentials`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+              tenantSlug: credentials.tenantSlug
+            }),
           });
 
-          if (!user || !user.password) {
+          if (!response.ok) {
+            console.error('Credentials authentication failed:', response.status)
             return null;
           }
 
-          // Ověř heslo
-          const passwordMatch = await bcrypt.compare(credentials.password, user.password);
-          if (!passwordMatch) {
-            return null;
-          }
-
-          // Ověř, že se přihlašuje ke správnému tenantovi
-          if (credentials.tenantSlug && user.tenant.slug !== credentials.tenantSlug) {
-            return null;
-          }
-
-          // Pouze doktoři a admini můžou používat credentials
-          if (user.role !== 'DOCTOR' && user.role !== 'ADMIN') {
-            return null;
-          }
-
+          const user = await response.json();
+          
           return {
             id: user.id,
             email: user.email,
             name: user.name,
             image: user.image,
             role: user.role,
-            tenant: user.tenant.slug,
+            tenant: user.tenant,
             tenantId: user.tenantId,
           };
         } catch (error) {

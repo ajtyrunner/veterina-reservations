@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
 import { authMiddleware } from './middleware/auth'
 import protectedRouter from './routes/protected'
+import authRouter from './routes/auth'
 
 // Načtení .env souboru z kořenového adresáři projektu
 const envPath = path.resolve(__dirname, '../../../.env')
@@ -186,6 +187,9 @@ app.get('/api/public/doctors/:tenantId', async (req, res) => {
     res.status(500).json({ error: 'Interní chyba serveru' })
   }
 })
+
+// Auth routes - bez autentizace  
+app.use('/api/auth', authRouter)
 
 // Chráněné routes - vše ostatní pod /api vyžaduje autentizaci
 app.use('/api', authMiddleware, protectedRouter)

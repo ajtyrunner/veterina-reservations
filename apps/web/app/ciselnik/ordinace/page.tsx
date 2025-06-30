@@ -45,15 +45,12 @@ export default function OrdinacePage() {
 
   const loadRooms = async () => {
     try {
-      const response = await fetch('/api/rooms')
-      if (response.ok) {
-        const data = await response.json()
-        setRooms(data)
-      } else {
-        toast.error('Chyba při načítání ordinací')
-      }
+      const { getRooms } = await import('../../../lib/api-client')
+      const data = await getRooms()
+      console.log('✅ Ordinace načteny z Railway:', data)
+      setRooms(data)
     } catch (error) {
-      console.error('Chyba při načítání ordinací:', error)
+      console.error('Chyba při načítání ordinací z Railway:', error)
       toast.error('Chyba při načítání ordinací')
     } finally {
       setLoading(false)
@@ -64,28 +61,21 @@ export default function OrdinacePage() {
     e.preventDefault()
     
     try {
-      const url = editingRoom ? `/api/rooms/${editingRoom.id}` : '/api/rooms'
-      const method = editingRoom ? 'PUT' : 'POST'
+      const { createRoom, updateRoom } = await import('../../../lib/api-client')
       
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (response.ok) {
-        toast.success(editingRoom ? 'Ordinace aktualizována' : 'Ordinace vytvořena')
-        resetForm()
-        loadRooms()
+      if (editingRoom) {
+        await updateRoom(editingRoom.id, formData)
+        toast.success('Ordinace aktualizována')
       } else {
-        const error = await response.json()
-        toast.error(`Chyba: ${error.error || 'Neznámá chyba'}`)
+        await createRoom(formData)
+        toast.success('Ordinace vytvořena')
       }
+      
+      resetForm()
+      loadRooms()
     } catch (error) {
       console.error('Chyba při ukládání:', error)
-      toast.error('Chyba při ukládání')
+      toast.error(`Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     }
   }
 
@@ -137,20 +127,13 @@ export default function OrdinacePage() {
     if (!confirmed) return
 
     try {
-      const response = await fetch(`/api/rooms/${roomId}`, {
-        method: 'DELETE',
-      })
-
-      if (response.ok) {
-        toast.success('Ordinace smazána')
-        loadRooms()
-      } else {
-        const error = await response.json()
-        toast.error(`Chyba: ${error.error || 'Neznámá chyba'}`)
-      }
+      const { deleteRoom } = await import('../../../lib/api-client')
+      await deleteRoom(roomId)
+      toast.success('Ordinace smazána')
+      loadRooms()
     } catch (error) {
       console.error('Chyba při mazání:', error)
-      toast.error('Chyba při mazání')
+      toast.error(`Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     }
   }
 

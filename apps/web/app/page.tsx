@@ -322,34 +322,19 @@ export default function Home() {
     setReservingSlot(selectedSlotForReservation.id)
 
     try {
-      const response = await fetch('/api/reservations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          slotId: selectedSlotForReservation.id,
-          ...reservationForm,
-        }),
+      const { createReservation } = await import('../lib/api-client')
+      await createReservation({
+        slotId: selectedSlotForReservation.id,
+        ...reservationForm,
       })
-
-      if (response.ok) {
-        addNotification('success', 'Rezervace byla úspěšně vytvořena!')
-        closeReservationForm()
-        loadSlots() // Obnovit sloty
-      } else {
-        let errorMessage = 'Chyba při vytváření rezervace'
-        try {
-          const errorData = await response.json()
-          errorMessage = errorData.error || errorMessage
-        } catch (parseError) {
-          errorMessage = await response.text() || errorMessage
-        }
-        addNotification('error', errorMessage)
-      }
+      
+      console.log('✅ Rezervace vytvořena v Railway')
+      addNotification('success', 'Rezervace byla úspěšně vytvořena!')
+      closeReservationForm()
+      loadSlots() // Obnovit sloty
     } catch (error) {
-      console.error('Chyba při vytváření rezervace:', error)
-      addNotification('error', 'Chyba při vytváření rezervace. Zkuste to prosím znovu.')
+      console.error('Chyba při vytváření rezervace v Railway:', error)
+      addNotification('error', `Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     } finally {
       setReservingSlot(null)
     }
@@ -359,16 +344,12 @@ export default function Home() {
     if (!session?.user?.tenantId) return
 
     try {
-      const response = await fetch(`/api/public/doctors/${session.user.tenantId}`)
-      
-      if (response.ok) {
-        const data = await response.json()
-        setDoctors(data)
-      } else {
-        console.error('Chyba při načítání doktorů:', await response.text())
-      }
+      const { getPublicDoctors } = await import('../lib/api-client')
+      const data = await getPublicDoctors(session.user.tenantId)
+      console.log('✅ Doktoři načteni z Railway:', data)
+      setDoctors(data)
     } catch (error) {
-      console.error('Chyba při načítání doktorů:', error)
+      console.error('Chyba při načítání doktorů z Railway:', error)
     }
   }
 
@@ -376,16 +357,12 @@ export default function Home() {
     if (!session?.user?.tenantId) return
 
     try {
-      const response = await fetch(`/api/public/service-types/${session.user.tenantId}`)
-      
-      if (response.ok) {
-        const data = await response.json()
-        setServiceTypes(data)
-      } else {
-        console.error('Chyba při načítání druhů služeb:', await response.text())
-      }
+      const { getPublicServiceTypes } = await import('../lib/api-client')
+      const data = await getPublicServiceTypes(session.user.tenantId)
+      console.log('✅ Service types načteny z Railway:', data)
+      setServiceTypes(data)
     } catch (error) {
-      console.error('Chyba při načítání druhů služeb:', error)
+      console.error('Chyba při načítání druhů služeb z Railway:', error)
     }
   }
 
@@ -399,15 +376,12 @@ export default function Home() {
       if (selectedServiceType) params.append('serviceTypeId', selectedServiceType)
       if (selectedDate) params.append('date', selectedDate)
 
-      const response = await fetch(`/api/public/slots/${session.user.tenantId}?${params}`)
-      if (response.ok) {
-        const data = await response.json()
-        setSlots(data)
-      } else {
-        console.error('Chyba při načítání slotů:', await response.text())
-      }
+      const { getPublicSlots } = await import('../lib/api-client')
+      const data = await getPublicSlots(session.user.tenantId, params)
+      console.log('✅ Sloty načteny z Railway:', data)
+      setSlots(data)
     } catch (error) {
-      console.error('Chyba při načítání slotů:', error)
+      console.error('Chyba při načítání slotů z Railway:', error)
     } finally {
       setLoading(false)
     }

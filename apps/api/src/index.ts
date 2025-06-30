@@ -125,22 +125,7 @@ app.get('/api/public/slots/:tenantId', async (req, res) => {
             },
           },
         },
-        room: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-          },
-        },
-        serviceType: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            duration: true,
-            color: true,
-          },
-        },
+        // room a serviceType se načítají podle roomId a serviceTypeId
         reservations: {
           where: {
             status: {
@@ -184,6 +169,36 @@ app.get('/api/public/doctors/:tenantId', async (req, res) => {
     res.json(doctors)
   } catch (error) {
     console.error('Chyba při načítání doktorů:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Veřejné API pro získání service types
+app.get('/api/public/service-types/:tenantId', async (req, res) => {
+  try {
+    const { tenantId } = req.params
+
+    const serviceTypes = await prisma.serviceType.findMany({
+      where: { 
+        tenantId,
+        isActive: true 
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        duration: true,
+        price: true,
+        color: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    })
+
+    res.json(serviceTypes)
+  } catch (error) {
+    console.error('Chyba při načítání service types:', error)
     res.status(500).json({ error: 'Interní chyba serveru' })
   }
 })

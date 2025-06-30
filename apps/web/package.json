@@ -4,16 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate --schema=../../prisma/schema.prisma && next build",
+    "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "prisma generate --schema=../../prisma/schema.prisma",
-    "db:generate": "prisma generate --schema=../../prisma/schema.prisma",
-    "db:push": "prisma db push --schema=../../prisma/schema.prisma",
-    "db:seed": "prisma db seed --schema=../../prisma/schema.prisma"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^6.10.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.0.0",
@@ -26,7 +21,6 @@
     "next": "14.0.0",
     "next-auth": "^4.24.0",
     "postcss": "^8.0.0",
-    "prisma": "^6.10.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-hot-toast": "^2.5.2",

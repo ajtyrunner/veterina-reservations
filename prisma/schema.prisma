@@ -68,7 +68,7 @@ model Doctor {
   @@map("doctors")
 }
 
-// Nový model pro Ordinace/Místnosti
+// Model pro ordinace/místnosti
 model Room {
   id          String   @id @default(cuid())
   name        String   // např. "Ordinace 1", "Operační sál"
@@ -86,7 +86,7 @@ model Room {
   @@map("rooms")
 }
 
-// Nový model pro Úkony/Vybavení/Služby
+// Model pro typy služeb/úkonů
 model ServiceType {
   id          String   @id @default(cuid())
   name        String   // např. "Základní vyšetření", "Očkování", "RTG"
@@ -106,12 +106,12 @@ model ServiceType {
   @@map("service_types")
 }
 
-// Upravený model Slot
+// Model Slot s vazbami na Room a ServiceType
 model Slot {
   id            String    @id @default(cuid())
   doctorId      String
-  roomId        String?   // reference na Room
-  serviceTypeId String?   // reference na ServiceType
+  roomId        String?   // volitelné - reference na Room
+  serviceTypeId String?   // volitelné - reference na ServiceType
   startTime     DateTime
   endTime       DateTime
   isAvailable   Boolean   @default(true)
@@ -127,10 +127,7 @@ model Slot {
   serviceType  ServiceType?  @relation(fields: [serviceTypeId], references: [id], onDelete: SetNull)
   reservations Reservation[]
 
-  // Upravené unique constraint - doktor může mít více slotů ve stejný čas,
-  // ale ne se stejnou místností nebo službou
-  @@unique([doctorId, startTime, endTime, roomId])
-  @@unique([doctorId, startTime, endTime, serviceTypeId])
+  @@unique([doctorId, startTime, endTime])
   @@map("slots")
 }
 

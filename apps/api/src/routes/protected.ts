@@ -232,7 +232,7 @@ router.patch('/reservations/:id', async (req, res) => {
           select: {
             startTime: true,
             endTime: true,
-            room: true,
+            equipment: true,
           },
         },
       },
@@ -265,7 +265,7 @@ router.patch('/reservations/:id', async (req, res) => {
           select: {
             startTime: true,
             endTime: true,
-            room: true,
+            equipment: true,
           },
         },
       },
@@ -391,6 +391,8 @@ router.post('/doctor/slots', async (req, res) => {
     console.log('- doctorId:', targetDoctorId)
     console.log('- startTime:', new Date(startTime))
     console.log('- endTime:', new Date(endTime))
+    console.log('- roomId:', roomId)
+    console.log('- serviceTypeId:', serviceTypeId)
 
     const slot = await prisma.slot.create({
       data: {
@@ -412,6 +414,8 @@ router.post('/doctor/slots', async (req, res) => {
             },
           },
         },
+        room: true,
+        serviceType: true,
         reservations: {
           include: {
             user: {
@@ -601,6 +605,22 @@ router.put('/doctor/slots/:id', async (req, res) => {
                 name: true,
               },
             },
+          },
+        },
+        room: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+        serviceType: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            duration: true,
+            color: true,
           },
         },
         reservations: {
@@ -918,6 +938,226 @@ router.put('/doctor/reservations/:id/notes', async (req, res) => {
     res.json(updatedReservation)
   } catch (error) {
     console.error('Chyba při úpravě poznámek:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// === SPRÁVA ROOMS (ORDINACÍ) ===
+
+// Získání všech rooms
+router.get('/rooms', async (req, res) => {
+  try {
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+
+    if (!tenantId) {
+      return res.status(400).json({ error: 'Chybí tenant ID' })
+    }
+
+    if (userRole !== 'DOCTOR' && userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
+    }
+
+    const rooms = await prisma.room.findMany({
+      where: { tenantId },
+      orderBy: { name: 'asc' },
+    })
+
+    res.json(rooms)
+  } catch (error) {
+    console.error('Chyba při načítání ordinací:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Vytvoření nové room
+router.post('/rooms', async (req, res) => {
+  try {
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+    const { name, description, capacity, isActive } = req.body
+
+    if (!tenantId) {
+      return res.status(400).json({ error: 'Chybí tenant ID' })
+    }
+
+    if (userRole !== 'DOCTOR' && userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
+    }
+
+    if (!name) {
+      return res.status(400).json({ error: 'Název ordinace je povinný' })
+    }
+
+    const room = await prisma.room.create({
+      data: {
+        name,
+        description,
+        capacity: capacity || 1,
+        isActive: isActive !== undefined ? isActive : true,
+        tenantId,
+      },
+    })
+
+    res.status(201).json(room)
+  } catch (error) {
+    console.error('Chyba při vytváření ordinace:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Aktualizace room
+router.put('/rooms/:id', async (req, res) => {
+  try {
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+    const { id } = req.params
+    const { name, description, capacity, isActive } = req.body
+
+    if (!tenantId) {
+      return res.status(400).json({ error: 'Chybí tenant ID' })
+    }
+
+    if (userRole !== 'DOCTOR' && userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
+    }
+
+    const existingRoom = await prisma.room.findFirst({
+      where: { id, tenantId },
+    })
+
+    if (!existingRoom) {
+      return res.status(404).json({ error: 'Ordinace nenalezena' })
+    }
+
+    const room = await prisma.room.update({
+      where: { id },
+      data: {
+        name,
+        description,
+        capacity,
+        isActive,
+      },
+    })
+
+    res.json(room)
+  } catch (error) {
+    console.error('Chyba při aktualizaci ordinace:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// === SPRÁVA SERVICE TYPES (DRUHŮ SLUŽEB) ===
+
+// Získání všech service types
+router.get('/service-types', async (req, res) => {
+  try {
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+
+    if (!tenantId) {
+      return res.status(400).json({ error: 'Chybí tenant ID' })
+    }
+
+    if (userRole !== 'DOCTOR' && userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
+    }
+
+    const serviceTypes = await prisma.serviceType.findMany({
+      where: { tenantId },
+      orderBy: { name: 'asc' },
+    })
+
+    res.json(serviceTypes)
+  } catch (error) {
+    console.error('Chyba při načítání druhů služeb:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Vytvoření nového service type
+router.post('/service-types', async (req, res) => {
+  try {
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+    const { name, description, duration, durationMinutes, price, color, isActive } = req.body
+
+    if (!tenantId) {
+      return res.status(400).json({ error: 'Chybí tenant ID' })
+    }
+
+    if (userRole !== 'DOCTOR' && userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
+    }
+
+    if (!name) {
+      return res.status(400).json({ error: 'Název služby je povinný' })
+    }
+
+    // Podpora pro oba formáty - duration nebo durationMinutes
+    const finalDuration = durationMinutes || duration || 30
+
+    const serviceType = await prisma.serviceType.create({
+      data: {
+        name,
+        description,
+        duration: finalDuration,
+        price: price ? parseFloat(price) : null,
+        color: color || '#3B82F6',
+        isActive: isActive !== undefined ? isActive : true,
+        tenantId,
+      },
+    })
+
+    res.status(201).json(serviceType)
+  } catch (error) {
+    console.error('Chyba při vytváření druhu služby:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Aktualizace service type
+router.put('/service-types/:id', async (req, res) => {
+  try {
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+    const { id } = req.params
+    const { name, description, duration, durationMinutes, price, color, isActive } = req.body
+
+    if (!tenantId) {
+      return res.status(400).json({ error: 'Chybí tenant ID' })
+    }
+
+    if (userRole !== 'DOCTOR' && userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
+    }
+
+    const existingServiceType = await prisma.serviceType.findFirst({
+      where: { id, tenantId },
+    })
+
+    if (!existingServiceType) {
+      return res.status(404).json({ error: 'Druh služby nenalezen' })
+    }
+
+    // Podpora pro oba formáty - duration nebo durationMinutes
+    const finalDuration = durationMinutes || duration
+
+    const serviceType = await prisma.serviceType.update({
+      where: { id },
+      data: {
+        name,
+        description,
+        duration: finalDuration,
+        price: price ? parseFloat(price) : null,
+        color,
+        isActive,
+      },
+    })
+
+    res.json(serviceType)
+  } catch (error) {
+    console.error('Chyba při aktualizaci druhu služby:', error)
     res.status(500).json({ error: 'Interní chyba serveru' })
   }
 })

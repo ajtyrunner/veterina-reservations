@@ -78,12 +78,102 @@ export async function createSlot(slotData: any) {
   })
 }
 
+export async function updateSlot(id: string, slotData: any) {
+  return apiCall(`/api/doctor/slots/${id}`, {
+    method: 'PUT',
+    body: slotData
+  })
+}
+
+export async function deleteSlot(id: string) {
+  return apiCall(`/api/doctor/slots/${id}`, {
+    method: 'DELETE'
+  })
+}
+
 export async function getRooms() {
   return apiCall('/api/rooms')
 }
 
 export async function getServiceTypes() {
   return apiCall('/api/service-types')
+}
+
+export async function createServiceType(serviceTypeData: any) {
+  return apiCall('/api/service-types', {
+    method: 'POST',
+    body: serviceTypeData
+  })
+}
+
+export async function updateServiceType(id: string, serviceTypeData: any) {
+  return apiCall(`/api/service-types/${id}`, {
+    method: 'PUT',
+    body: serviceTypeData
+  })
+}
+
+export async function deleteServiceType(id: string) {
+  return apiCall(`/api/service-types/${id}`, {
+    method: 'DELETE'
+  })
+}
+
+export async function createRoom(roomData: any) {
+  return apiCall('/api/rooms', {
+    method: 'POST',
+    body: roomData
+  })
+}
+
+export async function updateRoom(id: string, roomData: any) {
+  return apiCall(`/api/rooms/${id}`, {
+    method: 'PUT',
+    body: roomData
+  })
+}
+
+export async function deleteRoom(id: string) {
+  return apiCall(`/api/rooms/${id}`, {
+    method: 'DELETE'
+  })
+}
+
+export async function createReservation(reservationData: any) {
+  return apiCall('/api/reservations', {
+    method: 'POST',
+    body: reservationData
+  })
+}
+
+export async function getReservations(statusFilter?: string) {
+  const url = statusFilter ? `/api/reservations?status=${statusFilter}` : '/api/reservations'
+  return apiCall(url)
+}
+
+export async function updateReservationStatus(id: string, status: string) {
+  return apiCall(`/api/reservations/${id}`, {
+    method: 'PATCH',
+    body: { status }
+  })
+}
+
+export async function deleteReservation(id: string) {
+  return apiCall(`/api/reservations/${id}`, {
+    method: 'DELETE'
+  })
+}
+
+export async function getDoctorReservations(statusFilter?: string) {
+  const url = statusFilter ? `/api/doctor/reservations?status=${statusFilter}` : '/api/doctor/reservations'
+  return apiCall(url)
+}
+
+export async function updateDoctorReservationStatus(id: string, status: string, notes?: string) {
+  return apiCall(`/api/doctor/reservations/${id}/status`, {
+    method: 'PUT',
+    body: { status, notes }
+  })
 }
 
 // Veřejné endpointy (bez autentizace)
@@ -97,6 +187,14 @@ export async function getPublicSlots(tenantId: string, params?: URLSearchParams)
 
 export async function getPublicDoctors(tenantId: string) {
   return apiCall(`/api/public/doctors/${tenantId}`, { requireAuth: false })
+}
+
+export async function getPublicServiceTypes(tenantId: string) {
+  return apiCall(`/api/public/service-types/${tenantId}`, { requireAuth: false })
+}
+
+export async function getPublicTenant(slug: string) {
+  return apiCall(`/api/public/tenant/${slug}`, { requireAuth: false })
 }
 
 // Test spojení

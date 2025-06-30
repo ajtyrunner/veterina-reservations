@@ -22,23 +22,17 @@ router.post('/credentials', async (req, res) => {
     }
 
     // Najdi uživatele v databázi (s heslem pro ověření)
-    const user = await prisma.$queryRaw<Array<{
-      id: string
-      email: string
-      name: string | null
-      image: string | null
-      password: string | null
-      role: string
-      tenantId: string
-      tenantSlug: string
-    }>>`
-      SELECT u.id, u.email, u.name, u.image, u.password, u.role, u."tenantId", t.slug as "tenantSlug"
-      FROM "User" u
-      JOIN "Tenant" t ON u."tenantId" = t.id
-      WHERE u.email = ${email}
-    `
+    const userRecord = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        tenant: {
+          select: {
+            slug: true
+          }
+        }
+      }
+    })
     
-    const userRecord = user[0]
     console.log('🔍 User found:', userRecord ? 'YES' : 'NO')
 
     if (!userRecord || !userRecord.password) {
@@ -57,7 +51,7 @@ router.post('/credentials', async (req, res) => {
     }
 
     // Ověř, že se přihlašuje ke správnému tenantovi
-    if (tenantSlug && userRecord.tenantSlug !== tenantSlug) {
+    if (tenantSlug && userRecord.tenant.slug !== tenantSlug) {
       return res.status(401).json({ error: 'Nepatříte k této ordinaci' })
     }
 
@@ -74,11 +68,95 @@ router.post('/credentials', async (req, res) => {
       name: userRecord.name,
       image: userRecord.image,
       role: userRecord.role,
-      tenant: userRecord.tenantSlug,
+      tenant: userRecord.tenant.slug,
       tenantId: userRecord.tenantId,
     })
   } catch (error) {
     console.error('Chyba při ověřování credentials:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Vytvoření uživatele pro Google OAuth
+router.post('/google-user', async (req, res) => {
+  try {
+    const { email, name, image, tenantSlug } = req.body
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email je povinný' })
+    }
+
+    // Najdi tenant
+    const tenant = await prisma.tenant.findUnique({
+      where: { slug: tenantSlug || 'svahy' },
+    })
+
+    if (!tenant) {
+      return res.status(404).json({ error: 'Tenant nenalezen' })
+    }
+
+    // Zkontroluj, jestli uživatel už existuje
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    })
+
+    if (existingUser) {
+      // Ověř, že patří ke správnému tenantovi
+      if (existingUser.tenantId === tenant.id) {
+        return res.json({ success: true })
+      } else {
+        return res.status(403).json({ error: 'Uživatel patří k jinému tenantovi' })
+      }
+    }
+
+    // Vytvoř nového uživatele
+    await prisma.user.create({
+      data: {
+        email,
+        name,
+        image,
+        tenantId: tenant.id,
+        role: 'CLIENT',
+      },
+    })
+
+    res.json({ success: true })
+  } catch (error) {
+    console.error('Chyba při vytváření Google uživatele:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Načtení informací o uživateli
+router.post('/user-info', async (req, res) => {
+  try {
+    const { email } = req.body
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email je povinný' })
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { 
+        tenant: true, 
+        doctor: true 
+      },
+    })
+
+    if (!user) {
+      return res.status(404).json({ error: 'Uživatel nenalezen' })
+    }
+
+    res.json({
+      id: user.id,
+      role: user.role,
+      tenant: user.tenant.slug,
+      tenantId: user.tenantId,
+      isDoctor: !!user.doctor,
+    })
+  } catch (error) {
+    console.error('Chyba při načítání uživatele:', error)
     res.status(500).json({ error: 'Interní chyba serveru' })
   }
 })

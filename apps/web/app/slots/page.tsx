@@ -140,25 +140,23 @@ export default function SlotsPage() {
 
   const loadRooms = async () => {
     try {
-      const response = await fetch('/api/rooms')
-      if (response.ok) {
-        const data = await response.json()
-        setRooms(data.filter((room: Room) => room.isActive))
-      }
+      const { getRooms } = await import('../../lib/api-client')
+      const data = await getRooms()
+      console.log('✅ Ordinace načteny z Railway:', data)
+      setRooms(data.filter((room: Room) => room.isActive))
     } catch (error) {
-      console.error('Chyba při načítání ordinací:', error)
+      console.error('Chyba při načítání ordinací z Railway:', error)
     }
   }
 
   const loadServiceTypes = async () => {
     try {
-      const response = await fetch('/api/service-types')
-      if (response.ok) {
-        const data = await response.json()
-        setServiceTypes(data.filter((service: ServiceType) => service.isActive))
-      }
+      const { getServiceTypes } = await import('../../lib/api-client')
+      const data = await getServiceTypes()
+      console.log('✅ Service types načteny z Railway:', data)
+      setServiceTypes(data.filter((service: ServiceType) => service.isActive))
     } catch (error) {
-      console.error('Chyba při načítání druhů služeb:', error)
+      console.error('Chyba při načítání druhů služeb z Railway:', error)
     }
   }
 
@@ -214,33 +212,16 @@ export default function SlotsPage() {
     }
 
     try {
-      const response = await fetch(`/api/slots/${slotId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editFormData),
-      })
-
-      if (response.ok) {
-        const updatedSlot = await response.json()
-        setSlots(prev => prev.map(slot => slot.id === slotId ? updatedSlot : slot))
-        setEditingSlot(null)
-        setEditFormData({ startTime: '', endTime: '', equipment: '', roomId: '', serviceTypeId: '' })
-        addNotification('success', 'Slot byl úspěšně upraven.')
-      } else {
-        let errorMessage = 'Chyba při úpravě slotu'
-        try {
-          const errorData = await response.json()
-          errorMessage = errorData.error || errorMessage
-        } catch (parseError) {
-          errorMessage = await response.text() || errorMessage
-        }
-        addNotification('error', errorMessage)
-      }
+      const { updateSlot } = await import('../../lib/api-client')
+      const updatedSlot = await updateSlot(slotId, editFormData)
+      console.log('✅ Slot upraven v Railway:', updatedSlot)
+      setSlots(prev => prev.map(slot => slot.id === slotId ? updatedSlot : slot))
+      setEditingSlot(null)
+      setEditFormData({ startTime: '', endTime: '', equipment: '', roomId: '', serviceTypeId: '' })
+      addNotification('success', 'Slot byl úspěšně upraven.')
     } catch (error) {
-      console.error('Chyba při úpravě slotu:', error)
-      addNotification('error', 'Chyba při úpravě slotu. Zkuste to prosím znovu.')
+      console.error('Chyba při úpravě slotu v Railway:', error)
+      addNotification('error', `Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     }
   }
 
@@ -253,26 +234,14 @@ export default function SlotsPage() {
     setDeletingSlot(slotId)
 
     try {
-      const response = await fetch(`/api/slots/${slotId}`, {
-        method: 'DELETE',
-      })
-
-      if (response.ok) {
-        setSlots(prev => prev.filter(slot => slot.id !== slotId))
-        addNotification('success', 'Slot byl úspěšně smazán.')
-      } else {
-        let errorMessage = 'Chyba při mazání slotu'
-        try {
-          const errorData = await response.json()
-          errorMessage = errorData.error || errorMessage
-        } catch (parseError) {
-          errorMessage = await response.text() || errorMessage
-        }
-        addNotification('error', errorMessage)
-      }
+      const { deleteSlot } = await import('../../lib/api-client')
+      await deleteSlot(slotId)
+      console.log('✅ Slot smazán v Railway')
+      setSlots(prev => prev.filter(slot => slot.id !== slotId))
+      addNotification('success', 'Slot byl úspěšně smazán.')
     } catch (error) {
-      console.error('Chyba při mazání slotu:', error)
-      addNotification('error', 'Chyba při mazání slotu. Zkuste to prosím znovu.')
+      console.error('Chyba při mazání slotu v Railway:', error)
+      addNotification('error', `Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     } finally {
       setDeletingSlot(null)
     }

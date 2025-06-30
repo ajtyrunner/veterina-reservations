@@ -91,22 +91,13 @@ export default function ReservationManagementPage() {
   const loadReservations = async () => {
     setLoading(true)
     try {
-      const url = selectedStatus 
-        ? `/api/reservations/manage?status=${selectedStatus}`
-        : '/api/reservations/manage'
-      
-      const response = await fetch(url)
-      
-      if (response.ok) {
-        const data = await response.json()
-        setReservations(data)
-      } else {
-        const errorText = await response.text()
-        addNotification('error', `Chyba při načítání rezervací: ${errorText}`)
-      }
+      const { getDoctorReservations } = await import('../../../lib/api-client')
+      const data = await getDoctorReservations(selectedStatus || undefined)
+      console.log('✅ Doctor rezervace načteny z Railway:', data)
+      setReservations(data)
     } catch (error) {
-      console.error('Chyba při načítání rezervací:', error)
-      addNotification('error', 'Chyba při načítání rezervací')
+      console.error('Chyba při načítání rezervací z Railway:', error)
+      addNotification('error', `Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     } finally {
       setLoading(false)
     }
@@ -115,24 +106,14 @@ export default function ReservationManagementPage() {
   const updateReservationStatus = async (reservationId: string, newStatus: string) => {
     setUpdatingReservation(reservationId)
     try {
-      const response = await fetch(`/api/reservations/${reservationId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus }),
-      })
-
-      if (response.ok) {
-        addNotification('success', 'Stav rezervace byl úspěšně aktualizován')
-        loadReservations() // Obnovit seznam
-      } else {
-        const errorData = await response.json()
-        addNotification('error', errorData.error || 'Chyba při aktualizaci rezervace')
-      }
+      const { updateDoctorReservationStatus } = await import('../../../lib/api-client')
+      await updateDoctorReservationStatus(reservationId, newStatus)
+      console.log('✅ Stav rezervace aktualizován v Railway')
+      addNotification('success', 'Stav rezervace byl úspěšně aktualizován')
+      loadReservations() // Obnovit seznam
     } catch (error) {
-      console.error('Chyba při aktualizaci rezervace:', error)
-      addNotification('error', 'Chyba při aktualizaci rezervace')
+      console.error('Chyba při aktualizaci rezervace v Railway:', error)
+      addNotification('error', `Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     } finally {
       setUpdatingReservation(null)
     }

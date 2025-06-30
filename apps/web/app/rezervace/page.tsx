@@ -45,20 +45,12 @@ export default function ReservationsPage() {
 
   const loadReservations = async () => {
     try {
-      const response = await fetch('/api/reservations', {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setReservations(data)
-      } else {
-        console.error('Chyba při načítání rezervací:', response.statusText)
-      }
+      const { getReservations } = await import('../../lib/api-client')
+      const data = await getReservations()
+      console.log('✅ Rezervace načteny z Railway:', data)
+      setReservations(data)
     } catch (error) {
-      console.error('Chyba při načítání rezervací:', error)
+      console.error('Chyba při načítání rezervací z Railway:', error)
     } finally {
       setLoading(false)
     }
@@ -70,23 +62,14 @@ export default function ReservationsPage() {
 
   const confirmCancelReservation = async (reservationId: string) => {
     try {
-      const response = await fetch(`/api/reservations/${reservationId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response.ok) {
-        setReservations(prev => prev.filter(r => r.id !== reservationId))
-        toast.success('Rezervace byla úspěšně zrušena.')
-      } else {
-        const error = await response.json()
-        toast.error(`Chyba při rušení rezervace: ${error.error || 'Neznámá chyba'}`)
-      }
+      const { deleteReservation } = await import('../../lib/api-client')
+      await deleteReservation(reservationId)
+      console.log('✅ Rezervace zrušena v Railway')
+      setReservations(prev => prev.filter(r => r.id !== reservationId))
+      toast.success('Rezervace byla úspěšně zrušena.')
     } catch (error) {
-      console.error('Chyba při rušení rezervace:', error)
-      toast.error('Chyba při rušení rezervace.')
+      console.error('Chyba při rušení rezervace v Railway:', error)
+      toast.error(`Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     }
   }
 

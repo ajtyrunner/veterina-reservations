@@ -49,15 +49,12 @@ export default function SluzbyPage() {
 
   const loadServiceTypes = async () => {
     try {
-      const response = await fetch('/api/service-types')
-      if (response.ok) {
-        const data = await response.json()
-        setServiceTypes(data)
-      } else {
-        toast.error('Chyba při načítání druhů služeb')
-      }
+      const { getServiceTypes } = await import('../../../lib/api-client')
+      const data = await getServiceTypes()
+      console.log('✅ Service types načteny z Railway:', data)
+      setServiceTypes(data)
     } catch (error) {
-      console.error('Chyba při načítání druhů služeb:', error)
+      console.error('Chyba při načítání druhů služeb z Railway:', error)
       toast.error('Chyba při načítání druhů služeb')
     } finally {
       setLoading(false)
@@ -68,32 +65,27 @@ export default function SluzbyPage() {
     e.preventDefault()
     
     try {
-      const url = editingServiceType ? `/api/service-types/${editingServiceType.id}` : '/api/service-types'
-      const method = editingServiceType ? 'PUT' : 'POST'
+      const { createServiceType, updateServiceType } = await import('../../../lib/api-client')
       
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          durationMinutes: formData.duration, // API očekává durationMinutes
-          price: formData.price ? parseFloat(formData.price) : null,
-        }),
-      })
-
-      if (response.ok) {
-        toast.success(editingServiceType ? 'Druh služby aktualizován' : 'Druh služby vytvořen')
-        resetForm()
-        loadServiceTypes()
-      } else {
-        const error = await response.json()
-        toast.error(`Chyba: ${error.error || 'Neznámá chyba'}`)
+      const serviceTypeData = {
+        ...formData,
+        durationMinutes: formData.duration, // API očekává durationMinutes
+        price: formData.price ? parseFloat(formData.price) : null,
       }
+      
+      if (editingServiceType) {
+        await updateServiceType(editingServiceType.id, serviceTypeData)
+        toast.success('Druh služby aktualizován')
+      } else {
+        await createServiceType(serviceTypeData)
+        toast.success('Druh služby vytvořen')
+      }
+      
+      resetForm()
+      loadServiceTypes()
     } catch (error) {
       console.error('Chyba při ukládání:', error)
-      toast.error('Chyba při ukládání')
+      toast.error(`Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     }
   }
 
@@ -147,17 +139,10 @@ export default function SluzbyPage() {
     if (!confirmed) return
 
     try {
-      const response = await fetch(`/api/service-types/${serviceTypeId}`, {
-        method: 'DELETE',
-      })
-
-      if (response.ok) {
-        toast.success('Druh služby smazán')
-        loadServiceTypes()
-      } else {
-        const error = await response.json()
-        toast.error(`Chyba: ${error.error || 'Neznámá chyba'}`)
-      }
+      const { deleteServiceType } = await import('../../../lib/api-client')
+      await deleteServiceType(serviceTypeId)
+      toast.success('Druh služby smazán')
+      loadServiceTypes()
     } catch (error) {
       console.error('Chyba při mazání:', error)
       toast.error('Chyba při mazání')

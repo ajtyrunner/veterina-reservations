@@ -3,6 +3,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { AuthOptions } from 'next-auth';
 import { getTenantSlugFromHeaders } from './lib/tenant';
 
+const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://veterina-reservations-production.up.railway.app';
+
 // Debug výpis pro kontrolu proměnných prostředí
 if (process.env.NODE_ENV === 'development') {
   console.log('Next.js Environment variables:')
@@ -15,6 +17,13 @@ export const authOptions: AuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
     // Lokální credentials pro doktory/adminy
     CredentialsProvider({
@@ -71,57 +80,44 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
+      console.log('🔄 SignIn callback:', { 
+        provider: account?.provider, 
+        user: user.email,
+        accountType: account?.type 
+      })
+      
       if (account?.provider === 'google') {
         try {
-          // Pro Google OAuth, získej tenant slug z URL (client-side řešení)
-          const tenantSlug = 'svahy' // Fallback, bude řešeno jinak
-          
-          // Zkusíme najít uživatele v databázi
-          const existingUser = await prisma.user.findUnique({
-            where: { email: user.email! },
-            include: { tenant: true, doctor: true },
-          });
-
-          // Najdi správný tenant
-          const tenant = await prisma.tenant.findUnique({
-            where: { slug: tenantSlug },
-          });
-
-          if (!tenant) {
-            console.error(`Tenant '${tenantSlug}' nenalezen`);
-            return false;
-          }
-
-          if (existingUser) {
-            // Ověř, že uživatel patří ke správnému tenantovi
-            if (existingUser.tenantId === tenant.id) {
-              return true;
-            } else {
-              console.error(`Uživatel ${user.email} nepatří k tenantovi ${tenantSlug}`);
-              return false;
-            }
-          }
-
-          // Pokud uživatel neexistuje, vytvoříme ho pro aktuální tenant
-          await prisma.user.create({
-            data: {
+          // Pro Google OAuth - vytvoř uživatele přes Railway API
+          const response = await fetch(`${API_URL}/api/auth/google-user`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
               email: user.email!,
               name: user.name,
               image: user.image,
-              tenantId: tenant.id,
-              role: 'CLIENT',
-            },
+              tenantSlug: 'svahy' // Fallback
+            }),
           });
 
-          return true;
+          const success = response.ok
+          console.log('✅ Google user creation:', success ? 'SUCCESS' : 'FAILED')
+          return success
         } catch (error) {
-          console.error('Chyba při přihlašování:', error);
+          console.error('❌ Chyba při přihlašování:', error);
           return false;
         }
       }
       return true;
     },
     async jwt({ token, user, account, trigger }) {
+      console.log('🔄 JWT callback:', { 
+        trigger, 
+        provider: account?.provider,
+        hasUser: !!user,
+        email: token.email 
+      })
+      
       if (user || trigger === 'signIn') {
         if (account?.provider === 'credentials') {
           // Pro credentials provider, uživatel už má všechny údaje
@@ -131,18 +127,27 @@ export const authOptions: AuthOptions = {
           token.userId = user.id;
           token.isDoctor = (user as any).role === 'DOCTOR';
         } else {
-          // Pro Google OAuth, načteme uživatele z databáze
-          const dbUser = await prisma.user.findUnique({
-            where: { email: token.email! },
-            include: { tenant: true, doctor: true },
-          });
+          // Pro Google OAuth, načteme uživatele přes Railway API
+          try {
+            const response = await fetch(`${API_URL}/api/auth/user-info`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: token.email! }),
+            });
 
-          if (dbUser) {
-            token.role = dbUser.role;
-            token.tenant = dbUser.tenant.slug;
-            token.tenantId = dbUser.tenantId;
-            token.userId = dbUser.id;
-            token.isDoctor = !!dbUser.doctor;
+            if (response.ok) {
+              const dbUser = await response.json();
+              token.role = dbUser.role;
+              token.tenant = dbUser.tenant;
+              token.tenantId = dbUser.tenantId;
+              token.userId = dbUser.id;
+              token.isDoctor = dbUser.isDoctor;
+              console.log('✅ User info loaded from Railway API')
+            } else {
+              console.error('❌ Failed to load user info from Railway API')
+            }
+          } catch (error) {
+            console.error('❌ Chyba při načítání uživatele:', error);
           }
         }
       }
@@ -161,5 +166,10 @@ export const authOptions: AuthOptions = {
   session: {
     strategy: 'jwt',
   },
+  pages: {
+    signIn: '/login',
+    signOut: '/',
+  },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
 };

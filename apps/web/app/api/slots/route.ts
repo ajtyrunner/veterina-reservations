@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Vytvoř JWT token pro API
+    // Vytvoř JWT  token pro API
     const token = jwt.sign(
       {
         sub: session.user.userId,

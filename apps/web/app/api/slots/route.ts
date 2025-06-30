@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
     )
 
     // Volej Express API
+    console.log("=== DEBUG API_URL ===", process.env.API_URL)
     const response = await fetch(`${process.env.API_URL}/api/doctor/slots`, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
     )
 
     // Volej Express API
+    console.log("=== DEBUG API_URL ===", process.env.API_URL)
     const response = await fetch(`${process.env.API_URL}/api/doctor/slots`, {
       method: 'POST',
       headers: {

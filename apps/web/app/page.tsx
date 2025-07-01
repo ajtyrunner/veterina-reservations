@@ -461,10 +461,10 @@ export default function Home() {
               
               <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-800">
-                  <strong>Datum:</strong> {formatDisplayDate(selectedSlotForReservation.startTime)}
+                  <strong>Datum:</strong> {formatDisplayDate(new Date(selectedSlotForReservation.startTime))}
                 </p>
                 <p className="text-sm text-blue-800">
-                  <strong>Čas:</strong> {formatDisplayTime(selectedSlotForReservation.startTime)} - {formatDisplayTime(selectedSlotForReservation.endTime)}
+                  <strong>Čas:</strong> {formatDisplayTime(new Date(selectedSlotForReservation.startTime))} - {formatDisplayTime(new Date(selectedSlotForReservation.endTime))}
                 </p>
                 <p className="text-sm text-blue-800">
                   <strong>Veterinář:</strong> {selectedSlotForReservation.doctor.user.name}

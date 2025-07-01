@@ -54,9 +54,13 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions))
 
-// Debug logging pro CORS
+// Timezone nastavení pro server
+process.env.TZ = 'Europe/Prague'
+
+// Debug logging pro CORS a timezone
 app.use((req, res, next) => {
   console.log(`🌐 ${req.method} ${req.path} from origin: ${req.get('origin') || 'no-origin'}`)
+  console.log(`🕐 Server time: ${new Date().toISOString()} (${new Date().toLocaleString('cs-CZ', { timeZone: 'Europe/Prague' })})`)
   next()
 })
 

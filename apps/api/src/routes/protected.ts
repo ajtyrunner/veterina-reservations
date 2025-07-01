@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { PrismaClient } from '@prisma/client'
+import { parsePragueDateTime, logTimeDebug } from '../utils/timezone'
 
 const router = Router()
 const prisma = new PrismaClient()
@@ -387,18 +388,24 @@ router.post('/doctor/slots', async (req, res) => {
       })
     }
 
-    console.log('Creating slot with:')
+    // Timezone handling - převedeme frontend čas na UTC
+    const startTimeUTC = parsePragueDateTime(startTime)
+    const endTimeUTC = parsePragueDateTime(endTime)
+    
+    console.log('Creating slot with timezone handling:')
     console.log('- doctorId:', targetDoctorId)
-    console.log('- startTime:', new Date(startTime))
-    console.log('- endTime:', new Date(endTime))
+    logTimeDebug('Original startTime', startTime)
+    logTimeDebug('Parsed startTime UTC', startTimeUTC)
+    logTimeDebug('Original endTime', endTime)
+    logTimeDebug('Parsed endTime UTC', endTimeUTC)
     console.log('- roomId:', roomId)
     console.log('- serviceTypeId:', serviceTypeId)
 
     const slot = await prisma.slot.create({
       data: {
         doctorId: targetDoctorId,
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
+        startTime: startTimeUTC,
+        endTime: endTimeUTC,
         roomId: roomId || null,
         serviceTypeId: serviceTypeId || null,
         equipment,

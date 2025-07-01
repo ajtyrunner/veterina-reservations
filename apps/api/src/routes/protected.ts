@@ -1191,4 +1191,245 @@ router.put('/service-types/:id', async (req, res) => {
   }
 })
 
+// === BULK GENEROVÁNÍ SLOTŮ ===
+
+// Bulk generování slotů podle rozvrhu
+router.post('/doctor/slots/bulk-generate', async (req, res) => {
+  try {
+    const userId = req.user?.sub
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+    const { 
+      weekdays, 
+      startTime, 
+      endTime, 
+      interval, 
+      serviceTypeId, 
+      roomId, 
+      weeksCount, 
+      startDate, 
+      breakTimes = [],
+      doctorId 
+    } = req.body
+
+    console.log('=== DEBUG: Bulk slot generation ===')
+    console.log('userId:', userId)
+    console.log('tenantId:', tenantId)
+    console.log('userRole:', userRole)
+    console.log('params:', { weekdays, startTime, endTime, interval, serviceTypeId, roomId, weeksCount, startDate, breakTimes, doctorId })
+
+    if (!userId || !tenantId) {
+      return res.status(400).json({ error: 'Chybí uživatelské údaje' })
+    }
+
+    if (userRole !== 'DOCTOR' && userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
+    }
+
+    // Validace povinných parametrů
+    if (!weekdays || !Array.isArray(weekdays) || weekdays.length === 0) {
+      return res.status(400).json({ error: 'Dny v týdnu jsou povinné' })
+    }
+
+    if (!startTime || !endTime || !interval || !weeksCount || !startDate) {
+      return res.status(400).json({ error: 'Všechny časové parametry jsou povinné' })
+    }
+
+    if (interval <= 0 || interval > 480) { // max 8 hodin
+      return res.status(400).json({ error: 'Interval musí být mezi 1-480 minutami' })
+    }
+
+    if (weeksCount <= 0 || weeksCount > 52) { // max rok
+      return res.status(400).json({ error: 'Počet týdnů musí být mezi 1-52' })
+    }
+
+    // Určení target doktora
+    let targetDoctorId: string
+
+    if (userRole === 'ADMIN') {
+      if (doctorId) {
+        const doctor = await prisma.doctor.findFirst({
+          where: { id: doctorId, tenantId },
+        })
+        if (!doctor) {
+          return res.status(404).json({ error: 'Specifikovaný doktor nenalezen' })
+        }
+        targetDoctorId = doctorId
+      } else {
+        const firstDoctor = await prisma.doctor.findFirst({
+          where: { tenantId },
+        })
+        if (!firstDoctor) {
+          return res.status(404).json({ error: 'Žádný doktor nenalezen v této ordinaci' })
+        }
+        targetDoctorId = firstDoctor.id
+      }
+    } else {
+      const doctor = await prisma.doctor.findFirst({
+        where: { userId, tenantId },
+      })
+      if (!doctor) {
+        return res.status(404).json({ error: 'Profil doktora nenalezen' })
+      }
+      targetDoctorId = doctor.id
+    }
+
+    // Timezone handling
+    const tenantTimezone = await getCachedTenantTimezone(prisma, tenantId)
+    
+    // Generování slotů
+    const slotsToCreate = []
+    const conflicts = []
+    
+    const baseDate = new Date(startDate)
+    
+    for (let week = 0; week < weeksCount; week++) {
+      for (const weekday of weekdays) {
+        // Najdi první výskyt daného dne v týdnu
+        const targetDate = new Date(baseDate)
+        const daysToAdd = (weekday - baseDate.getDay() + 7) % 7 + (week * 7)
+        targetDate.setDate(baseDate.getDate() + daysToAdd)
+        
+        const dateStr = targetDate.toISOString().split('T')[0] // YYYY-MM-DD
+        
+        // Generuj sloty pro tento den
+        const daySlots = generateDaySlots(
+          dateStr, 
+          startTime, 
+          endTime, 
+          interval, 
+          breakTimes, 
+          tenantTimezone
+        )
+        
+        for (const slotTime of daySlots) {
+          const slotData = {
+            doctorId: targetDoctorId,
+            startTime: slotTime.start,
+            endTime: slotTime.end,
+            roomId: roomId || null,
+            serviceTypeId: serviceTypeId || null,
+            tenantId,
+          }
+          
+          // Kontrola konfliktů
+          const existingSlot = await prisma.slot.findFirst({
+            where: {
+              doctorId: targetDoctorId,
+              startTime: slotTime.start,
+              endTime: slotTime.end,
+            },
+          })
+          
+          if (existingSlot) {
+            conflicts.push({
+              date: dateStr,
+              startTime: slotTime.start.toLocaleString('cs-CZ', { timeZone: tenantTimezone }),
+              endTime: slotTime.end.toLocaleString('cs-CZ', { timeZone: tenantTimezone }),
+            })
+          } else {
+            slotsToCreate.push(slotData)
+          }
+        }
+      }
+    }
+    
+    console.log(`Generated ${slotsToCreate.length} slots, ${conflicts.length} conflicts`)
+    
+    // Vytvoření slotů v databázi
+    const createdSlots = []
+    for (const slotData of slotsToCreate) {
+      const slot = await prisma.slot.create({
+        data: slotData,
+        include: {
+          doctor: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          room: true,
+          serviceType: true,
+        },
+      })
+      createdSlots.push(slot)
+    }
+    
+    res.status(201).json({
+      message: `Úspěšně vygenerováno ${createdSlots.length} slotů`,
+      createdCount: createdSlots.length,
+      conflictsCount: conflicts.length,
+      conflicts,
+      slots: createdSlots,
+    })
+    
+  } catch (error) {
+    console.error('Chyba při bulk generování slotů:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Helper funkce pro generování slotů pro jeden den
+function generateDaySlots(
+  dateStr: string, 
+  startTime: string, 
+  endTime: string, 
+  interval: number, 
+  breakTimes: Array<{start: string, end: string}>, 
+  timezone: any
+) {
+  const slots = []
+  
+  // Parse start a end času
+  const [startHour, startMin] = startTime.split(':').map(Number)
+  const [endHour, endMin] = endTime.split(':').map(Number)
+  
+  // Vytvoř Date objekty pro začátek a konec
+  const currentSlot = parseTimezoneDateTime(`${dateStr}T${startTime}:00`, timezone)
+  const endOfDay = parseTimezoneDateTime(`${dateStr}T${endTime}:00`, timezone)
+  
+  while (currentSlot < endOfDay) {
+    const slotEnd = new Date(currentSlot.getTime() + interval * 60 * 1000)
+    
+    if (slotEnd > endOfDay) break
+    
+    // Kontrola, jestli slot nekoliduje s přestávkou
+    const slotStartTime = currentSlot.toLocaleTimeString('en-GB', { 
+      timeZone: timezone, 
+      hour12: false, 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    })
+    const slotEndTime = slotEnd.toLocaleTimeString('en-GB', { 
+      timeZone: timezone, 
+      hour12: false, 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    })
+    
+    let isInBreak = false
+    for (const breakTime of breakTimes) {
+      if (slotStartTime >= breakTime.start && slotStartTime < breakTime.end) {
+        isInBreak = true
+        break
+      }
+    }
+    
+    if (!isInBreak) {
+      slots.push({
+        start: new Date(currentSlot),
+        end: new Date(slotEnd),
+      })
+    }
+    
+    // Přejdi na další slot
+    currentSlot.setTime(currentSlot.getTime() + interval * 60 * 1000)
+  }
+  
+  return slots
+}
+
 export default router

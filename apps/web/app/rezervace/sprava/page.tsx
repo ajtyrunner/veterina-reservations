@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 import { redirect } from 'next/navigation'
+import { formatDisplayDateTime, formatDisplayTime } from '../../../lib/timezone'
 
 interface Reservation {
   id: string
@@ -23,7 +24,17 @@ interface Reservation {
   slot: {
     startTime: string
     endTime: string
-    room?: string
+    room?: {
+      id: string
+      name: string
+      description?: string
+    }
+    serviceType?: {
+      id: string
+      name: string
+      duration: number
+      color?: string
+    }
   }
 }
 
@@ -117,24 +128,6 @@ export default function ReservationManagementPage() {
     } finally {
       setUpdatingReservation(null)
     }
-  }
-
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('cs-CZ', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('cs-CZ', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
   }
 
   if (status === 'loading' || !session) {
@@ -276,11 +269,11 @@ export default function ReservationManagementPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900">
-                            {formatDateTime(reservation.slot.startTime)}
+                            {formatDisplayDateTime(new Date(reservation.slot.startTime))}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {formatTime(reservation.slot.startTime)} - {formatTime(reservation.slot.endTime)}
-                            {reservation.slot.room && ` • ${reservation.slot.room}`}
+                            {formatDisplayTime(new Date(reservation.slot.startTime))} - {formatDisplayTime(new Date(reservation.slot.endTime))}
+                            {reservation.slot.serviceType && ` • ${reservation.slot.serviceType.name}`}
                           </div>
                         </div>
                       </td>

@@ -255,8 +255,8 @@ export default function ReservationsPage() {
                 )}
               </div>
               <div className="text-sm text-gray-600">
-                <p>Datum: {formatDisplayDate(reservation.slot.startTime)}</p>
-                <p>Čas: {formatDisplayTime(reservation.slot.startTime)} - {formatDisplayTime(reservation.slot.endTime)}</p>
+                <p>Datum: {formatDisplayDate(new Date(reservation.slot.startTime))}</p>
+                <p>Čas: {formatDisplayTime(new Date(reservation.slot.startTime))} - {formatDisplayTime(new Date(reservation.slot.endTime))}</p>
                 {reservation.slot.room && <p>Místnost: {reservation.slot.room}</p>}
                 {reservation.slot.equipment && <p>Vybavení: {reservation.slot.equipment}</p>}
               </div>

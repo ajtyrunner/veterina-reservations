@@ -268,12 +268,13 @@ export default function NewReservationPage() {
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Vyberte druh zvířete</option>
-              <option value="Pes">Pes</option>
-              <option value="Kočka">Kočka</option>
-              <option value="Králík">Králík</option>
-              <option value="Křeček">Křeček</option>
-              <option value="Pták">Pták</option>
-              <option value="Jiné">Jiné</option>
+              <option value="pes">Pes</option>
+              <option value="kočka">Kočka</option>
+              <option value="králík">Králík</option>
+              <option value="pták">Pták</option>
+              <option value="hlodavec">Hlodavec</option>
+              <option value="plaz">Plaz</option>
+              <option value="jiné">Jiné</option>
             </select>
           </div>
 

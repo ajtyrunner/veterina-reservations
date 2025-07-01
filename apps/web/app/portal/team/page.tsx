@@ -123,7 +123,7 @@ export default function TeamPortalLoginPage() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200"
-                placeholder="jmeno@veterina-svahy.cz"
+                placeholder="vas.email@prace.cz"
               />
             </div>
 

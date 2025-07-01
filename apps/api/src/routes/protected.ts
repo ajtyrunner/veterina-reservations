@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import { Router, Request, Response } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { parsePragueDateTime, parseTimezoneDateTime, logTimezoneDebug } from '../utils/timezone'
 import { getCachedTenantTimezone } from '../utils/tenant'
@@ -17,7 +17,7 @@ const router = Router()
 const prisma = new PrismaClient()
 
 // Získání rezervací (uživatelské pro CLIENT, všechny pro DOCTOR/ADMIN)
-router.get('/reservations', validateQueryParams, async (req, res) => {
+router.get('/reservations', validateQueryParams, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -106,7 +106,7 @@ router.get('/reservations', validateQueryParams, async (req, res) => {
 })
 
 // Vytvoření nové rezervace
-router.post('/reservations', createOperationLimit, validateCreateReservation, async (req, res) => {
+router.post('/reservations', createOperationLimit, validateCreateReservation, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -176,7 +176,7 @@ router.post('/reservations', createOperationLimit, validateCreateReservation, as
 })
 
 // Aktualizace stavu rezervace (pro doktory/adminy)
-router.patch('/reservations/:id', validateUpdateReservationStatus, async (req, res) => {
+router.patch('/reservations/:id', validateUpdateReservationStatus, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -291,7 +291,7 @@ router.patch('/reservations/:id', validateUpdateReservationStatus, async (req, r
 })
 
 // Zrušení rezervace
-router.delete('/reservations/:id', async (req, res) => {
+router.delete('/reservations/:id', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -326,7 +326,7 @@ router.delete('/reservations/:id', async (req, res) => {
 })
 
 // Routes pro doktory - vytváření slotů
-router.post('/doctor/slots', createOperationLimit, validateCreateSlot, async (req, res) => {
+router.post('/doctor/slots', createOperationLimit, validateCreateSlot, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -460,7 +460,7 @@ router.post('/doctor/slots', createOperationLimit, validateCreateSlot, async (re
 })
 
 // Získání slotů doktora
-router.get('/doctor/slots', async (req, res) => {
+router.get('/doctor/slots', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -551,7 +551,7 @@ router.get('/doctor/slots', async (req, res) => {
 })
 
 // Úprava slotu
-router.put('/doctor/slots/:id', async (req, res) => {
+router.put('/doctor/slots/:id', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -683,7 +683,7 @@ router.put('/doctor/slots/:id', async (req, res) => {
 })
 
 // Smazání slotu
-router.delete('/doctor/slots/:id', async (req, res) => {
+router.delete('/doctor/slots/:id', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -738,7 +738,7 @@ router.delete('/doctor/slots/:id', async (req, res) => {
 // === SPRÁVA REZERVACÍ ===
 
 // Získání všech rezervací pro doktora/admina
-router.get('/doctor/reservations', async (req, res) => {
+router.get('/doctor/reservations', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -824,7 +824,7 @@ router.get('/doctor/reservations', async (req, res) => {
 })
 
 // Aktualizace statusu rezervace
-router.put('/doctor/reservations/:id/status', async (req, res) => {
+router.put('/doctor/reservations/:id/status', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -917,7 +917,7 @@ router.put('/doctor/reservations/:id/status', async (req, res) => {
 })
 
 // Přidání poznámky k rezervaci
-router.put('/doctor/reservations/:id/notes', async (req, res) => {
+router.put('/doctor/reservations/:id/notes', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -984,7 +984,7 @@ router.put('/doctor/reservations/:id/notes', async (req, res) => {
 // === SPRÁVA ROOMS (ORDINACÍ) ===
 
 // Získání všech rooms
-router.get('/rooms', async (req, res) => {
+router.get('/rooms', async (req: Request, res: Response) => {
   try {
     const tenantId = req.user?.tenant
     const userRole = req.user?.role
@@ -1010,7 +1010,7 @@ router.get('/rooms', async (req, res) => {
 })
 
 // Vytvoření nové room
-router.post('/rooms', async (req, res) => {
+router.post('/rooms', async (req: Request, res: Response) => {
   try {
     const tenantId = req.user?.tenant
     const userRole = req.user?.role
@@ -1046,7 +1046,7 @@ router.post('/rooms', async (req, res) => {
 })
 
 // Aktualizace room
-router.put('/rooms/:id', async (req, res) => {
+router.put('/rooms/:id', async (req: Request, res: Response) => {
   try {
     const tenantId = req.user?.tenant
     const userRole = req.user?.role
@@ -1089,7 +1089,7 @@ router.put('/rooms/:id', async (req, res) => {
 // === SPRÁVA SERVICE TYPES (DRUHŮ SLUŽEB) ===
 
 // Získání všech service types
-router.get('/service-types', async (req, res) => {
+router.get('/service-types', async (req: Request, res: Response) => {
   try {
     const tenantId = req.user?.tenant
     const userRole = req.user?.role
@@ -1115,7 +1115,7 @@ router.get('/service-types', async (req, res) => {
 })
 
 // Vytvoření nového service type
-router.post('/service-types', async (req, res) => {
+router.post('/service-types', async (req: Request, res: Response) => {
   try {
     const tenantId = req.user?.tenant
     const userRole = req.user?.role
@@ -1156,7 +1156,7 @@ router.post('/service-types', async (req, res) => {
 })
 
 // Aktualizace service type
-router.put('/service-types/:id', async (req, res) => {
+router.put('/service-types/:id', async (req: Request, res: Response) => {
   try {
     const tenantId = req.user?.tenant
     const userRole = req.user?.role
@@ -1204,7 +1204,7 @@ router.put('/service-types/:id', async (req, res) => {
 // === SPRÁVA DOKTORŮ ===
 
 // Získání všech doktorů (pouze pro ADMIN)
-router.get('/doctors', async (req, res) => {
+router.get('/doctors', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -1247,7 +1247,7 @@ router.get('/doctors', async (req, res) => {
 // === BULK GENEROVÁNÍ SLOTŮ ===
 
 // Bulk generování slotů podle rozvrhu
-router.post('/doctor/slots/bulk-generate', bulkOperationLimit, validateBulkSlotGeneration, async (req, res) => {
+router.post('/doctor/slots/bulk-generate', bulkOperationLimit, validateBulkSlotGeneration, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant

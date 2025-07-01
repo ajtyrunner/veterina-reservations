@@ -141,4 +141,4 @@ Před nasazením do produkce:
 - [ ] Monitoring a alerting nastaveno
 - [ ] Backup strategie implementována
 
-**🔥 Nedeploy!!! bez dokončení kritických bodů!** 
+**🔥 Nedeploy!!!! bez dokončení kritických bodů!** 

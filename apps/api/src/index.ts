@@ -3,9 +3,11 @@ import path from 'path'
 import fs from 'fs'
 import express from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
 import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
 import { authMiddleware } from './middleware/auth'
+import { basicRateLimit, strictRateLimit } from './middleware/rateLimiter'
 import protectedRouter from './routes/protected'
 import authRouter from './routes/auth'
 import { parsePragueDateTime, parseTimezoneDateTime, getStartOfDayInTimezone, getEndOfDayInTimezone } from './utils/timezone'
@@ -35,6 +37,22 @@ console.log('PORT:', process.env.PORT)
 
 // Až po načtení .env importujeme ostatní moduly
 const app = express()
+
+// BEZPEČNOSTNÍ MIDDLEWARE - aplikovat jako první
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false, // Pro development compatibility
+}))
+
+// Rate limiting pro všechny requesty
+app.use(basicRateLimit)
 
 // Inicializace Prisma klienta až po načtení proměnných prostředí
 const prisma = new PrismaClient()
@@ -256,8 +274,8 @@ app.get('/api/public/service-types/:tenantId', async (req, res) => {
   }
 })
 
-// Auth routes - bez autentizace  
-app.use('/api/auth', authRouter)
+// Auth routes - bez autentizace, ale s přísným rate limitingem
+app.use('/api/auth', strictRateLimit, authRouter)
 
 // Chráněné routes - vše ostatní pod /api vyžaduje autentizaci
 app.use('/api', authMiddleware, protectedRouter)

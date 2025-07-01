@@ -1,12 +1,22 @@
 import { Router } from 'express'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { 
+  bruteForceProtection, 
+  validateAuthInput, 
+  auditLog,
+  enforceSecureSession 
+} from '../middleware/authSecurity'
 
 const router = Router()
 const prisma = new PrismaClient()
 
 // Endpoint pro NextAuth credentials ověření
-router.post('/credentials', async (req, res) => {
+router.post('/credentials', 
+  enforceSecureSession,
+  validateAuthInput, 
+  bruteForceProtection, 
+  async (req, res) => {
   console.log('🔐 AUTH REQUEST:', {
     email: req.body.email,
     tenantSlug: req.body.tenantSlug,
@@ -37,6 +47,9 @@ router.post('/credentials', async (req, res) => {
 
     if (!userRecord || !userRecord.password) {
       console.log('❌ User not found or no password')
+      // Zaloguj neúspěšný pokus
+      auditLog('LOGIN_FAILED', { email, reason: 'user_not_found' }, req)
+      res.locals.trackFailedAttempt?.()
       return res.status(401).json({ error: 'Neplatné přihlašovací údaje' })
     }
 
@@ -47,19 +60,34 @@ router.post('/credentials', async (req, res) => {
     
     if (!passwordMatch) {
       console.log('❌ Password mismatch')
+      // Zaloguj neúspěšný pokus
+      auditLog('LOGIN_FAILED', { email, reason: 'password_mismatch' }, req)
+      res.locals.trackFailedAttempt?.()
       return res.status(401).json({ error: 'Neplatné přihlašovací údaje' })
     }
 
     // Ověř, že se přihlašuje ke správnému tenantovi
     if (tenantSlug && userRecord.tenant.slug !== tenantSlug) {
+      auditLog('LOGIN_FAILED', { email, reason: 'wrong_tenant', attemptedTenant: tenantSlug }, req)
+      res.locals.trackFailedAttempt?.()
       return res.status(401).json({ error: 'Nepatříte k této ordinaci' })
     }
 
     // Pouze doktoři a admini můžou používat credentials
     if (userRecord.role !== 'DOCTOR' && userRecord.role !== 'ADMIN') {
+      auditLog('LOGIN_FAILED', { email, reason: 'insufficient_permissions', role: userRecord.role }, req)
+      res.locals.trackFailedAttempt?.()
       return res.status(403).json({ error: 'Nedostatečná oprávnění' })
     }
 
+    // Úspěšné přihlášení - clear failed attempts a zaloguj
+    res.locals.clearFailedAttempts?.()
+    auditLog('LOGIN_SUCCESS', { 
+      email, 
+      role: userRecord.role, 
+      tenant: userRecord.tenant.slug 
+    }, req)
+    
     // Vrať údaje pro NextAuth
     console.log('✅ Auth successful for:', userRecord.email)
     res.json({

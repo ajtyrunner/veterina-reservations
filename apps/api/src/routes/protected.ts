@@ -2,12 +2,22 @@ import { Router } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { parsePragueDateTime, parseTimezoneDateTime, logTimezoneDebug } from '../utils/timezone'
 import { getCachedTenantTimezone } from '../utils/tenant'
+import { bulkOperationLimit, createOperationLimit } from '../middleware/rateLimiter'
+import { 
+  validateCreateReservation, 
+  validateCreateSlot, 
+  validateBulkSlotGeneration,
+  validateUpdateReservationStatus,
+  validateCreateRoom,
+  validateCreateServiceType,
+  validateQueryParams
+} from '../middleware/validation'
 
 const router = Router()
 const prisma = new PrismaClient()
 
 // Získání rezervací (uživatelské pro CLIENT, všechny pro DOCTOR/ADMIN)
-router.get('/reservations', async (req, res) => {
+router.get('/reservations', validateQueryParams, async (req, res) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -96,7 +106,7 @@ router.get('/reservations', async (req, res) => {
 })
 
 // Vytvoření nové rezervace
-router.post('/reservations', async (req, res) => {
+router.post('/reservations', createOperationLimit, validateCreateReservation, async (req, res) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -166,7 +176,7 @@ router.post('/reservations', async (req, res) => {
 })
 
 // Aktualizace stavu rezervace (pro doktory/adminy)
-router.patch('/reservations/:id', async (req, res) => {
+router.patch('/reservations/:id', validateUpdateReservationStatus, async (req, res) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -316,7 +326,7 @@ router.delete('/reservations/:id', async (req, res) => {
 })
 
 // Routes pro doktory - vytváření slotů
-router.post('/doctor/slots', async (req, res) => {
+router.post('/doctor/slots', createOperationLimit, validateCreateSlot, async (req, res) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -1237,7 +1247,7 @@ router.get('/doctors', async (req, res) => {
 // === BULK GENEROVÁNÍ SLOTŮ ===
 
 // Bulk generování slotů podle rozvrhu
-router.post('/doctor/slots/bulk-generate', async (req, res) => {
+router.post('/doctor/slots/bulk-generate', bulkOperationLimit, validateBulkSlotGeneration, async (req, res) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
@@ -1255,11 +1265,23 @@ router.post('/doctor/slots/bulk-generate', async (req, res) => {
       doctorId 
     } = req.body
 
+    // BEZPEČNOST: Rate limiting check
+    if (weeksCount > 52) {
+      return res.status(400).json({ error: 'Maximální počet týdnů je 52' })
+    }
+
+    // BEZPEČNOST: Limit na počet generovaných slotů
+    const estimatedSlots = weekdays.length * weeksCount * (Math.floor(480 / Math.max(interval, 15)))
+    if (estimatedSlots > 1000) {
+      return res.status(400).json({ error: 'Příliš mnoho slotů k vygenerování. Snižte počet týdnů nebo zvyšte interval.' })
+    }
+
     console.log('=== DEBUG: Bulk slot generation ===')
     console.log('userId:', userId)
     console.log('tenantId:', tenantId)
     console.log('userRole:', userRole)
-    console.log('params:', { weekdays, startTime, endTime, interval, serviceTypeId, roomId, weeksCount, startDate, breakTimes, doctorId })
+    // BEZPEČNOST: Nelogovat citlivé parametry
+    console.log('estimatedSlots:', estimatedSlots)
 
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
@@ -1274,7 +1296,7 @@ router.post('/doctor/slots/bulk-generate', async (req, res) => {
       return res.status(400).json({ error: 'Dny v týdnu jsou povinné' })
     }
 
-    if (!startTime || !endTime || !interval || !weeksCount || !startDate) {
+    if (!startTime || !endTime || !weeksCount || !startDate) {
       return res.status(400).json({ error: 'Všechny časové parametry jsou povinné' })
     }
 

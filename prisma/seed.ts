@@ -55,7 +55,8 @@ async function main() {
   // Vytvoření admin uživatele
   const adminPassword = 'K9mX2nP7qE' // Náhodné 10místné heslo
   const adminHashedPassword = await bcrypt.hash(adminPassword, 12)
-  console.log('🔐 Admin heslo:', adminPassword)
+  // console.log('🔐 Admin heslo:', adminPassword) // BEZPEČNOST: Nelogovat plaintext hesla
+  console.log('✅ Admin uživatel bude vytvořen s heslem z kódu')
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@veterina-svahy.cz' },
     update: {},

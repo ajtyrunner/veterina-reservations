@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { formatDisplayTime } from '../../lib/timezone'
 
 interface Slot {
   id: string
@@ -108,12 +109,8 @@ export default function CalendarView({ slots, selectedDoctor, selectedServiceTyp
     setSelectedDay(null)
   }
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('cs-CZ', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+  // Používáme unifikované funkce z timezone.ts
+  // const formatTime = formatDisplayTime
 
   const isToday = (date: Date) => {
     const today = new Date()
@@ -204,7 +201,7 @@ export default function CalendarView({ slots, selectedDoctor, selectedServiceTyp
                   >
                     <div>
                       <div className="font-medium text-gray-900">
-                        {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                        {formatDisplayTime(new Date(slot.startTime))} - {formatDisplayTime(new Date(slot.endTime))}
                       </div>
                       <div className="text-sm text-gray-600">
                         {slot.doctor.user.name}
@@ -292,8 +289,41 @@ export default function CalendarView({ slots, selectedDoctor, selectedServiceTyp
               </div>
               
               {day.slots.length > 0 && !isPast(day.date) && (
-                <div className="text-xs text-green-700 font-semibold bg-green-200 px-2 py-1 rounded-full text-center">
-                  {day.slots.length} {day.slots.length === 1 ? 'termín' : 'termínů'}
+                <div className="space-y-1">
+                  <div className="text-xs text-green-700 font-semibold bg-green-200 px-2 py-1 rounded-full text-center">
+                    {day.slots.length} {day.slots.length === 1 ? 'termín' : 'termínů'}
+                  </div>
+                  
+                  {/* Názvy služeb jako text */}
+                  <div className="space-y-0.5">
+                    {Array.from(new Set(day.slots
+                      .filter(slot => slot.serviceType)
+                      .map(slot => slot.serviceType!.id)
+                    )).slice(0, 2).map(serviceTypeId => {
+                      const serviceType = day.slots.find(slot => slot.serviceType?.id === serviceTypeId)?.serviceType
+                      return serviceType ? (
+                        <div
+                          key={serviceTypeId}
+                          className="text-xs px-1 py-0.5 rounded text-white font-medium text-center"
+                          style={{ backgroundColor: serviceType.color || '#3B82F6' }}
+                          title={`${serviceType.name} (${serviceType.duration} min)`}
+                        >
+                          {serviceType.name.length > 10 ? serviceType.name.substring(0, 10) + '...' : serviceType.name}
+                        </div>
+                      ) : null
+                    })}
+                    {Array.from(new Set(day.slots
+                      .filter(slot => slot.serviceType)
+                      .map(slot => slot.serviceType!.id)
+                    )).length > 2 && (
+                      <div className="text-xs text-gray-600 text-center font-medium">
+                        +{Array.from(new Set(day.slots
+                          .filter(slot => slot.serviceType)
+                          .map(slot => slot.serviceType!.id)
+                        )).length - 2} dalších
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
               

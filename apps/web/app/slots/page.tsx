@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { formatDisplayTime, formatDisplayDate, formatDisplayDateTime, formatDateTimeFromAPI, getTomorrowDateTime as getTimezoneAwareTomorrowDateTime, isSameDayInTimezone, getTodayDateString } from '../../lib/timezone'
 
 interface Room {
   id: string
@@ -173,8 +174,18 @@ export default function SlotsPage() {
     
     try {
       console.log('🔄 Vytvářím slot přímo přes Railway API...')
+      
+      // Konvertujeme datetime-local na Prague timezone formát před odesláním
+      const { formatDateTimeForAPI } = await import('../../lib/timezone')
+      const apiData = {
+        ...formData,
+        startTime: formatDateTimeForAPI(formData.startTime),
+        endTime: formatDateTimeForAPI(formData.endTime)
+      }
+      
+      console.log('📤 Odesílám data:', apiData)
       const { createSlot } = await import('../../lib/api-client')
-      const newSlot = await createSlot(formData)
+      const newSlot = await createSlot(apiData)
       console.log('✅ Slot vytvořen přes Railway:', newSlot)
       
       setSlots(prev => [...prev, newSlot])
@@ -191,9 +202,10 @@ export default function SlotsPage() {
 
   const startEditSlot = (slot: Slot) => {
     setEditingSlot(slot.id)
+    const { formatTimezoneDateTime } = require('../../lib/timezone')
     setEditFormData({
-      startTime: new Date(slot.startTime).toISOString().slice(0, 16),
-      endTime: new Date(slot.endTime).toISOString().slice(0, 16),
+      startTime: formatTimezoneDateTime(new Date(slot.startTime)),
+      endTime: formatTimezoneDateTime(new Date(slot.endTime)),
       equipment: slot.equipment || '',
       roomId: slot.roomId || '',
       serviceTypeId: slot.serviceTypeId || '',
@@ -212,8 +224,16 @@ export default function SlotsPage() {
     }
 
     try {
+      // Konvertujeme datetime-local na Prague timezone formát před odesláním
+      const { formatDateTimeForAPI } = await import('../../lib/timezone')
+      const apiData = {
+        ...editFormData,
+        startTime: formatDateTimeForAPI(editFormData.startTime),
+        endTime: formatDateTimeForAPI(editFormData.endTime)
+      }
+      
       const { updateSlot } = await import('../../lib/api-client')
-      const updatedSlot = await updateSlot(slotId, editFormData)
+      const updatedSlot = await updateSlot(slotId, apiData)
       console.log('✅ Slot upraven v Railway:', updatedSlot)
       setSlots(prev => prev.map(slot => slot.id === slotId ? updatedSlot : slot))
       setEditingSlot(null)
@@ -247,22 +267,8 @@ export default function SlotsPage() {
     }
   }
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('cs-CZ', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
   const getTomorrowDateTime = () => {
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    tomorrow.setHours(9, 0, 0, 0)
-    return tomorrow.toISOString().slice(0, 16)
+    return getTimezoneAwareTomorrowDateTime()
   }
 
   // Utility funkce pro správné přidání minut k datetime-local
@@ -331,6 +337,49 @@ export default function SlotsPage() {
     setFormData(prev => ({ ...prev, startTime }))
   }
 
+  // Funkce pro editační formulář
+  const handleEditServiceTypeChange = (serviceTypeId: string) => {
+    if (serviceTypeId) {
+      // Vybrána služba - automaticky nastav čas konce
+      const selectedService = serviceTypes.find(s => s.id === serviceTypeId)
+      if (selectedService && editFormData.startTime) {
+        const endTime = addMinutesToDateTimeLocal(editFormData.startTime, selectedService.duration)
+        setEditFormData(prev => ({ 
+          ...prev, 
+          serviceTypeId,
+          endTime
+        }))
+      } else {
+        setEditFormData(prev => ({ ...prev, serviceTypeId }))
+      }
+    } else {
+      // Zrušen výběr služby - ponech současný čas konce
+      setEditFormData(prev => ({ 
+        ...prev, 
+        serviceTypeId: ''
+      }))
+    }
+  }
+
+  const handleEditStartTimeChange = (startTime: string) => {
+    if (editFormData.serviceTypeId && startTime) {
+      // Pokud je vybrána služba, automaticky nastav čas konce
+      const selectedService = serviceTypes.find(s => s.id === editFormData.serviceTypeId)
+      if (selectedService) {
+        const endTime = addMinutesToDateTimeLocal(startTime, selectedService.duration)
+        setEditFormData(prev => ({ 
+          ...prev, 
+          startTime,
+          endTime
+        }))
+        return
+      }
+    }
+    
+    // Pokud není vybrána služba, jen nastav čas začátku
+    setEditFormData(prev => ({ ...prev, startTime }))
+  }
+
   const applyFilters = () => {
     let filtered = [...slots]
 
@@ -344,12 +393,12 @@ export default function SlotsPage() {
       filtered = filtered.filter(slot => slot.roomId === filters.roomId)
     }
 
-    // Filtr podle data
+    // Timezone-aware filtr podle data
     if (filters.date) {
       const filterDate = new Date(filters.date)
       filtered = filtered.filter(slot => {
         const slotDate = new Date(slot.startTime)
-        return slotDate.toDateString() === filterDate.toDateString()
+        return isSameDayInTimezone(slotDate, filterDate)
       })
     }
 
@@ -651,7 +700,7 @@ export default function SlotsPage() {
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="text-sm font-medium text-gray-700">Rychlé filtry:</span>
           <button
-            onClick={() => setFilters(prev => ({ ...prev, date: new Date().toISOString().split('T')[0] }))}
+            onClick={() => setFilters(prev => ({ ...prev, date: getTodayDateString() }))}
             className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors"
           >
             Dnes
@@ -660,7 +709,7 @@ export default function SlotsPage() {
             onClick={() => {
               const tomorrow = new Date()
               tomorrow.setDate(tomorrow.getDate() + 1)
-              setFilters(prev => ({ ...prev, date: tomorrow.toISOString().split('T')[0] }))
+              setFilters(prev => ({ ...prev, date: tomorrow.toLocaleDateString('sv-SE') }))
             }}
             className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors"
           >
@@ -670,7 +719,7 @@ export default function SlotsPage() {
             onClick={() => {
               const nextWeek = new Date()
               nextWeek.setDate(nextWeek.getDate() + 7)
-              setFilters(prev => ({ ...prev, date: nextWeek.toISOString().split('T')[0] }))
+              setFilters(prev => ({ ...prev, date: nextWeek.toLocaleDateString('sv-SE') }))
             }}
             className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors"
           >
@@ -726,14 +775,16 @@ export default function SlotsPage() {
                         <input
                           type="datetime-local"
                           value={editFormData.startTime}
-                          onChange={(e) => setEditFormData(prev => ({ ...prev, startTime: e.target.value }))}
+                          onChange={(e) => handleEditStartTimeChange(e.target.value)}
                           required
                           className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Konec *
+                          Konec * {editFormData.serviceTypeId && (
+                            <span className="text-xs text-green-600">(automaticky podle služby)</span>
+                          )}
                         </label>
                         <input
                           type="datetime-local"
@@ -769,7 +820,7 @@ export default function SlotsPage() {
                         </label>
                         <select
                           value={editFormData.serviceTypeId}
-                          onChange={(e) => setEditFormData(prev => ({ ...prev, serviceTypeId: e.target.value }))}
+                          onChange={(e) => handleEditServiceTypeChange(e.target.value)}
                           className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                           <option value="">Vyberte druh služby (volitelné)</option>
@@ -818,7 +869,7 @@ export default function SlotsPage() {
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h3 className="font-semibold text-gray-800">
-                          {formatDateTime(slot.startTime)} - {formatDateTime(slot.endTime)}
+                          {formatDisplayDateTime(new Date(slot.startTime))} - {formatDisplayDateTime(new Date(slot.endTime))}
                         </h3>
                         <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
                           <div className="space-y-2">

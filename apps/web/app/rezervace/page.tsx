@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
+import { formatDisplayTime, formatDisplayDate } from '../../lib/timezone'
 
 interface Reservation {
   id: string
@@ -73,21 +74,9 @@ export default function ReservationsPage() {
     }
   }
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('cs-CZ', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('cs-CZ', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
+  // Používáme unifikované funkce z timezone.ts
+  // const formatTime = formatDisplayTime
+  // const formatDate = formatDisplayDate
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -266,8 +255,8 @@ export default function ReservationsPage() {
                 )}
               </div>
               <div className="text-sm text-gray-600">
-                <p>Datum: {formatDate(reservation.slot.startTime)}</p>
-                <p>Čas: {formatTime(reservation.slot.startTime)} - {formatTime(reservation.slot.endTime)}</p>
+                <p>Datum: {formatDisplayDate(reservation.slot.startTime)}</p>
+                <p>Čas: {formatDisplayTime(reservation.slot.startTime)} - {formatDisplayTime(reservation.slot.endTime)}</p>
                 {reservation.slot.room && <p>Místnost: {reservation.slot.room}</p>}
                 {reservation.slot.equipment && <p>Vybavení: {reservation.slot.equipment}</p>}
               </div>

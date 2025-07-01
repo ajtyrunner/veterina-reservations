@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { PrismaClient } from '@prisma/client'
-import { parsePragueDateTime, logTimeDebug } from '../utils/timezone'
+import { parsePragueDateTime, parseTimezoneDateTime, logTimezoneDebug } from '../utils/timezone'
+import { getCachedTenantTimezone } from '../utils/tenant'
 
 const router = Router()
 const prisma = new PrismaClient()
@@ -373,31 +374,36 @@ router.post('/doctor/slots', async (req, res) => {
       targetDoctorId = doctor.id
     }
 
-    // Kontrola, zda slot už neexistuje
+    // Timezone-aware kontrola, zda slot už neexistuje
+    const tenantTimezone = await getCachedTenantTimezone(prisma, tenantId)
+    const startTimeUTCCheck = parseTimezoneDateTime(startTime, tenantTimezone)
+    const endTimeUTCCheck = parseTimezoneDateTime(endTime, tenantTimezone)
+    
     const existingSlot = await prisma.slot.findFirst({
       where: {
         doctorId: targetDoctorId,
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
+        startTime: startTimeUTCCheck,
+        endTime: endTimeUTCCheck,
       },
     })
 
     if (existingSlot) {
       return res.status(409).json({ 
-        error: `Slot pro tento čas už existuje (${new Date(startTime).toLocaleString('cs-CZ')} - ${new Date(endTime).toLocaleString('cs-CZ')})` 
+        error: `Slot pro tento čas už existuje (${startTimeUTCCheck.toLocaleString('cs-CZ', { timeZone: 'Europe/Prague' })} - ${endTimeUTCCheck.toLocaleString('cs-CZ', { timeZone: 'Europe/Prague' })})` 
       })
     }
 
-    // Timezone handling - převedeme frontend čas na UTC
-    const startTimeUTC = parsePragueDateTime(startTime)
-    const endTimeUTC = parsePragueDateTime(endTime)
+    // Timezone handling - převedeme frontend čas na UTC podle tenant timezone
+    const startTimeUTC = parseTimezoneDateTime(startTime, tenantTimezone)
+    const endTimeUTC = parseTimezoneDateTime(endTime, tenantTimezone)
     
     console.log('Creating slot with timezone handling:')
     console.log('- doctorId:', targetDoctorId)
-    logTimeDebug('Original startTime', startTime)
-    logTimeDebug('Parsed startTime UTC', startTimeUTC)
-    logTimeDebug('Original endTime', endTime)
-    logTimeDebug('Parsed endTime UTC', endTimeUTC)
+    console.log('- tenantTimezone:', tenantTimezone)
+    logTimezoneDebug('Original startTime', startTime)
+    logTimezoneDebug('Parsed startTime UTC', startTimeUTC, tenantTimezone)
+    logTimezoneDebug('Original endTime', endTime)
+    logTimezoneDebug('Parsed endTime UTC', endTimeUTC, tenantTimezone)
     console.log('- roomId:', roomId)
     console.log('- serviceTypeId:', serviceTypeId)
 
@@ -578,28 +584,44 @@ router.put('/doctor/slots/:id', async (req, res) => {
     }
 
     // Kontrola, zda nový čas nekoliduje s jiným slotem
-    if (startTime !== existingSlot.startTime.toISOString() || endTime !== existingSlot.endTime.toISOString()) {
+    const tenantTimezone = await getCachedTenantTimezone(prisma, tenantId)
+    const startTimeUTCForCheck = parseTimezoneDateTime(startTime, tenantTimezone)
+    const endTimeUTCForCheck = parseTimezoneDateTime(endTime, tenantTimezone)
+    
+    if (startTimeUTCForCheck.getTime() !== existingSlot.startTime.getTime() || 
+        endTimeUTCForCheck.getTime() !== existingSlot.endTime.getTime()) {
       const conflictingSlot = await prisma.slot.findFirst({
         where: {
           id: { not: id },
           doctorId: existingSlot.doctorId,
-          startTime: new Date(startTime),
-          endTime: new Date(endTime),
+          startTime: startTimeUTCForCheck,
+          endTime: endTimeUTCForCheck,
         },
       })
 
       if (conflictingSlot) {
         return res.status(409).json({ 
-          error: `Slot pro tento čas už existuje (${new Date(startTime).toLocaleString('cs-CZ')} - ${new Date(endTime).toLocaleString('cs-CZ')})` 
+          error: `Slot pro tento čas už existuje (${startTimeUTCForCheck.toLocaleString('cs-CZ', { timeZone: 'Europe/Prague' })} - ${endTimeUTCForCheck.toLocaleString('cs-CZ', { timeZone: 'Europe/Prague' })})` 
         })
       }
     }
 
+    // Timezone handling - převedeme frontend čas na UTC podle tenant timezone
+    const startTimeUTC = parseTimezoneDateTime(startTime, tenantTimezone)
+    const endTimeUTC = parseTimezoneDateTime(endTime, tenantTimezone)
+    
+    console.log('Updating slot with timezone handling:')
+    console.log('- tenantTimezone:', tenantTimezone)
+    logTimezoneDebug('Original startTime', startTime)
+    logTimezoneDebug('Parsed startTime UTC', startTimeUTC, tenantTimezone)
+    logTimezoneDebug('Original endTime', endTime)
+    logTimezoneDebug('Parsed endTime UTC', endTimeUTC, tenantTimezone)
+
     const updatedSlot = await prisma.slot.update({
       where: { id },
       data: {
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
+        startTime: startTimeUTC,
+        endTime: endTimeUTC,
         roomId: roomId || null,
         serviceTypeId: serviceTypeId || null,
         equipment,

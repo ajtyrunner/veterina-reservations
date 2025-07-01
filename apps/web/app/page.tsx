@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { getTenantSlugFromUrl } from '@/lib/tenant'
 import CalendarView from './components/CalendarView'
+import { formatDisplayTime, formatDisplayDate } from '../lib/timezone'
 
 interface Slot {
   id: string
@@ -387,21 +388,9 @@ export default function Home() {
     }
   }
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('cs-CZ', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('cs-CZ', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
+  // Používáme unifikované funkce z timezone.ts
+  // const formatTime = formatDisplayTime
+  // const formatDate = formatDisplayDate
 
   const getTomorrowDate = () => {
     const tomorrow = new Date()
@@ -472,10 +461,10 @@ export default function Home() {
               
               <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-800">
-                  <strong>Datum:</strong> {formatDate(selectedSlotForReservation.startTime)}
+                  <strong>Datum:</strong> {formatDisplayDate(selectedSlotForReservation.startTime)}
                 </p>
                 <p className="text-sm text-blue-800">
-                  <strong>Čas:</strong> {formatTime(selectedSlotForReservation.startTime)} - {formatTime(selectedSlotForReservation.endTime)}
+                  <strong>Čas:</strong> {formatDisplayTime(selectedSlotForReservation.startTime)} - {formatDisplayTime(selectedSlotForReservation.endTime)}
                 </p>
                 <p className="text-sm text-blue-800">
                   <strong>Veterinář:</strong> {selectedSlotForReservation.doctor.user.name}
@@ -698,10 +687,10 @@ export default function Home() {
                   <div key={slot.id} className="p-4 bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
                     <div className="mb-3">
                       <p className="text-lg font-semibold text-gray-800">
-                        {formatDate(slot.startTime)}
+                        {formatDisplayDate(new Date(slot.startTime))}
                       </p>
                       <p className="text-md text-blue-600 font-medium">
-                        {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                        {formatDisplayTime(new Date(slot.startTime))} - {formatDisplayTime(new Date(slot.endTime))}
                       </p>
                     </div>
                     

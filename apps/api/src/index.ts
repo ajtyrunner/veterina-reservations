@@ -8,6 +8,8 @@ import jwt from 'jsonwebtoken'
 import { authMiddleware } from './middleware/auth'
 import protectedRouter from './routes/protected'
 import authRouter from './routes/auth'
+import { parsePragueDateTime, parseTimezoneDateTime, getStartOfDayInTimezone, getEndOfDayInTimezone } from './utils/timezone'
+import { getCachedTenantTimezone } from './utils/tenant'
 
 // Načtení .env souboru z kořenového adresáři projektu
 const envPath = path.resolve(__dirname, '../../../.env')
@@ -94,6 +96,7 @@ app.get('/api/public/tenant/:slug', async (req, res) => {
         logoUrl: true,
         primaryColor: true,
         secondaryColor: true,
+        timezone: true,
       },
     })
 
@@ -128,13 +131,23 @@ app.get('/api/public/slots/:tenantId', async (req, res) => {
     }
 
     if (date) {
-      const startDate = new Date(date as string)
-      const endDate = new Date(startDate)
-      endDate.setDate(startDate.getDate() + 1)
+      // Timezone-aware date filtering podle tenanta
+      const inputDate = date as string // Expected format: YYYY-MM-DD
+      
+      // Načteme timezone tenanta
+      const tenantTimezone = await getCachedTenantTimezone(prisma, tenantId)
+      
+      // Vytvoříme timezone-aware range pro celý den
+      const startDateUTC = getStartOfDayInTimezone(inputDate, tenantTimezone)
+      const endDateUTC = getEndOfDayInTimezone(inputDate, tenantTimezone)
+      
+      console.log(`🗓️ Date filter: ${inputDate} (tenant timezone: ${tenantTimezone})`)
+      console.log(`   Start UTC: ${startDateUTC.toISOString()}`)
+      console.log(`   End UTC: ${endDateUTC.toISOString()}`)
       
       where.startTime = {
-        gte: startDate,
-        lt: endDate,
+        gte: startDateUTC,
+        lte: endDateUTC,
       }
     }
 
@@ -150,7 +163,22 @@ app.get('/api/public/slots/:tenantId', async (req, res) => {
             },
           },
         },
-        // room a serviceType se načítají podle roomId a serviceTypeId
+        room: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+        serviceType: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            duration: true,
+            color: true,
+          },
+        },
         reservations: {
           where: {
             status: {

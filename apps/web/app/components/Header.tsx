@@ -132,10 +132,15 @@ export default function Header() {
               <span>veterina-svahy@email.cz</span>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
+          <a 
+            href="https://www.facebook.com/people/Veterina-Svahy/100049515202415/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center space-x-2 hover:text-orange-100 transition-colors"
+          >
             <span>👥</span>
             <span>Facebook</span>
-          </div>
+          </a>
         </div>
       </div>
 
@@ -179,12 +184,30 @@ export default function Header() {
                   {(session.user.role === 'DOCTOR' || session.user.role === 'ADMIN') && (
                     <>
                       <div className="h-6 border-l border-orange-300"></div>
-                      <Link 
-                        href="/slots" 
-                        className="text-white hover:text-orange-100 font-medium transition-colors"
-                      >
-                        Správa slotů
-                      </Link>
+                      <div className="relative group">
+                        <Link 
+                          href="/slots" 
+                          className="text-white hover:text-orange-100 font-medium transition-colors"
+                        >
+                          Správa slotů
+                        </Link>
+                        <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                          <div className="py-2">
+                            <Link 
+                              href="/slots" 
+                              className="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                            >
+                              📋 Přehled slotů
+                            </Link>
+                            <Link 
+                              href="/slots/generovani" 
+                              className="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                            >
+                              📅 Generovat sloty
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
                       <Link 
                         href="/rezervace/sprava" 
                         className="text-white hover:text-orange-100 font-medium transition-colors"
@@ -354,6 +377,13 @@ export default function Header() {
                           onClick={closeMobileMenu}
                         >
                           🕐 Správa slotů
+                        </Link>
+                        <Link 
+                          href="/slots/generovani" 
+                          className="block text-white hover:text-orange-100 font-medium py-2 px-3 rounded transition-colors ml-6"
+                          onClick={closeMobileMenu}
+                        >
+                          📅 Generovat sloty
                         </Link>
                         <Link 
                           href="/rezervace/sprava" 

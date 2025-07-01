@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { formatDisplayTime, formatDisplayDate, formatDisplayDateTime, formatDateTimeFromAPI, getTomorrowDateTime as getTimezoneAwareTomorrowDateTime, isSameDayInTimezone, getTodayDateString } from '../../lib/timezone'
 
 interface Room {
@@ -497,12 +498,20 @@ export default function SlotsPage() {
               Vytvářejte a spravujte své dostupné termíny.
             </p>
           </div>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-          >
-            Přidat slot
-          </button>
+          <div className="flex space-x-3">
+            <Link
+              href="/slots/generovani"
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center"
+            >
+              📅 Generovat sloty
+            </Link>
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              + Přidat slot
+            </button>
+          </div>
         </div>
       </div>
 

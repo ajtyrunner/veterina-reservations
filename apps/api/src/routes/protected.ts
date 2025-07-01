@@ -1191,6 +1191,49 @@ router.put('/service-types/:id', async (req, res) => {
   }
 })
 
+// === SPRÁVA DOKTORŮ ===
+
+// Získání všech doktorů (pouze pro ADMIN)
+router.get('/doctors', async (req, res) => {
+  try {
+    const userId = req.user?.sub
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+
+    if (!userId || !tenantId) {
+      return res.status(400).json({ error: 'Chybí uživatelské údaje' })
+    }
+
+    if (userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění - pouze admin' })
+    }
+
+    const doctors = await prisma.doctor.findMany({
+      where: { tenantId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: {
+        user: {
+          name: 'asc',
+        },
+      },
+    })
+
+    res.json(doctors)
+  } catch (error) {
+    console.error('Chyba při načítání doktorů:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
 // === BULK GENEROVÁNÍ SLOTŮ ===
 
 // Bulk generování slotů podle rozvrhu
@@ -1235,8 +1278,8 @@ router.post('/doctor/slots/bulk-generate', async (req, res) => {
       return res.status(400).json({ error: 'Všechny časové parametry jsou povinné' })
     }
 
-    if (interval <= 0 || interval > 480) { // max 8 hodin
-      return res.status(400).json({ error: 'Interval musí být mezi 1-480 minutami' })
+    if (interval < 0 || interval > 480) { // min 0 (nepřetržitý), max 8 hodin
+      return res.status(400).json({ error: 'Interval musí být mezi 0-480 minutami' })
     }
 
     if (weeksCount <= 0 || weeksCount > 52) { // max rok
@@ -1277,6 +1320,17 @@ router.post('/doctor/slots/bulk-generate', async (req, res) => {
     // Timezone handling
     const tenantTimezone = await getCachedTenantTimezone(prisma, tenantId)
     
+    // Získej délku služby pro inteligentní sloty
+    let serviceTypeDuration: number | undefined = undefined
+    if (serviceTypeId) {
+      const serviceType = await prisma.serviceType.findFirst({
+        where: { id: serviceTypeId, tenantId },
+        select: { duration: true }
+      })
+      serviceTypeDuration = serviceType?.duration || undefined
+      console.log(`🔧 Služba má délku: ${serviceTypeDuration} minut`)
+    }
+    
     // Generování slotů
     const slotsToCreate = []
     const conflicts = []
@@ -1292,14 +1346,15 @@ router.post('/doctor/slots/bulk-generate', async (req, res) => {
         
         const dateStr = targetDate.toISOString().split('T')[0] // YYYY-MM-DD
         
-        // Generuj sloty pro tento den
+        // Generuj sloty pro tento den s inteligentní logikou
         const daySlots = generateDaySlots(
           dateStr, 
           startTime, 
           endTime, 
           interval, 
           breakTimes, 
-          tenantTimezone
+          tenantTimezone,
+          serviceTypeDuration
         )
         
         for (const slotTime of daySlots) {
@@ -1379,9 +1434,37 @@ function generateDaySlots(
   endTime: string, 
   interval: number, 
   breakTimes: Array<{start: string, end: string}>, 
-  timezone: any
+  timezone: any,
+  serviceTypeDuration?: number
 ) {
   const slots = []
+  
+  // Určení skutečné délky slotu
+  const actualSlotDuration = serviceTypeDuration || interval || 30 // fallback na 30 min
+  const stepInterval = interval || actualSlotDuration // interval pro posun začátků
+  
+  // Speciální případ: interval 0 = jeden nepřetržitý slot
+  if (interval === 0) {
+    const slotStart = parseTimezoneDateTime(`${dateStr}T${startTime}:00`, timezone)
+    const slotEnd = parseTimezoneDateTime(`${dateStr}T${endTime}:00`, timezone)
+    
+    // Kontrola, jestli celý rozsah nekoliduje s přestávkou
+    let isInBreak = false
+    for (const breakTime of breakTimes) {
+      if (startTime >= breakTime.start && startTime < breakTime.end) {
+        isInBreak = true
+        break
+      }
+    }
+    
+    if (!isInBreak) {
+      slots.push({
+        start: slotStart,
+        end: slotEnd,
+      })
+    }
+    return slots
+  }
   
   // Parse start a end času
   const [startHour, startMin] = startTime.split(':').map(Number)
@@ -1391,9 +1474,13 @@ function generateDaySlots(
   const currentSlot = parseTimezoneDateTime(`${dateStr}T${startTime}:00`, timezone)
   const endOfDay = parseTimezoneDateTime(`${dateStr}T${endTime}:00`, timezone)
   
+  console.log(`🧠 Inteligentní sloty: služba=${actualSlotDuration}min, interval=${stepInterval}min`)
+  
   while (currentSlot < endOfDay) {
-    const slotEnd = new Date(currentSlot.getTime() + interval * 60 * 1000)
+    // INTELIGENTNÍ SLOTY: Délka slotu podle služby, interval podle nastavení
+    const slotEnd = new Date(currentSlot.getTime() + actualSlotDuration * 60 * 1000)
     
+    // Slot nesmí přesahovat konec pracovní doby
     if (slotEnd > endOfDay) break
     
     // Kontrola, jestli slot nekoliduje s přestávkou
@@ -1410,9 +1497,15 @@ function generateDaySlots(
       minute: '2-digit' 
     })
     
+    // Kontrola přestávek - slot nesmí začínat v přestávce
     let isInBreak = false
     for (const breakTime of breakTimes) {
       if (slotStartTime >= breakTime.start && slotStartTime < breakTime.end) {
+        isInBreak = true
+        break
+      }
+      // Také zkontroluj, jestli slot nezasahuje do přestávky
+      if (slotStartTime < breakTime.start && slotEndTime > breakTime.start) {
         isInBreak = true
         break
       }
@@ -1423,10 +1516,13 @@ function generateDaySlots(
         start: new Date(currentSlot),
         end: new Date(slotEnd),
       })
+      console.log(`✅ Slot vytvořen: ${slotStartTime}-${slotEndTime} (${actualSlotDuration}min)`)
+    } else {
+      console.log(`⏸️ Slot přeskočen (přestávka): ${slotStartTime}-${slotEndTime}`)
     }
     
-    // Přejdi na další slot
-    currentSlot.setTime(currentSlot.getTime() + interval * 60 * 1000)
+    // Přejdi na další slot podle step intervalu (ne podle délky slotu!)
+    currentSlot.setTime(currentSlot.getTime() + stepInterval * 60 * 1000)
   }
   
   return slots

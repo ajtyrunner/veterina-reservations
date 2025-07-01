@@ -197,6 +197,19 @@ export async function getPublicTenant(slug: string) {
   return apiCall(`/api/public/tenant/${slug}`, { requireAuth: false })
 }
 
+// Bulk generování slotů
+export async function bulkGenerateSlots(bulkData: any) {
+  return apiCall('/api/doctor/slots/bulk-generate', {
+    method: 'POST',
+    body: bulkData
+  })
+}
+
+// Získání doktorů (pro adminy)
+export async function getDoctors() {
+  return apiCall('/api/doctors')
+}
+
 // Test spojení
 export async function testRailwayConnection() {
   try {

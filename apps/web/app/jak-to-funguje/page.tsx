@@ -76,9 +76,9 @@ export default function HowItWorksPage() {
       description: "Budeme vás informovat o blížícím se termínu"
     },
     {
-      icon: "💳",
-      title: "Transparentní ceny",
-      description: "Všechny ceny služeb vidíte předem"
+      icon: "📋",
+      title: "Elektronická zdravotní karta",
+      description: "Kompletní historie návštěv a léčby vašeho mazlíčka"
     },
     {
       icon: "👨‍⚕️",

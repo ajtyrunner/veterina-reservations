@@ -13,20 +13,21 @@ import authRouter from './routes/auth'
 import { parsePragueDateTime, parseTimezoneDateTime, getStartOfDayInTimezone, getEndOfDayInTimezone } from './utils/timezone'
 import { getCachedTenantTimezone } from './utils/tenant'
 
-// Načtení .env souboru z kořenového adresáři projektu
-const envPath = path.resolve(__dirname, '../../../.env')
-console.log('Current directory:', __dirname)
-console.log('Loading .env from:', envPath)
-console.log('File exists:', fs.existsSync(envPath))
-if (fs.existsSync(envPath)) {
-  console.log('File contents:', fs.readFileSync(envPath, 'utf8'))
-}
-
-const result = dotenv.config({ path: envPath })
-if (result.error) {
-  console.error('Error loading .env:', result.error)
+// Načtení .env souboru pouze v development prostředí
+if (process.env.NODE_ENV !== 'production') {
+  const envPath = path.resolve(__dirname, '../../../.env')
+  console.log('Current directory:', __dirname)
+  console.log('Loading .env from:', envPath)
+  console.log('File exists:', fs.existsSync(envPath))
+  
+  const result = dotenv.config({ path: envPath })
+  if (result.error) {
+    console.error('Error loading .env:', result.error)
+  } else {
+    console.log('.env loaded successfully')
+  }
 } else {
-  console.log('.env loaded successfully')
+  console.log('Production mode - using Railway environment variables')
 }
 
 // Debug výpis pro kontrolu proměnných prostředí - pouze v development
@@ -320,7 +321,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 // Keepalive pro Railway databázi
 import { startDatabaseKeepalive } from './utils/keepalive'
 
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 3000
 
 app.listen(PORT, () => {
   console.log(`🚀 API server běží na portu ${PORT}`)

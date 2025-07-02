@@ -37,9 +37,9 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 USER apiuser
 
-EXPOSE 8000
+EXPOSE 3000
 
-ENV PORT 8000
+ENV PORT 3000
 ENV NODE_ENV production
 
 CMD ["node", "dist/index.js"] 

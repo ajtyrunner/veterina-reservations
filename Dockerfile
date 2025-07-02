@@ -1,14 +1,15 @@
 # Dockerfile pro Express API
 FROM node:18-alpine AS builder
 
-WORKDIR /app
+# Nastav pracovní adresář na /app/api
+WORKDIR /app/api
 
-# Kopíruj pouze potřebné soubory pro instalaci
+# Kopíruj package.json a prisma schema
 COPY apps/api/package*.json ./
-COPY prisma ./prisma/
+COPY prisma ../../prisma/
 
-# Instaluj pouze produkční dependencies
-RUN npm ci --only=production
+# Instaluj dependencies
+RUN npm ci
 
 # Kopíruj zdrojové kódy
 COPY apps/api/src ./src/
@@ -20,15 +21,15 @@ RUN npx prisma generate
 # Build aplikace
 RUN npm run build
 
-# Production stage - použij stejný base image pro menší velikost
+# Production stage
 FROM node:18-alpine
 
-WORKDIR /app
+WORKDIR /app/api
 
 # Kopíruj pouze produkční soubory
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/api/dist ./dist
+COPY --from=builder /app/api/node_modules ./node_modules
+COPY --from=builder /app/api/node_modules/.prisma ./node_modules/.prisma
 
 # Nastav environment variables
 ENV PORT=3000

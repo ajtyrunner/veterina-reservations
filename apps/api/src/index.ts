@@ -327,7 +327,7 @@ app.listen(PORT, () => {
   console.log(`🚀 API server běží na portu ${PORT}`)
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
   if (process.env.NODE_ENV === 'production') {
-    console.log(`💚 Health check endpoint: /health`)
+    console.log(`💚 Health check endpoint: ${process.env.FRONTEND_URL}/health`)
   } else {
     console.log(`💚 Health check: http://localhost:${PORT}/health`)
   }

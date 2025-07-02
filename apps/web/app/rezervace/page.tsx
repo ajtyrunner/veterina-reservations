@@ -48,10 +48,14 @@ export default function ReservationsPage() {
     try {
       const { getReservations } = await import('../../lib/api-client')
       const data = await getReservations()
-      console.log('✅ Rezervace načteny z Railway:', data)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Rezervace načteny z Railway:', data)
+      }
       setReservations(data)
     } catch (error) {
-      console.error('Chyba při načítání rezervací z Railway:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Chyba při načítání rezervací z Railway:', error)
+      }
     } finally {
       setLoading(false)
     }
@@ -65,11 +69,15 @@ export default function ReservationsPage() {
     try {
       const { deleteReservation } = await import('../../lib/api-client')
       await deleteReservation(reservationId)
-      console.log('✅ Rezervace zrušena v Railway')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Rezervace zrušena v Railway')
+      }
       setReservations(prev => prev.filter(r => r.id !== reservationId))
       toast.success('Rezervace byla úspěšně zrušena.')
     } catch (error) {
-      console.error('Chyba při rušení rezervace v Railway:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Chyba při rušení rezervace v Railway:', error)
+      }
       toast.error(`Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     }
   }

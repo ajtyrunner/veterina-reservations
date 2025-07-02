@@ -104,10 +104,14 @@ export default function ReservationManagementPage() {
     try {
       const { getDoctorReservations } = await import('../../../lib/api-client')
       const data = await getDoctorReservations(selectedStatus || undefined)
-      console.log('✅ Doctor rezervace načteny z Railway:', data)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Doctor rezervace načteny z Railway:', data)
+      }
       setReservations(data)
     } catch (error) {
-      console.error('Chyba při načítání rezervací z Railway:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Chyba při načítání rezervací z Railway:', error)
+      }
       addNotification('error', `Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     } finally {
       setLoading(false)
@@ -119,11 +123,15 @@ export default function ReservationManagementPage() {
     try {
       const { updateDoctorReservationStatus } = await import('../../../lib/api-client')
       await updateDoctorReservationStatus(reservationId, newStatus)
-      console.log('✅ Stav rezervace aktualizován v Railway')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Stav rezervace aktualizován v Railway')
+      }
       addNotification('success', 'Stav rezervace byl úspěšně aktualizován')
       loadReservations() // Obnovit seznam
     } catch (error) {
-      console.error('Chyba při aktualizaci rezervace v Railway:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Chyba při aktualizaci rezervace v Railway:', error)
+      }
       addNotification('error', `Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     } finally {
       setUpdatingReservation(null)

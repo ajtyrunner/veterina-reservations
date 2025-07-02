@@ -216,14 +216,20 @@ export async function testRailwayConnection() {
     const response = await fetch(`${API_BASE_URL}/health`)
     if (response.ok) {
       const data = await response.json()
-      console.log('✅ Railway API je dostupné:', data)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Railway API je dostupné:', data)
+      }
       return data
     } else {
-      console.error('❌ Railway API nedostupné:', response.status, response.statusText)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ Railway API nedostupné:', response.status, response.statusText)
+      }
       return null
     }
   } catch (error) {
-    console.error('❌ Chyba při připojení k Railway:', error)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ Chyba při připojení k Railway:', error)
+    }
     return null
   }
 } 

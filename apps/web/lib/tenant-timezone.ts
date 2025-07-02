@@ -50,7 +50,9 @@ export async function loadTenantInfo(tenantSlug: string): Promise<TenantInfo | n
     // Nastavíme globální timezone pro aplikaci
     setTenantTimezone(timezone)
     
-    console.log(`🌍 Načten tenant timezone: ${timezone} pro ${tenantData.name}`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🌍 Načten tenant timezone: ${timezone} pro ${tenantData.name}`)
+    }
     
     return tenantInfo
 
@@ -100,6 +102,10 @@ export function applyTenantBranding(tenantInfo: TenantInfo): void {
  * Načte a aplikuje kompletní tenant konfiguraci
  */
 export async function initializeTenant(tenantSlug: string): Promise<TenantInfo | null> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🌍 Inicializuji tenant timezone pro:', tenantSlug)
+  }
+  
   const tenantInfo = await loadTenantInfo(tenantSlug)
   
   if (tenantInfo) {
@@ -107,4 +113,29 @@ export async function initializeTenant(tenantSlug: string): Promise<TenantInfo |
   }
   
   return tenantInfo
+}
+
+export async function initializeTenantTimezone(tenantSlug: string) {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🌍 Inicializuji tenant timezone pro:', tenantSlug)
+  }
+  
+  try {
+    const response = await fetch(`/api/public/tenant/${tenantSlug}`)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch tenant info: ${response.status}`)
+    }
+    
+    const tenant = await response.json()
+    const timezone = tenant.timezone || 'Europe/Prague'
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🌍 Nastaven tenant timezone:', timezone)
+    }
+    
+    return timezone
+  } catch (error) {
+    console.error('Chyba při načítání tenant timezone:', error)
+    return 'Europe/Prague' // Fallback na Prague timezone
+  }
 } 

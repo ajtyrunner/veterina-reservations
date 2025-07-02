@@ -174,7 +174,9 @@ export default function SlotsPage() {
     setIsCreating(true)
     
     try {
-      console.log('🔄 Vytvářím slot přímo přes Railway API...')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 Vytvářím slot přímo přes Railway API...')
+      }
       
       // Konvertujeme datetime-local na Prague timezone formát před odesláním
       const { formatDateTimeForAPI } = await import('../../lib/timezone')
@@ -184,17 +186,23 @@ export default function SlotsPage() {
         endTime: formatDateTimeForAPI(formData.endTime)
       }
       
-      console.log('📤 Odesílám data:', apiData)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📤 Odesílám data:', apiData)
+      }
       const { createSlot } = await import('../../lib/api-client')
       const newSlot = await createSlot(apiData)
-      console.log('✅ Slot vytvořen přes Railway:', newSlot)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Slot vytvořen přes Railway:', newSlot)
+      }
       
       setSlots(prev => [...prev, newSlot])
       setFormData({ startTime: '', endTime: '', equipment: '', roomId: '', serviceTypeId: '' })
       setShowCreateForm(false)
       addNotification('success', 'Slot byl úspěšně vytvořen!')
     } catch (error: any) {
-      console.error('Chyba při vytváření slotu přes Railway:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Chyba při vytváření slotu přes Railway:', error)
+      }
       addNotification('error', error.message || 'Chyba při vytváření slotu')
     } finally {
       setIsCreating(false)
@@ -235,13 +243,17 @@ export default function SlotsPage() {
       
       const { updateSlot } = await import('../../lib/api-client')
       const updatedSlot = await updateSlot(slotId, apiData)
-      console.log('✅ Slot upraven v Railway:', updatedSlot)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Slot upraven v Railway:', updatedSlot)
+      }
       setSlots(prev => prev.map(slot => slot.id === slotId ? updatedSlot : slot))
       setEditingSlot(null)
       setEditFormData({ startTime: '', endTime: '', equipment: '', roomId: '', serviceTypeId: '' })
       addNotification('success', 'Slot byl úspěšně upraven.')
     } catch (error) {
-      console.error('Chyba při úpravě slotu v Railway:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Chyba při úpravě slotu v Railway:', error)
+      }
       addNotification('error', `Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     }
   }
@@ -257,11 +269,15 @@ export default function SlotsPage() {
     try {
       const { deleteSlot } = await import('../../lib/api-client')
       await deleteSlot(slotId)
-      console.log('✅ Slot smazán v Railway')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Slot smazán v Railway')
+      }
       setSlots(prev => prev.filter(slot => slot.id !== slotId))
       addNotification('success', 'Slot byl úspěšně smazán.')
     } catch (error) {
-      console.error('Chyba při mazání slotu v Railway:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Chyba při mazání slotu v Railway:', error)
+      }
       addNotification('error', `Chyba: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     } finally {
       setDeletingSlot(null)

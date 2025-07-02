@@ -254,21 +254,31 @@ export default function Home() {
 
   useEffect(() => {
     // Test přímého Railway spojení
-    console.log('🔧 Testování přímého Railway spojení...')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Testování přímého Railway spojení...')
+    }
     const testConnection = async () => {
       try {
         const railwayUrl = process.env.NEXT_PUBLIC_API_URL || 'https://veterina-reservations-production.up.railway.app'
-        console.log('🎯 Railway URL:', railwayUrl)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🎯 Railway URL:', railwayUrl)
+        }
         
         const response = await fetch(`${railwayUrl}/health`)
         if (response.ok) {
           const data = await response.json()
-          console.log('✅ Railway API je DOSTUPNÉ přímo z frontendu!', data)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ Railway API je DOSTUPNÉ přímo z frontendu!', data)
+          }
         } else {
-          console.error('❌ Railway API nedostupné:', response.status, response.statusText)
+          if (process.env.NODE_ENV === 'development') {
+            console.error('❌ Railway API nedostupné:', response.status, response.statusText)
+          }
         }
       } catch (error) {
-        console.error('❌ Chyba při přímém Railway spojení:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('❌ Chyba při přímém Railway spojení:', error)
+        }
       }
     }
     testConnection()

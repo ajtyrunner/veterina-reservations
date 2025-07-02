@@ -41,6 +41,9 @@ if (process.env.NODE_ENV === 'development') {
 const app = express()
 const PORT = parseInt(process.env.PORT || '8080', 10)
 
+// Trust proxy - MUST be before rate limit middleware
+app.set('trust proxy', 1)
+
 // Healthcheck endpoint MUST be before any middleware
 app.get('/health', (req, res) => {
   res.status(200).json({ 

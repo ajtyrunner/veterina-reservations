@@ -326,7 +326,11 @@ const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`🚀 API server běží na portu ${PORT}`)
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
-  console.log(`💚 Health check: http://localhost:${PORT}/health`)
+  if (process.env.NODE_ENV === 'production') {
+    console.log(`💚 Health check endpoint: /health`)
+  } else {
+    console.log(`💚 Health check: http://localhost:${PORT}/health`)
+  }
   
   // Spustit keepalive po startu serveru
   startDatabaseKeepalive(prisma)

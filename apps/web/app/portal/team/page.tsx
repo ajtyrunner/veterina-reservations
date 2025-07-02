@@ -8,7 +8,7 @@ export default function TeamPortalLoginPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: '',
   });
   const [loading, setLoading] = useState(false);
@@ -35,7 +35,7 @@ export default function TeamPortalLoginPage() {
       const tenantSlug = getTenantSlugFromUrl();
       
       const result = await signIn('credentials', {
-        email: formData.email,
+        username: formData.username,
         password: formData.password,
         tenantSlug,
         redirect: false,
@@ -113,17 +113,17 @@ export default function TeamPortalLoginPage() {
           {/* Login form */}
           <form onSubmit={handleCredentialsSignIn} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-base font-semibold text-gray-700 mb-2">
-                Pracovní email
+              <label htmlFor="username" className="block text-base font-semibold text-gray-700 mb-2">
+                Uživatelské jméno
               </label>
               <input
-                id="email"
-                type="email"
+                id="username"
+                type="text"
                 required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 className="w-full border border-gray-300 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200"
-                placeholder="vas.email@prace.cz"
+                placeholder="jmeno.prijmeni"
               />
             </div>
 

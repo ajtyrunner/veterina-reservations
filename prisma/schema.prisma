@@ -15,6 +15,11 @@ model Tenant {
   primaryColor String @default("#4F46E5")
   secondaryColor String @default("#7C3AED")
   timezone  String   @default("Europe/Prague")
+  
+  // Defaultní kontaktní údaje pro komunikaci (fallback pro doktory)
+  defaultEmail String?  // Email pro notifikace, pokud doktor nemá vlastní
+  defaultPhone String?  // Telefon pro komunikaci, pokud doktor nemá vlastní
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -34,21 +39,43 @@ enum UserRole {
   ADMIN
 }
 
+enum AuthProvider {
+  INTERNAL  // Lokální přihlášení s username/password
+  GOOGLE    // Google OAuth
+  FACEBOOK  // Facebook OAuth (budoucí)
+  APPLE     // Apple ID (budoucí)
+  MICROSOFT // Microsoft OAuth (budoucí)
+}
+
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  image     String?
-  password  String?  // Heslo pro lokální přihlášení (jen pro doktory)
-  role      UserRole @default(CLIENT)
-  tenantId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String       @id @default(cuid())
+  email        String?      // Email volitelný pro INTERNAL, povinný pro OAuth se získává z providera
+  username     String?      // Přihlašovací jméno pro INTERNAL provider
+  name         String?
+  image        String?
+  phone        String?      // Telefonní číslo: volitelné pro INTERNAL, z OAuth profilu pro ostatní
+  password     String?      // Heslo pouze pro INTERNAL provider
+  authProvider AuthProvider @default(INTERNAL)
+  role         UserRole     @default(CLIENT)
+  tenantId     String
+  
+  // Auditní pole
+  lastLoginAt  DateTime?    @db.Timestamptz // Poslední úspěšné přihlášení
+  lastLoginIp  String?      // IP adresa posledního přihlášení
+  loginCount   Int          @default(0)     // Počet přihlášení
+  isActive     Boolean      @default(true)  // Účet aktivní/deaktivovaný
+  
+  createdAt    DateTime     @default(now()) @db.Timestamptz
+  updatedAt    DateTime     @updatedAt @db.Timestamptz
 
   tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   doctor       Doctor?
   reservations Reservation[]
 
+  // Unikátnost emailu pouze v kontextu auth providera a tenantu (když email není null)
+  @@unique([email, authProvider, tenantId], name: "unique_email_provider_tenant")
+  // Unikátnost username pouze pro INTERNAL provider v rámci tenantu
+  @@unique([username, tenantId], name: "unique_username_tenant")
   @@map("users")
 }
 

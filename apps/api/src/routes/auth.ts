@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { 
@@ -11,29 +11,79 @@ import {
 const router = Router()
 const prisma = new PrismaClient()
 
+// Validace pro username-based přihlášení
+const validateCredentialsInput = (req: Request, res: Response, next: NextFunction) => {
+  const { username, tenantSlug } = req.body
+  
+  // Username validace
+  if (!username || typeof username !== 'string') {
+    return res.status(400).json({ error: 'Username je povinný' })
+  }
+  
+  if (username.length < 3 || username.length > 50) {
+    return res.status(400).json({ error: 'Username musí mít 3-50 znaků' })
+  }
+  
+  // Formát: jmeno.prijmeni - pouze malá písmena, čísla, tečky a pomlčky
+  if (!/^[a-z0-9.-]+$/.test(username)) {
+    return res.status(400).json({ error: 'Username může obsahovat pouze malá písmena, čísla, tečky a pomlčky' })
+  }
+  
+  // Nesmí začínat nebo končit tečkou/pomlčkou
+  if (/^[.-]|[.-]$/.test(username)) {
+    return res.status(400).json({ error: 'Username nesmí začínat nebo končit tečkou či pomlčkou' })
+  }
+  
+  // TenantSlug validace
+  if (tenantSlug && (typeof tenantSlug !== 'string' || !/^[a-z0-9-]+$/.test(tenantSlug))) {
+    return res.status(400).json({ error: 'Neplatný slug ordinace' })
+  }
+  
+  console.log(`✅ Username validated: ${username}`)
+  next()
+}
+
 // Endpoint pro NextAuth credentials ověření
 router.post('/credentials', 
   enforceSecureSession,
-  validateAuthInput, 
+  validateCredentialsInput,
   bruteForceProtection, 
   async (req, res) => {
   console.log('🔐 AUTH REQUEST:', {
-    email: req.body.email,
+    username: req.body.username,
     tenantSlug: req.body.tenantSlug,
     hasPassword: !!req.body.password
   })
   
   try {
-    const { email, password, tenantSlug } = req.body
+    const { username, password, tenantSlug } = req.body
 
-    if (!email || !password) {
-      console.log('❌ Chybí email nebo heslo')
-      return res.status(400).json({ error: 'Email a heslo jsou povinné' })
+    if (!username || !password) {
+      console.log('❌ Chybí username nebo heslo')
+      return res.status(400).json({ error: 'Username a heslo jsou povinné' })
     }
 
-    // Najdi uživatele v databázi (s heslem pro ověření)
-    const userRecord = await prisma.user.findUnique({
-      where: { email },
+    // Najdi tenant nejprve
+    const tenant = await prisma.tenant.findUnique({
+      where: { slug: tenantSlug },
+      select: { id: true, slug: true }
+    })
+
+    if (!tenant) {
+      console.log('❌ Tenant not found:', tenantSlug)
+      auditLog('LOGIN_FAILED', { username, reason: 'tenant_not_found', tenantSlug }, req)
+      res.locals.trackFailedAttempt?.()
+      return res.status(401).json({ error: 'Neplatné přihlašovací údaje' })
+    }
+
+    // Najdi uživatele podle username a tenant (pouze INTERNAL provider)
+    const userRecord = await prisma.user.findFirst({
+      where: { 
+        username: username,
+        tenantId: tenant.id,
+        authProvider: 'INTERNAL',
+        isActive: true
+      },
       include: {
         tenant: {
           select: {
@@ -48,51 +98,66 @@ router.post('/credentials',
     if (!userRecord || !userRecord.password) {
       console.log('❌ User not found or no password')
       // Zaloguj neúspěšný pokus
-      auditLog('LOGIN_FAILED', { email, reason: 'user_not_found' }, req)
+      auditLog('LOGIN_FAILED', { username, reason: 'user_not_found', tenantSlug }, req)
       res.locals.trackFailedAttempt?.()
       return res.status(401).json({ error: 'Neplatné přihlašovací údaje' })
     }
 
     // Ověř heslo
-    console.log('🔑 Checking password...')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔑 Checking password...')
+    }
     const passwordMatch = await bcrypt.compare(password, userRecord.password)
-    console.log('🔑 Password match:', passwordMatch ? 'YES' : 'NO')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔑 Password match:', passwordMatch ? 'YES' : 'NO')
+    }
     
     if (!passwordMatch) {
-      console.log('❌ Password mismatch')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('❌ Password mismatch')
+      }
       // Zaloguj neúspěšný pokus
-      auditLog('LOGIN_FAILED', { email, reason: 'password_mismatch' }, req)
+      auditLog('LOGIN_FAILED', { username, reason: 'password_mismatch', tenantSlug }, req)
       res.locals.trackFailedAttempt?.()
       return res.status(401).json({ error: 'Neplatné přihlašovací údaje' })
     }
 
-    // Ověř, že se přihlašuje ke správnému tenantovi
-    if (tenantSlug && userRecord.tenant.slug !== tenantSlug) {
-      auditLog('LOGIN_FAILED', { email, reason: 'wrong_tenant', attemptedTenant: tenantSlug }, req)
-      res.locals.trackFailedAttempt?.()
-      return res.status(401).json({ error: 'Nepatříte k této ordinaci' })
-    }
-
     // Pouze doktoři a admini můžou používat credentials
     if (userRecord.role !== 'DOCTOR' && userRecord.role !== 'ADMIN') {
-      auditLog('LOGIN_FAILED', { email, reason: 'insufficient_permissions', role: userRecord.role }, req)
+      auditLog('LOGIN_FAILED', { username, reason: 'insufficient_permissions', role: userRecord.role, tenantSlug }, req)
       res.locals.trackFailedAttempt?.()
       return res.status(403).json({ error: 'Nedostatečná oprávnění' })
     }
 
+    // Aktualizuj auditní informace při úspěšném přihlášení
+    const clientIp = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] as string || 'unknown'
+    
+    await prisma.user.update({
+      where: { id: userRecord.id },
+      data: {
+        lastLoginAt: new Date(),
+        lastLoginIp: clientIp,
+        loginCount: {
+          increment: 1
+        }
+      }
+    })
+
     // Úspěšné přihlášení - clear failed attempts a zaloguj
     res.locals.clearFailedAttempts?.()
     auditLog('LOGIN_SUCCESS', { 
-      email, 
+      username, 
       role: userRecord.role, 
-      tenant: userRecord.tenant.slug 
+      tenant: userRecord.tenant.slug,
+      ip: clientIp
     }, req)
     
     // Vrať údaje pro NextAuth
-    console.log('✅ Auth successful for:', userRecord.email)
+    console.log('✅ Auth successful for:', userRecord.username)
     res.json({
       id: userRecord.id,
       email: userRecord.email,
+      username: userRecord.username,
       name: userRecord.name,
       image: userRecord.image,
       role: userRecord.role,
@@ -108,7 +173,7 @@ router.post('/credentials',
 // Vytvoření uživatele pro Google OAuth
 router.post('/google-user', async (req, res) => {
   try {
-    const { email, name, image, tenantSlug } = req.body
+    const { email, name, image, phone, tenantSlug } = req.body
 
     if (!email) {
       return res.status(400).json({ error: 'Email je povinný' })
@@ -124,30 +189,40 @@ router.post('/google-user', async (req, res) => {
     }
 
     // Zkontroluj, jestli uživatel už existuje
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
+    const existingUser = await prisma.user.findFirst({
+      where: { 
+        email,
+        authProvider: 'GOOGLE',
+        tenantId: tenant.id
+      },
     })
 
     if (existingUser) {
-      // Ověř, že patří ke správnému tenantovi
-      if (existingUser.tenantId === tenant.id) {
-        return res.json({ success: true })
-      } else {
-        return res.status(403).json({ error: 'Uživatel patří k jinému tenantovi' })
+      // Aktualizuj phone pokud se změnil v OAuth profilu
+      if (phone && phone !== existingUser.phone) {
+        await prisma.user.update({
+          where: { id: existingUser.id },
+          data: { phone }
+        })
+        console.log('📞 Updated phone from OAuth for user:', email)
       }
+      return res.json({ success: true })
     }
 
-    // Vytvoř nového uživatele
+    // Vytvoř nového uživatele s phone z OAuth
     await prisma.user.create({
       data: {
         email,
         name,
         image,
+        phone, // Phone z Google OAuth profilu
+        authProvider: 'GOOGLE',
         tenantId: tenant.id,
         role: 'CLIENT',
       },
     })
 
+    console.log('✅ Created Google OAuth user with phone:', { email, phone: phone || 'none' })
     res.json({ success: true })
   } catch (error) {
     console.error('Chyba při vytváření Google uživatele:', error)
@@ -164,7 +239,7 @@ router.post('/user-info', async (req, res) => {
       return res.status(400).json({ error: 'Email je povinný' })
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { email },
       include: { 
         tenant: true, 

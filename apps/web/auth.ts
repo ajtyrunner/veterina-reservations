@@ -30,12 +30,12 @@ export const authOptions: AuthOptions = {
       id: 'credentials',
       name: 'Doktor/Admin přihlášení',
       credentials: {
-        email: { label: 'Email', type: 'email' },
+        username: { label: 'Username', type: 'text' },
         password: { label: 'Heslo', type: 'password' },
         tenantSlug: { label: 'Ordinace', type: 'text' }
       },
       async authorize(credentials, req) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.username || !credentials?.password) {
           return null;
         }
 
@@ -49,7 +49,7 @@ export const authOptions: AuthOptions = {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              email: credentials.email,
+              username: credentials.username,
               password: credentials.password,
               tenantSlug: credentials.tenantSlug
             }),
@@ -70,6 +70,7 @@ export const authOptions: AuthOptions = {
             role: user.role,
             tenant: user.tenant,
             tenantId: user.tenantId,
+            username: user.username, // Přidáme username z API response
           };
         } catch (error) {
           console.error('Chyba při ověřování credentials:', error);
@@ -115,7 +116,8 @@ export const authOptions: AuthOptions = {
         trigger, 
         provider: account?.provider,
         hasUser: !!user,
-        email: token.email 
+        email: token.email,
+        username: token.preferred_username || (user as any)?.username
       })
       
       if (user || trigger === 'signIn') {
@@ -126,6 +128,8 @@ export const authOptions: AuthOptions = {
           token.tenantId = (user as any).tenantId;
           token.userId = user.id;
           token.isDoctor = (user as any).role === 'DOCTOR';
+          token.preferred_username = (user as any).username; // Standard JWT field pro username
+          console.log('✅ Credentials JWT updated with username:', (user as any).username)
         } else {
           // Pro Google OAuth, načteme uživatele přes Railway API
           try {
@@ -142,6 +146,7 @@ export const authOptions: AuthOptions = {
               token.tenantId = dbUser.tenantId;
               token.userId = dbUser.id;
               token.isDoctor = dbUser.isDoctor;
+              token.preferred_username = dbUser.username; // Username i pro OAuth
               console.log('✅ User info loaded from Railway API')
             } else {
               console.error('❌ Failed to load user info from Railway API')
@@ -159,6 +164,7 @@ export const authOptions: AuthOptions = {
         session.user.tenant = token.tenant as string;
         session.user.tenantId = token.tenantId as string;
         session.user.userId = token.userId as string;
+        session.user.username = token.preferred_username as string; // Přidáme username do session
       }
       return session;
     },

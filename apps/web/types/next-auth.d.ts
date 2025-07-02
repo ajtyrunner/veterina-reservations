@@ -8,6 +8,7 @@ declare module "next-auth" {
       tenant: string
       tenantId: string
       userId: string
+      username?: string
     } & DefaultSession["user"]
   }
 
@@ -16,6 +17,7 @@ declare module "next-auth" {
     tenant?: string
     tenantId?: string
     userId?: string
+    username?: string
   }
 }
 
@@ -26,5 +28,6 @@ declare module "next-auth/jwt" {
     tenantId?: string
     userId?: string
     isDoctor?: boolean
+    preferred_username?: string
   }
 } 

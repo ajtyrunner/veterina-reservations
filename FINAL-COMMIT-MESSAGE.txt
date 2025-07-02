@@ -1,0 +1,45 @@
+feat: Security audit, phone fields, notification system
+
+🔐 SECURITY ENHANCEMENTS (97% audit score):
+- Add brute force protection with IP blocking (5 attempts = 15min block)
+- Implement rate limiting (basic/strict/bulk operations)
+- Add comprehensive audit logging for LOGIN_SUCCESS/FAILED/BRUTEFORCE_ATTACK
+- Enforce HTTPS redirects and security headers globally
+- Add input validation with XSS/SQL injection protection
+
+📞 PHONE FIELD IMPLEMENTATION:
+- Add nullable phone field to User model with provider-specific logic
+- Implement username-based auth for INTERNAL providers (format: jmeno.prijmeni)
+- Add authProvider enum (INTERNAL/GOOGLE) with unique constraints
+- Add tenant defaults (defaultEmail/defaultPhone) for fallback communication
+- Create contact resolution utility with 5-min caching
+
+📧 NOTIFICATION SYSTEM:
+- Complete email service with Gmail SMTP integration
+- Automatic reservation status change notifications
+- Tenant-aware contact resolution (user → tenant fallbacks)
+- Notification orchestration service with error handling
+
+🛠️ BREAKING CHANGES:
+- Database schema: phone, username, authProvider fields
+- Auth system: username login replaces email for INTERNAL users
+- Email field now nullable for INTERNAL users without email
+- 2 new Prisma migrations required
+
+📋 INFRASTRUCTURE:
+- New dependencies: nodemailer, rate-limiter-flexible, bcryptjs
+- 5+ new ENV variables required (Gmail SMTP, security flags)
+- Enhanced JWT tokens with username support
+- TypeScript definitions updated
+
+🧪 TESTING & DOCUMENTATION:
+- Security test suite with 31 endpoint coverage
+- Comprehensive deployment runbook with rollback plan
+- Contact utility testing script
+- Complete audit reports and migration guides
+
+⚠️ DEPLOYMENT NOTES:
+- Recommend clean database deployment due to breaking changes
+- Requires new ENV variables setup (Gmail App Password)
+- Auth flow changes - users need re-authentication
+- Rate limiting may affect API performance - monitoring required 

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { parsePragueDateTime, parseTimezoneDateTime, logTimezoneDebug } from '../utils/timezone'
 import { getCachedTenantTimezone } from '../utils/tenant'
+import { NotificationService } from '../services/notificationService'
 import { bulkOperationLimit, createOperationLimit } from '../middleware/rateLimiter'
 import { 
   validateCreateReservation, 
@@ -15,6 +16,7 @@ import {
 
 const router = Router()
 const prisma = new PrismaClient()
+const notificationService = new NotificationService(prisma)
 
 // Získání rezervací (uživatelské pro CLIENT, všechny pro DOCTOR/ADMIN)
 router.get('/reservations', validateQueryParams, async (req: Request, res: Response) => {
@@ -168,6 +170,19 @@ router.post('/reservations', createOperationLimit, validateCreateReservation, as
       },
     })
 
+    // 📧 Send notification to doctor about new reservation
+    try {
+      await notificationService.sendReservationStatusNotification({
+        reservationId: reservation.id,
+        tenantId,
+        newStatus: 'PENDING',
+        notifyBoth: false
+      })
+    } catch (notificationError) {
+      console.error('❌ Failed to send new reservation notification:', notificationError)
+      // Don't fail the request if notification fails
+    }
+
     res.status(201).json(reservation)
   } catch (error) {
     console.error('Chyba při vytváření rezervace:', error)
@@ -254,6 +269,7 @@ router.patch('/reservations/:id', validateUpdateReservationStatus, async (req: R
       return res.status(404).json({ error: 'Rezervace nenalezena' })
     }
 
+    const oldStatus = reservation.status
     const updatedReservation = await prisma.reservation.update({
       where: { id },
       data: { status },
@@ -282,6 +298,20 @@ router.patch('/reservations/:id', validateUpdateReservationStatus, async (req: R
         },
       },
     })
+
+    // 📧 Send notification about status change
+    try {
+      await notificationService.sendReservationStatusNotification({
+        reservationId: id,
+        tenantId,
+        oldStatus: oldStatus as any,
+        newStatus: status as any,
+        notifyBoth: status === 'CANCELLED' // Notify both for cancellations
+      })
+    } catch (notificationError) {
+      console.error('❌ Failed to send status change notification:', notificationError)
+      // Don't fail the request if notification fails
+    }
 
     res.json(updatedReservation)
   } catch (error) {
@@ -317,6 +347,20 @@ router.delete('/reservations/:id', async (req: Request, res: Response) => {
       where: { id },
       data: { status: 'CANCELLED' },
     })
+
+    // 📧 Send cancellation notification
+    try {
+      await notificationService.sendReservationStatusNotification({
+        reservationId: id,
+        tenantId,
+        oldStatus: reservation.status as any,
+        newStatus: 'CANCELLED',
+        notifyBoth: true // Client cancelled, notify both client and doctor
+      })
+    } catch (notificationError) {
+      console.error('❌ Failed to send cancellation notification:', notificationError)
+      // Don't fail the request if notification fails
+    }
 
     res.json({ message: 'Rezervace zrušena' })
   } catch (error) {
@@ -865,6 +909,7 @@ router.put('/doctor/reservations/:id/status', async (req: Request, res: Response
       }
     }
 
+    const oldStatus = existingReservation.status
     const updatedReservation = await prisma.reservation.update({
       where: { id },
       data: {
@@ -908,6 +953,20 @@ router.put('/doctor/reservations/:id/status', async (req: Request, res: Response
         },
       },
     })
+
+    // 📧 Send notification about status change (doctor route)
+    try {
+      await notificationService.sendReservationStatusNotification({
+        reservationId: id,
+        tenantId: existingReservation.tenantId,
+        oldStatus: oldStatus as any,
+        newStatus: status as any,
+        notifyBoth: status === 'CANCELLED' // Notify both for cancellations
+      })
+    } catch (notificationError) {
+      console.error('❌ Failed to send doctor status change notification:', notificationError)
+      // Don't fail the request if notification fails
+    }
 
     res.json(updatedReservation)
   } catch (error) {
@@ -1549,5 +1608,68 @@ function generateDaySlots(
   
   return slots
 }
+
+// === NOTIFIKACE A TESTING ===
+
+// Test endpoint pro notifikace (pouze pro ADMIN)
+router.post('/test/notifications', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.sub
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+
+    if (!userId || !tenantId) {
+      return res.status(400).json({ error: 'Chybí uživatelské údaje' })
+    }
+
+    if (userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění - pouze admin' })
+    }
+
+    console.log('🧪 Testing notification system...')
+    
+    const testResult = await notificationService.testNotifications()
+    
+    res.json({
+      success: testResult,
+      message: testResult ? 'Notifikace fungují správně' : 'Chyba v notifikačním systému',
+      timestamp: new Date().toISOString()
+    })
+  } catch (error) {
+    console.error('Chyba při testování notifikací:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Manuální spuštění reminder notifikací (pouze pro ADMIN)
+router.post('/notifications/send-reminders', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.sub
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+
+    if (!userId || !tenantId) {
+      return res.status(400).json({ error: 'Chybí uživatelské údaje' })
+    }
+
+    if (userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění - pouze admin' })
+    }
+
+    console.log('📧 Manually triggering reminder notifications...')
+    
+    const sentCount = await notificationService.sendReservationReminders()
+    
+    res.json({
+      success: true,
+      sentCount,
+      message: `Odesláno ${sentCount} připomínek`,
+      timestamp: new Date().toISOString()
+    })
+  } catch (error) {
+    console.error('Chyba při odesílání připomínek:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
 
 export default router

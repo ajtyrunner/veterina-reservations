@@ -29,11 +29,13 @@ if (result.error) {
   console.log('.env loaded successfully')
 }
 
-// Debug výpis pro kontrolu proměnných prostředí
-console.log('Environment variables:')
-console.log('DATABASE_URL:', process.env.DATABASE_URL)
-console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'is set' : 'is not set')
-console.log('PORT:', process.env.PORT)
+// Debug výpis pro kontrolu proměnných prostředí - pouze v development
+if (process.env.NODE_ENV === 'development') {
+  console.log('Environment variables:')
+  console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'is set' : 'is not set')
+  console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'is set' : 'is not set')
+  console.log('PORT:', process.env.PORT)
+}
 
 // Až po načtení .env importujeme ostatní moduly
 const app = express()
@@ -57,15 +59,21 @@ app.use(basicRateLimit)
 // Inicializace Prisma klienta až po načtení proměnných prostředí
 const prisma = new PrismaClient()
 
-// CORS konfigurace pro Vercel
+// CORS konfigurace - podmíněná podle prostředí
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://svahy.lvh.me:3000',
-    'https://veterina-reservations.vercel.app',
-    process.env.FRONTEND_URL,
-    process.env.NEXTAUTH_URL
-  ].filter((url): url is string => Boolean(url)),
+  origin: process.env.NODE_ENV === 'production' 
+    ? [
+        'https://veterina-reservations.vercel.app',
+        process.env.FRONTEND_URL,
+        process.env.NEXTAUTH_URL
+      ].filter((url): url is string => Boolean(url))
+    : [
+        'http://localhost:3000',
+        'http://svahy.lvh.me:3000',
+        'https://veterina-reservations.vercel.app',
+        process.env.FRONTEND_URL,
+        process.env.NEXTAUTH_URL
+      ].filter((url): url is string => Boolean(url)),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
@@ -73,6 +81,24 @@ const corsOptions = {
 
 // Middleware
 app.use(cors(corsOptions))
+
+// GLOBAL HTTPS ENFORCEMENT - před všemi ostatními middleware
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'production' && !req.secure && req.get('x-forwarded-proto') !== 'https') {
+    return res.redirect(301, `https://${req.headers.host}${req.url}`)
+  }
+  next()
+})
+
+// Global security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('X-XSS-Protection', '1; mode=block')
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), location=()')
+  next()
+})
 
 // Timezone nastavení pro server
 process.env.TZ = 'Europe/Prague'

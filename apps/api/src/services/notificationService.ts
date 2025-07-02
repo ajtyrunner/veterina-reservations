@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import { emailService, ReservationEmailData } from './emailService'
 import { getCachedTenantTimezone } from '../utils/tenant'
+import { getUserEmail } from '../utils/contact'
 
 interface ReservationNotificationData {
   reservationId: string
@@ -74,12 +75,20 @@ class NotificationService {
       // Get tenant timezone for proper date formatting
       const tenantTimezone = await getCachedTenantTimezone(this.prisma, data.tenantId)
 
-      // Build email data
+      // Build email data with contact resolution
+      const customerEmail = await getUserEmail(reservation.userId, data.tenantId)
+      const doctorEmail = await getUserEmail(reservation.doctor.userId, data.tenantId)
+      
+      if (!customerEmail || !doctorEmail) {
+        console.error(`❌ Missing email addresses - customer: ${customerEmail}, doctor: ${doctorEmail}`)
+        return false
+      }
+      
       const emailData: ReservationEmailData = {
         customerName: reservation.user.name || 'Zákazník',
-        customerEmail: reservation.user.email,
+        customerEmail: customerEmail,
         doctorName: reservation.doctor.user.name || 'Doktor',
-        doctorEmail: reservation.doctor.user.email,
+        doctorEmail: doctorEmail,
         petName: reservation.petName || undefined,
         petType: reservation.petType || undefined,
         description: reservation.description || undefined,
@@ -130,7 +139,7 @@ class NotificationService {
           reservationId: data.reservationId,
           tenantId: data.tenantId,
           type: `RESERVATION_${data.newStatus}`,
-          recipient: data.newStatus === 'PENDING' ? reservation.doctor.user.email : reservation.user.email,
+          recipient: data.newStatus === 'PENDING' ? doctorEmail : customerEmail,
           success: true,
         })
       } else {
@@ -141,7 +150,7 @@ class NotificationService {
           reservationId: data.reservationId,
           tenantId: data.tenantId,
           type: `RESERVATION_${data.newStatus}`,
-          recipient: data.newStatus === 'PENDING' ? reservation.doctor.user.email : reservation.user.email,
+          recipient: data.newStatus === 'PENDING' ? doctorEmail : customerEmail,
           success: false,
         })
       }
@@ -226,11 +235,20 @@ class NotificationService {
         try {
           const tenantTimezone = await getCachedTenantTimezone(this.prisma, reservation.tenantId)
 
+          // Get email addresses with fallbacks
+          const customerEmail = await getUserEmail(reservation.userId, reservation.tenantId)
+          const doctorEmail = await getUserEmail(reservation.doctor.userId, reservation.tenantId)
+          
+          if (!customerEmail) {
+            console.warn(`⚠️ No email available for customer ${reservation.userId}, skipping reminder`)
+            continue
+          }
+
           const emailData: ReservationEmailData = {
             customerName: reservation.user.name || 'Zákazník',
-            customerEmail: reservation.user.email,
+            customerEmail: customerEmail,
             doctorName: reservation.doctor.user.name || 'Doktor',
-            doctorEmail: reservation.doctor.user.email,
+            doctorEmail: doctorEmail || 'noreply@veterina.cz',
             petName: reservation.petName || undefined,
             petType: reservation.petType || undefined,
             description: reservation.description || undefined,
@@ -254,7 +272,7 @@ class NotificationService {
               reservationId: reservation.id,
               tenantId: reservation.tenantId,
               type: 'RESERVATION_REMINDER',
-              recipient: reservation.user.email,
+              recipient: customerEmail,
               success: true,
             })
           } else {
@@ -263,7 +281,7 @@ class NotificationService {
               reservationId: reservation.id,
               tenantId: reservation.tenantId,
               type: 'RESERVATION_REMINDER',
-              recipient: reservation.user.email,
+              recipient: customerEmail,
               success: false,
             })
           }

@@ -321,9 +321,10 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 // Keepalive pro Railway databázi
 import { startDatabaseKeepalive } from './utils/keepalive'
 
-const PORT = process.env.PORT || 3000
 
-app.listen(PORT, () => {
+const PORT = parseInt(process.env.PORT || '3000', 10)
+
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 API server běží na portu ${PORT}`)
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
   if (process.env.NODE_ENV === 'production') {
@@ -331,9 +332,9 @@ app.listen(PORT, () => {
   } else {
     console.log(`💚 Health check: http://localhost:${PORT}/health`)
   }
-  
-  // Spustit keepalive po startu serveru
+
   startDatabaseKeepalive(prisma)
 })
+
 
 export default app

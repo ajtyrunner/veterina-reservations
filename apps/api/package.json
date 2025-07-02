@@ -10,10 +10,11 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@prisma/client": "^6.10.1",
+    "@prisma/client": "5.10.2",
     "@sendgrid/mail": "^8.1.5",
     "@types/nodemailer": "^6.4.17",
     "bcryptjs": "^2.4.3",
@@ -38,7 +39,7 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
-    "prisma": "^6.10.1",
+    "prisma": "5.10.2",
     "ts-node": "^10.9.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.0"

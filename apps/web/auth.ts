@@ -26,8 +26,7 @@ export const authOptions: AuthOptions = {
             'openid',
             'email',
             'profile',
-            'https://www.googleapis.com/auth/userinfo.email',
-            'https://www.googleapis.com/auth/user.phonenumbers.read'
+            'https://www.googleapis.com/auth/userinfo.email'
           ].join(' ')
         }
       },
@@ -38,7 +37,6 @@ export const authOptions: AuthOptions = {
           name: profile.name,
           email: profile.email,
           image: profile.picture,
-          phone: profile.phone_number || null,
           locale: profile.locale || 'cs',
           emailVerified: profile.email_verified
         }
@@ -116,7 +114,6 @@ export const authOptions: AuthOptions = {
               email: user.email!,
               name: user.name,
               image: user.image,
-              phone: (user as any).phone_number || null,  // Použijeme phone_number z Google profilu
               tenantSlug: 'svahy' // Fallback
             }),
           });

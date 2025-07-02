@@ -16,14 +16,16 @@ import { getCachedTenantTimezone } from './utils/tenant'
 // Načtení .env souboru pouze v development prostředí
 if (process.env.NODE_ENV !== 'production') {
   const envPath = path.resolve(__dirname, '../../../.env')
-  console.log('Current directory:', __dirname)
-  console.log('Loading .env from:', envPath)
-  console.log('File exists:', fs.existsSync(envPath))
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Current directory:', __dirname)
+    console.log('Loading .env from:', envPath)
+    console.log('File exists:', fs.existsSync(envPath))
+  }
   
   const result = dotenv.config({ path: envPath })
   if (result.error) {
     console.error('Error loading .env:', result.error)
-  } else {
+  } else if (process.env.NODE_ENV === 'development') {
     console.log('.env loaded successfully')
   }
 } else {
@@ -118,10 +120,12 @@ app.use((req, res, next) => {
 // Timezone nastavení pro server
 process.env.TZ = 'Europe/Prague'
 
-// Debug logging pro CORS a timezone
+// Debug logging pro CORS a timezone - pouze v development
 app.use((req, res, next) => {
-  console.log(`🌐 ${req.method} ${req.path} from origin: ${req.get('origin') || 'no-origin'}`)
-  console.log(`🕐 Server time: ${new Date().toISOString()} (${new Date().toLocaleString('cs-CZ', { timeZone: 'Europe/Prague' })})`)
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`🌐 ${req.method} ${req.path} from origin: ${req.get('origin') || 'no-origin'}`)
+    console.log(`🕐 Server time: ${new Date().toISOString()} (${new Date().toLocaleString('cs-CZ', { timeZone: 'Europe/Prague' })})`)
+  }
   next()
 })
 
@@ -129,7 +133,9 @@ app.use(express.json())
 
 // Explicitní OPTIONS handler pro preflight requests
 app.options('*', (req, res) => {
-  console.log(`✈️ PREFLIGHT: ${req.method} ${req.path}`)
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`✈️ PREFLIGHT: ${req.method} ${req.path}`)
+  }
   res.status(200).end()
 })
 
@@ -191,9 +197,11 @@ app.get('/api/public/slots/:tenantId', async (req, res) => {
       const startDateUTC = getStartOfDayInTimezone(inputDate, tenantTimezone)
       const endDateUTC = getEndOfDayInTimezone(inputDate, tenantTimezone)
       
-      console.log(`🗓️ Date filter: ${inputDate} (tenant timezone: ${tenantTimezone})`)
-      console.log(`   Start UTC: ${startDateUTC.toISOString()}`)
-      console.log(`   End UTC: ${endDateUTC.toISOString()}`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🗓️ Date filter: ${inputDate} (tenant timezone: ${tenantTimezone})`)
+        console.log(`   Start UTC: ${startDateUTC.toISOString()}`)
+        console.log(`   End UTC: ${endDateUTC.toISOString()}`)
+      }
       
       where.startTime = {
         gte: startDateUTC,

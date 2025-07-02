@@ -192,7 +192,7 @@ export default function SlotsPage() {
       setSlots(prev => [...prev, newSlot])
       setFormData({ startTime: '', endTime: '', equipment: '', roomId: '', serviceTypeId: '' })
       setShowCreateForm(false)
-      addNotification('success', 'Slot byl úspěšně vytvořen přes Railway API!')
+      addNotification('success', 'Slot byl úspěšně vytvořen!')
     } catch (error: any) {
       console.error('Chyba při vytváření slotu přes Railway:', error)
       addNotification('error', error.message || 'Chyba při vytváření slotu')

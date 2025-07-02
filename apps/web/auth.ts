@@ -8,7 +8,7 @@ const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'https
 // Debug výpis pro kontrolu proměnných prostředí
 if (process.env.NODE_ENV === 'development') {
   console.log('Next.js Environment variables:')
-console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'is set' : 'is not set')
+  console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? 'is set' : 'is not set')
 }
 
 export const authOptions: AuthOptions = {
@@ -31,7 +31,9 @@ export const authOptions: AuthOptions = {
         }
       },
       profile(profile) {
-        console.log('📦 Google profile data:', JSON.stringify(profile, null, 2))
+        if (process.env.NODE_ENV === 'development') {
+          console.log('📦 Google profile data:', JSON.stringify(profile, null, 2))
+        }
         return {
           id: profile.sub,
           name: profile.name,
@@ -98,11 +100,13 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log('🔄 SignIn callback:', { 
-        provider: account?.provider, 
-        user: user.email,
-        accountType: account?.type 
-      })
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 SignIn callback:', { 
+          provider: account?.provider, 
+          user: user.email,
+          accountType: account?.type 
+        })
+      }
       
       if (account?.provider === 'google') {
         try {
@@ -119,7 +123,9 @@ export const authOptions: AuthOptions = {
           });
 
           const success = response.ok
-          console.log('✅ Google user creation:', success ? 'SUCCESS' : 'FAILED')
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ Google user creation:', success ? 'SUCCESS' : 'FAILED')
+          }
           return success
         } catch (error) {
           console.error('❌ Chyba při přihlašování:', error);
@@ -129,13 +135,15 @@ export const authOptions: AuthOptions = {
       return true;
     },
     async jwt({ token, user, account, trigger }) {
-      console.log('🔄 JWT callback:', { 
-        trigger, 
-        provider: account?.provider,
-        hasUser: !!user,
-        email: token.email,
-        username: token.preferred_username || (user as any)?.username
-      })
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 JWT callback:', { 
+          trigger, 
+          provider: account?.provider,
+          hasUser: !!user,
+          email: token.email,
+          username: token.preferred_username || (user as any)?.username
+        })
+      }
       
       if (user || trigger === 'signIn') {
         if (account?.provider === 'credentials') {
@@ -145,8 +153,10 @@ export const authOptions: AuthOptions = {
           token.tenantId = (user as any).tenantId;
           token.userId = user.id;
           token.isDoctor = (user as any).role === 'DOCTOR';
-          token.preferred_username = (user as any).username; // Standard JWT field pro username
-          console.log('✅ Credentials JWT updated with username:', (user as any).username)
+          token.preferred_username = (user as any).username;
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ Credentials JWT updated with username:', (user as any).username)
+          }
         } else {
           // Pro Google OAuth, načteme uživatele přes Railway API
           try {
@@ -164,7 +174,9 @@ export const authOptions: AuthOptions = {
               token.userId = dbUser.id;
               token.isDoctor = dbUser.isDoctor;
               token.preferred_username = dbUser.username; // Username i pro OAuth
-              console.log('✅ User info loaded from Railway API')
+              if (process.env.NODE_ENV === 'development') {
+                console.log('✅ User info loaded from Railway API')
+              }
             } else {
               console.error('❌ Failed to load user info from Railway API')
             }

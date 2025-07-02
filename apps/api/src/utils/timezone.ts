@@ -39,7 +39,11 @@ export function isValidTimezone(timezone: string): timezone is TimezoneId {
  * Parsuje datetime string v daném timezone a převede na UTC
  * Podporuje formáty: 'YYYY-MM-DDTHH:mm' a 'YYYY-MM-DDTHH:mm:ss'
  */
-export function parseTimezoneDateTime(datetimeStr: string, timezone: TimezoneId): Date {
+export function parseTimezoneDateTime(datetimeStr: string, timezone: string = 'Europe/Prague'): Date {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`🕐 parseTimezoneDateTime: ${datetimeStr} in ${timezone}`)
+  }
+
   if (!datetimeStr || typeof datetimeStr !== 'string') {
     throw new Error(`Invalid datetime string: ${datetimeStr}`)
   }
@@ -47,8 +51,6 @@ export function parseTimezoneDateTime(datetimeStr: string, timezone: TimezoneId)
   if (!isValidTimezone(timezone)) {
     throw new Error(`Invalid timezone: ${timezone}`)
   }
-
-  console.log(`🕐 parseTimezoneDateTime: ${datetimeStr} in ${timezone}`)
 
   // Jednoduché parsování - přidáme sekundy pokud chybí a převedeme na ISO format
   let isoString = datetimeStr
@@ -94,12 +96,14 @@ export function parseTimezoneDateTime(datetimeStr: string, timezone: TimezoneId)
     // Výsledek: původní datum minus offset
     const resultUTC = new Date(inputDate.getTime() - offset)
     
-    console.log(`   Input: ${datetimeStr}`)
-    console.log(`   ISO format: ${isoString}`)
-    console.log(`   In ${timezone}: ${tzString}`)
-    console.log(`   Offset: ${offset}ms`)
-    console.log(`   Result UTC: ${resultUTC.toISOString()}`)
-    console.log(`   Verification: ${resultUTC.toLocaleString('sv-SE', { timeZone: timezone })}`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`   Input: ${datetimeStr}`)
+      console.log(`   ISO format: ${isoString}`)
+      console.log(`   In ${timezone}: ${tzString}`)
+      console.log(`   Offset: ${offset}ms`)
+      console.log(`   Result UTC: ${resultUTC.toISOString()}`)
+      console.log(`   Verification: ${resultUTC.toLocaleString('sv-SE', { timeZone: timezone })}`)
+    }
 
     return resultUTC
     
@@ -114,7 +118,7 @@ export function parseTimezoneDateTime(datetimeStr: string, timezone: TimezoneId)
  * Převede UTC Date na datetime-local string pro daný timezone
  * Vrací formát 'YYYY-MM-DDTHH:mm' pro datetime-local input
  */
-export function formatTimezoneDateTime(date: Date, timezone: TimezoneId): string {
+export function formatTimezoneDateTime(date: Date, timezone: string = 'Europe/Prague'): string {
   if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
     throw new Error(`Invalid date: ${date}`)
   }
@@ -137,7 +141,9 @@ export function formatTimezoneDateTime(date: Date, timezone: TimezoneId): string
   // sv-SE formát je už 'YYYY-MM-DD HH:mm', jen nahradíme mezeru za T
   const result = localTime.replace(' ', 'T')
   
-  console.log(`🕐 formatTimezoneDateTime: ${date.toISOString()} (UTC) -> ${result} (${timezone})`)
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`🕐 formatTimezoneDateTime: ${date.toISOString()} (UTC) -> ${result} (${timezone})`)
+  }
   
   return result
 }
@@ -184,10 +190,11 @@ export function getTomorrowDateTimeInTimezone(timezone: TimezoneId): string {
 /**
  * Debug logging pro timezone operace
  */
-export function logTimezoneDebug(label: string, value: any, timezone?: TimezoneId): void {
+export function logTimezoneDebug(label: string, value: Date, timezone?: TimezoneId): void {
   if (process.env.NODE_ENV === 'development') {
     console.log(`🕐 ${label}:`, value)
     if (timezone && value instanceof Date) {
+      console.log(`   -> UTC: ${value.toISOString()}`)
       console.log(`   -> ${timezone}: ${value.toLocaleString('sv-SE', { timeZone: timezone })}`)
     }
   }

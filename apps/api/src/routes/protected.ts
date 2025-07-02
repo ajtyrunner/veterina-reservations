@@ -26,11 +26,13 @@ router.get('/reservations', validateQueryParams, async (req: Request, res: Respo
     const userRole = req.user?.role
     const { status } = req.query
 
-    console.log('=== DEBUG: GET /reservations ===')
-    console.log('userId:', userId)
-    console.log('tenantId:', tenantId)
-    console.log('userRole:', userRole)
-    console.log('status filter:', status)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: GET /reservations ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+      console.log('status filter:', status)
+    }
 
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
@@ -60,7 +62,9 @@ router.get('/reservations', validateQueryParams, async (req: Request, res: Respo
       whereCondition.status = status
     }
 
-    console.log('Where condition:', JSON.stringify(whereCondition, null, 2))
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Where condition:', JSON.stringify(whereCondition, null, 2))
+    }
 
     const reservations = await prisma.reservation.findMany({
       where: whereCondition,
@@ -99,7 +103,9 @@ router.get('/reservations', validateQueryParams, async (req: Request, res: Respo
       },
     })
 
-    console.log(`Found ${reservations.length} reservations`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Found ${reservations.length} reservations`)
+    }
     res.json(reservations)
   } catch (error) {
     console.error('Chyba při načítání rezervací:', error)
@@ -199,12 +205,14 @@ router.patch('/reservations/:id', validateUpdateReservationStatus, async (req: R
     const { id } = req.params
     const { status } = req.body
 
-    console.log('=== DEBUG: PATCH /reservations/:id ===')
-    console.log('userId:', userId)
-    console.log('tenantId:', tenantId)
-    console.log('userRole:', userRole)
-    console.log('reservationId:', id)
-    console.log('new status:', status)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: PATCH /reservations/:id ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+      console.log('reservationId:', id)
+      console.log('new status:', status)
+    }
 
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
@@ -377,11 +385,13 @@ router.post('/doctor/slots', createOperationLimit, validateCreateSlot, async (re
     const userRole = req.user?.role
     const { startTime, endTime, equipment, doctorId, roomId, serviceTypeId } = req.body
 
-    console.log('=== DEBUG: Creating slot ===')
-    console.log('userId:', userId)
-    console.log('tenantId:', tenantId)
-    console.log('userRole:', userRole)
-    console.log('body:', req.body)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: Creating slot ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+      console.log('body:', req.body)
+    }
 
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
@@ -451,15 +461,17 @@ router.post('/doctor/slots', createOperationLimit, validateCreateSlot, async (re
     const startTimeUTC = parseTimezoneDateTime(startTime, tenantTimezone)
     const endTimeUTC = parseTimezoneDateTime(endTime, tenantTimezone)
     
-    console.log('Creating slot with timezone handling:')
-    console.log('- doctorId:', targetDoctorId)
-    console.log('- tenantTimezone:', tenantTimezone)
-    logTimezoneDebug('Original startTime', startTime)
-    logTimezoneDebug('Parsed startTime UTC', startTimeUTC, tenantTimezone)
-    logTimezoneDebug('Original endTime', endTime)
-    logTimezoneDebug('Parsed endTime UTC', endTimeUTC, tenantTimezone)
-    console.log('- roomId:', roomId)
-    console.log('- serviceTypeId:', serviceTypeId)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Creating slot with timezone handling:')
+      console.log('- doctorId:', targetDoctorId)
+      console.log('- tenantTimezone:', tenantTimezone)
+      logTimezoneDebug('Original startTime', startTime)
+      logTimezoneDebug('Parsed startTime UTC', startTimeUTC, tenantTimezone)
+      logTimezoneDebug('Original endTime', endTime)
+      logTimezoneDebug('Parsed endTime UTC', endTimeUTC, tenantTimezone)
+      console.log('- roomId:', roomId)
+      console.log('- serviceTypeId:', serviceTypeId)
+    }
 
     const slot = await prisma.slot.create({
       data: {
@@ -603,6 +615,15 @@ router.put('/doctor/slots/:id', async (req: Request, res: Response) => {
     const { id } = req.params
     const { startTime, endTime, equipment, roomId, serviceTypeId } = req.body
 
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: PUT /doctor/slots/:id ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+      console.log('slotId:', id)
+      console.log('body:', req.body)
+    }
+
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
     }
@@ -664,12 +685,14 @@ router.put('/doctor/slots/:id', async (req: Request, res: Response) => {
     const startTimeUTC = parseTimezoneDateTime(startTime, tenantTimezone)
     const endTimeUTC = parseTimezoneDateTime(endTime, tenantTimezone)
     
-    console.log('Updating slot with timezone handling:')
-    console.log('- tenantTimezone:', tenantTimezone)
-    logTimezoneDebug('Original startTime', startTime)
-    logTimezoneDebug('Parsed startTime UTC', startTimeUTC, tenantTimezone)
-    logTimezoneDebug('Original endTime', endTime)
-    logTimezoneDebug('Parsed endTime UTC', endTimeUTC, tenantTimezone)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Updating slot with timezone handling:')
+      console.log('- tenantTimezone:', tenantTimezone)
+      logTimezoneDebug('Original startTime', startTime)
+      logTimezoneDebug('Parsed startTime UTC', startTimeUTC, tenantTimezone)
+      logTimezoneDebug('Original endTime', endTime)
+      logTimezoneDebug('Parsed endTime UTC', endTimeUTC, tenantTimezone)
+    }
 
     const updatedSlot = await prisma.slot.update({
       where: { id },
@@ -734,6 +757,14 @@ router.delete('/doctor/slots/:id', async (req: Request, res: Response) => {
     const userRole = req.user?.role
     const { id } = req.params
 
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: DELETE /doctor/slots/:id ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+      console.log('slotId:', id)
+    }
+
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
     }
@@ -788,6 +819,14 @@ router.get('/doctor/reservations', async (req: Request, res: Response) => {
     const tenantId = req.user?.tenant
     const userRole = req.user?.role
     const { status } = req.query
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: GET /doctor/reservations ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+      console.log('status filter:', status)
+    }
 
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
@@ -860,6 +899,9 @@ router.get('/doctor/reservations', async (req: Request, res: Response) => {
       ],
     })
 
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Found ${reservations.length} reservations`)
+    }
     res.json(reservations)
   } catch (error) {
     console.error('Chyba při načítání rezervací:', error)
@@ -875,6 +917,15 @@ router.put('/doctor/reservations/:id/status', async (req: Request, res: Response
     const userRole = req.user?.role
     const { id } = req.params
     const { status, notes } = req.body
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: PUT /doctor/reservations/:id/status ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+      console.log('reservationId:', id)
+      console.log('new status:', status)
+    }
 
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
@@ -983,6 +1034,15 @@ router.put('/doctor/reservations/:id/notes', async (req: Request, res: Response)
     const userRole = req.user?.role
     const { id } = req.params
     const { notes } = req.body
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: PUT /doctor/reservations/:id/notes ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+      console.log('reservationId:', id)
+      console.log('notes:', notes)
+    }
 
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
@@ -1335,12 +1395,14 @@ router.post('/doctor/slots/bulk-generate', bulkOperationLimit, validateBulkSlotG
       return res.status(400).json({ error: 'Příliš mnoho slotů k vygenerování. Snižte počet týdnů nebo zvyšte interval.' })
     }
 
-    console.log('=== DEBUG: Bulk slot generation ===')
-    console.log('userId:', userId)
-    console.log('tenantId:', tenantId)
-    console.log('userRole:', userRole)
-    // BEZPEČNOST: Nelogovat citlivé parametry
-    console.log('estimatedSlots:', estimatedSlots)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: Bulk slot generation ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+      // BEZPEČNOST: Nelogovat citlivé parametry
+      console.log('estimatedSlots:', estimatedSlots)
+    }
 
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
@@ -1409,7 +1471,9 @@ router.post('/doctor/slots/bulk-generate', bulkOperationLimit, validateBulkSlotG
         select: { duration: true }
       })
       serviceTypeDuration = serviceType?.duration || undefined
-      console.log(`🔧 Služba má délku: ${serviceTypeDuration} minut`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🔧 Služba má délku: ${serviceTypeDuration} minut`)
+      }
     }
     
     // Generování slotů
@@ -1470,7 +1534,9 @@ router.post('/doctor/slots/bulk-generate', bulkOperationLimit, validateBulkSlotG
       }
     }
     
-    console.log(`Generated ${slotsToCreate.length} slots, ${conflicts.length} conflicts`)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Generated ${slotsToCreate.length} slots, ${conflicts.length} conflicts`)
+    }
     
     // Vytvoření slotů v databázi
     const createdSlots = []
@@ -1555,7 +1621,9 @@ function generateDaySlots(
   const currentSlot = parseTimezoneDateTime(`${dateStr}T${startTime}:00`, timezone)
   const endOfDay = parseTimezoneDateTime(`${dateStr}T${endTime}:00`, timezone)
   
-  console.log(`🧠 Inteligentní sloty: služba=${actualSlotDuration}min, interval=${stepInterval}min`)
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`🧠 Inteligentní sloty: služba=${actualSlotDuration}min, interval=${stepInterval}min`)
+  }
   
   while (currentSlot < endOfDay) {
     // INTELIGENTNÍ SLOTY: Délka slotu podle služby, interval podle nastavení
@@ -1597,9 +1665,13 @@ function generateDaySlots(
         start: new Date(currentSlot),
         end: new Date(slotEnd),
       })
-      console.log(`✅ Slot vytvořen: ${slotStartTime}-${slotEndTime} (${actualSlotDuration}min)`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`✅ Slot vytvořen: ${slotStartTime}-${slotEndTime} (${actualSlotDuration}min)`)
+      }
     } else {
-      console.log(`⏸️ Slot přeskočen (přestávka): ${slotStartTime}-${slotEndTime}`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`⏸️ Slot přeskočen (přestávka): ${slotStartTime}-${slotEndTime}`)
+      }
     }
     
     // Přejdi na další slot podle step intervalu (ne podle délky slotu!)
@@ -1626,7 +1698,9 @@ router.post('/test/notifications', async (req: Request, res: Response) => {
       return res.status(403).json({ error: 'Nedostatečná oprávnění - pouze admin' })
     }
 
-    console.log('🧪 Testing notification system...')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🧪 Testing notification system...')
+    }
     
     const testResult = await notificationService.testNotifications()
     
@@ -1656,7 +1730,9 @@ router.post('/notifications/send-reminders', async (req: Request, res: Response)
       return res.status(403).json({ error: 'Nedostatečná oprávnění - pouze admin' })
     }
 
-    console.log('📧 Manually triggering reminder notifications...')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📧 Manually triggering reminder notifications...')
+    }
     
     const sentCount = await notificationService.sendReservationReminders()
     

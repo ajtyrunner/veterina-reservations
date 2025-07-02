@@ -21,7 +21,26 @@ export const authOptions: AuthOptions = {
         params: {
           prompt: "consent",
           access_type: "offline",
-          response_type: "code"
+          response_type: "code",
+          scope: [
+            'openid',
+            'email',
+            'profile',
+            'https://www.googleapis.com/auth/userinfo.email',
+            'https://www.googleapis.com/auth/user.phonenumbers.read'
+          ].join(' ')
+        }
+      },
+      profile(profile) {
+        console.log('📦 Google profile data:', JSON.stringify(profile, null, 2))
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+          phone: profile.phone_number || null,
+          locale: profile.locale || 'cs',
+          emailVerified: profile.email_verified
         }
       }
     }),
@@ -97,6 +116,7 @@ export const authOptions: AuthOptions = {
               email: user.email!,
               name: user.name,
               image: user.image,
+              phone: (user as any).phone_number || null,  // Použijeme phone_number z Google profilu
               tenantSlug: 'svahy' // Fallback
             }),
           });

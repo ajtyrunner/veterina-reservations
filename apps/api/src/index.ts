@@ -41,10 +41,34 @@ if (process.env.NODE_ENV === 'development') {
 const app = express()
 const PORT = parseInt(process.env.PORT || '8080', 10)
 
+// CORS konfigurace - podmíněná podle prostředí
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? [
+        'https://veterina-reservations.vercel.app',
+        process.env.FRONTEND_URL,
+        process.env.NEXTAUTH_URL,
+        'https://veterina-reservations-production.up.railway.app'  // Přidáme Railway URL
+      ].filter((url): url is string => Boolean(url))
+    : [
+        'http://localhost:3000',
+        'http://svahy.lvh.me:3000',
+        'https://veterina-reservations.vercel.app',
+        process.env.FRONTEND_URL,
+        process.env.NEXTAUTH_URL
+      ].filter((url): url is string => Boolean(url)),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+}
+
 // Trust proxy - MUST be before rate limit middleware
 app.set('trust proxy', 1)
 
-// Healthcheck endpoint MUST be before any middleware
+// Apply CORS to all routes
+app.use(cors(corsOptions))
+
+// Healthcheck endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
@@ -72,29 +96,6 @@ app.use(basicRateLimit)
 
 // Inicializace Prisma klienta až po načtení proměnných prostředí
 const prisma = new PrismaClient()
-
-// CORS konfigurace - podmíněná podle prostředí
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? [
-        'https://veterina-reservations.vercel.app',
-        process.env.FRONTEND_URL,
-        process.env.NEXTAUTH_URL
-      ].filter((url): url is string => Boolean(url))
-    : [
-        'http://localhost:3000',
-        'http://svahy.lvh.me:3000',
-        'https://veterina-reservations.vercel.app',
-        process.env.FRONTEND_URL,
-        process.env.NEXTAUTH_URL
-      ].filter((url): url is string => Boolean(url)),
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
-}
-
-// Middleware
-app.use(cors(corsOptions))
 
 // GLOBAL HTTPS ENFORCEMENT - před všemi ostatními middleware
 app.use((req, res, next) => {

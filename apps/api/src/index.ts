@@ -38,8 +38,18 @@ if (process.env.NODE_ENV === 'development') {
   console.log('PORT:', process.env.PORT)
 }
 
-// Až po načtení .env importujeme ostatní moduly
 const app = express()
+const PORT = parseInt(process.env.PORT || '8080', 10)
+
+// Healthcheck endpoint MUST be before any middleware
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    service: 'veterina-api',
+    port: PORT
+  })
+})
 
 // BEZPEČNOSTNÍ MIDDLEWARE - aplikovat jako první
 app.use(helmet({
@@ -117,15 +127,6 @@ app.use(express.json())
 app.options('*', (req, res) => {
   console.log(`✈️ PREFLIGHT: ${req.method} ${req.path}`)
   res.status(200).end()
-})
-
-// Healthcheck endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
-    service: 'veterina-api'
-  })
 })
 
 // Veřejné API pro získání informací o tenantovi
@@ -320,9 +321,6 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 
 // Keepalive pro Railway databázi
 import { startDatabaseKeepalive } from './utils/keepalive'
-
-
-const PORT = parseInt(process.env.PORT || '3000', 10)
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 API server běží na portu ${PORT}`)

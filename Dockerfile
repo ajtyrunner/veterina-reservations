@@ -26,7 +26,7 @@ FROM node:18-alpine
 
 WORKDIR /app/api
 
-# Kopíruj pouze  produkční soubory
+# Kopíruj pouze produkční soubory
 COPY --from=builder /app/api/dist ./dist
 COPY --from=builder /app/api/node_modules ./node_modules
 COPY --from=builder /app/api/node_modules/.prisma ./node_modules/.prisma

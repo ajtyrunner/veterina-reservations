@@ -20,7 +20,7 @@ RUN npx prisma generate
 # Build aplikace
 RUN cd apps/api && npm run build
 
-# Production stage
+# Productio n stage
 FROM node:18-alpine AS runner
 
 WORKDIR /app

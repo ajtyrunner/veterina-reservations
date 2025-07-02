@@ -3,43 +3,36 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Kopíruj package.json files
-COPY apps/api/package*.json ./apps/api/
-COPY package*.json ./
+# Kopíruj pouze potřebné soubory pro instalaci
+COPY apps/api/package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies včetně dev dependencies pro build
-RUN cd apps/api && npm ci
+# Instaluj pouze produkční dependencies
+RUN npm ci --only=production
 
 # Kopíruj zdrojové kódy
-COPY apps/api ./apps/api/
+COPY apps/api/src ./src/
+COPY apps/api/tsconfig.json ./
 
 # Generuj Prisma klienta
 RUN npx prisma generate
 
 # Build aplikace
-RUN cd apps/api && npm run build
+RUN npm run build
 
-# Production stage
-FROM node:18-alpine AS runner
+# Production stage - použij stejný base image pro menší velikost
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Vytvoř non-root uživatele
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 apiuser
-
-# Kopíruj built aplikaci
-COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/apps/api/package*.json ./
-COPY --from=builder /app/apps/api/node_modules ./node_modules
+# Kopíruj pouze produkční soubory
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-USER apiuser
+# Nastav environment variables
+ENV PORT=3000
+ENV NODE_ENV=production
 
-EXPOSE 3000
-
-ENV PORT 3000
-ENV NODE_ENV production
-
+# Spusť aplikaci
 CMD ["node", "dist/index.js"] 

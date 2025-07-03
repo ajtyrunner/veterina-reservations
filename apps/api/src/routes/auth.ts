@@ -198,15 +198,32 @@ router.post('/google-user', async (req, res) => {
     })
 
     if (existingUser) {
-      // Aktualizuj phone pokud se změnil v OAuth profilu
-      if (phone && phone !== existingUser.phone) {
-        await prisma.user.update({
-          where: { id: existingUser.id },
-          data: { phone }
-        })
-        console.log('📞 Updated phone from OAuth for user:', email)
-      }
-      return res.json({ success: true })
+      // Aktualizuj auditní informace při přihlášení přes Google
+      const clientIp = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] as string || 'unknown'
+      
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          lastLoginAt: new Date(),
+          lastLoginIp: clientIp,
+          loginCount: {
+            increment: 1
+          },
+          name: name || existingUser.name, // Aktualizuj jméno pokud se změnilo
+          image: image || existingUser.image, // Aktualizuj avatar pokud se změnil
+        }
+      })
+
+      // Zaloguj úspěšné přihlášení
+      auditLog('LOGIN_SUCCESS', { 
+        email, 
+        role: existingUser.role, 
+        tenant: tenant.slug,
+        provider: 'GOOGLE',
+        ip: clientIp
+      }, req)
+
+      return res.json(existingUser)
     }
 
     // Vytvoř nového uživatele s phone z OAuth

@@ -338,8 +338,9 @@ export default function Home() {
         slotId: selectedSlotForReservation.id,
         ...reservationForm,
       })
-      
-      console.log('✅ Rezervace vytvořena v Railway')
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Rezervace vytvořena v Railway')
+      }
       addNotification('success', 'Rezervace byla úspěšně vytvořena!')
       closeReservationForm()
       loadSlots() // Obnovit sloty

@@ -388,8 +388,8 @@ export default function Home() {
     if (!session?.user?.tenantId) return
 
     try {
-      const { getPublicDoctors } = await import('../lib/api-client')
-      const data = await getPublicDoctors(session.user.tenantId)
+      const { getDoctors } = await import('../lib/api-client')
+      const data = await getDoctors(session.user.tenantId)
       if (process.env.NODE_ENV === 'development') {
         console.log('✅ Doktoři načteni z Railway:', data)
       }
@@ -403,8 +403,8 @@ export default function Home() {
     if (!session?.user?.tenantId) return
 
     try {
-      const { getPublicServiceTypes } = await import('../lib/api-client')
-      const data = await getPublicServiceTypes(session.user.tenantId)
+      const { getServiceTypes } = await import('../lib/api-client')
+      const data = await getServiceTypes(session.user.tenantId)
       if (process.env.NODE_ENV === 'development') {
         console.log('✅ Service types načteny z Railway:', data)
       }
@@ -424,8 +424,8 @@ export default function Home() {
       if (selectedServiceType) params.append('serviceTypeId', selectedServiceType)
       if (selectedDate) params.append('date', selectedDate)
 
-      const { getPublicSlots } = await import('../lib/api-client')
-      const data = await getPublicSlots(session.user.tenantId, params)
+      const { getSlots } = await import('../lib/api-client')
+      const data = await getSlots(session.user.tenantId, params)
       if (process.env.NODE_ENV === 'development') {
         console.log('✅ Sloty načteny z Railway:', data)
       }

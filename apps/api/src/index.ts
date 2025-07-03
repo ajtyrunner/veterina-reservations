@@ -171,8 +171,8 @@ app.get('/api/public/tenant/:slug', async (req, res) => {
   }
 })
 
-// Veřejné API pro získání dostupných slotů
-app.get('/api/public/slots/:tenantId', async (req, res) => {
+// Chráněné API pro získání dostupných slotů
+app.get('/api/slots/:tenantId', authMiddleware, async (req, res) => {
   try {
     const { tenantId } = req.params
     const { doctorId, serviceTypeId, date } = req.query
@@ -180,6 +180,11 @@ app.get('/api/public/slots/:tenantId', async (req, res) => {
     const where: any = {
       tenantId,
       isAvailable: true,
+      doctor: {
+        user: {
+          isActive: true
+        }
+      }
     }
 
     if (doctorId) {
@@ -191,22 +196,10 @@ app.get('/api/public/slots/:tenantId', async (req, res) => {
     }
 
     if (date) {
-      // Timezone-aware date filtering podle tenanta
-      const inputDate = date as string // Expected format: YYYY-MM-DD
-      
-      // Načteme timezone tenanta
+      const inputDate = date as string
       const tenantTimezone = await getCachedTenantTimezone(prisma, tenantId)
-      
-      // Vytvoříme timezone-aware range pro celý den
       const startDateUTC = getStartOfDayInTimezone(inputDate, tenantTimezone)
       const endDateUTC = getEndOfDayInTimezone(inputDate, tenantTimezone)
-      
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`🗓️ Date filter: ${inputDate} (tenant timezone: ${tenantTimezone})`)
-        console.log(`   Start UTC: ${startDateUTC.toISOString()}`)
-        console.log(`   End UTC: ${endDateUTC.toISOString()}`)
-      }
-      
       where.startTime = {
         gte: startDateUTC,
         lte: endDateUTC,
@@ -254,7 +247,6 @@ app.get('/api/public/slots/:tenantId', async (req, res) => {
       },
     })
 
-    // Filtrovat pouze dostupné sloty (bez aktivních rezervací)
     const availableSlots = slots.filter((slot: any) => slot.reservations.length === 0)
 
     res.json(availableSlots)
@@ -264,13 +256,18 @@ app.get('/api/public/slots/:tenantId', async (req, res) => {
   }
 })
 
-// Veřejné API pro získání doktorů
-app.get('/api/public/doctors/:tenantId', async (req, res) => {
+// Chráněné API pro získání doktorů
+app.get('/api/doctors/:tenantId', authMiddleware, async (req, res) => {
   try {
     const { tenantId } = req.params
 
     const doctors = await prisma.doctor.findMany({
-      where: { tenantId },
+      where: {
+        tenantId,
+        user: {
+          isActive: true
+        }
+      },
       include: {
         user: {
           select: {
@@ -288,8 +285,8 @@ app.get('/api/public/doctors/:tenantId', async (req, res) => {
   }
 })
 
-// Veřejné API pro získání service types
-app.get('/api/public/service-types/:tenantId', async (req, res) => {
+// Chráněné API pro získání service types
+app.get('/api/service-types/:tenantId', authMiddleware, async (req, res) => {
   try {
     const { tenantId } = req.params
 

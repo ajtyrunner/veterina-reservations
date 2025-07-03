@@ -627,7 +627,14 @@ router.get('/doctor/slots', async (req: Request, res: Response) => {
     }
 
     const slots = await prisma.slot.findMany({
-      where: whereCondition,
+      where: {
+        ...whereCondition,
+        doctor: {
+          user: {
+            isActive: true
+          }
+        }
+      },
       include: {
         doctor: {
           include: {
@@ -1414,7 +1421,12 @@ router.get('/doctors', async (req: Request, res: Response) => {
     }
 
     const doctors = await prisma.doctor.findMany({
-      where: { tenantId },
+      where: {
+        tenantId,
+        user: {
+          isActive: true
+        }
+      },
       include: {
         user: {
           select: {

@@ -122,10 +122,12 @@ export async function apiCall(endpoint: string, options: ApiOptions = {}) {
 }
 
 // Convenience funkce pro běžné operace
-export async function getSlots() {
-  return apiCall('/api/doctor/slots', {
-    requireAuth: true
-  })
+export async function getSlots(tenantId: string, params?: URLSearchParams) {
+  const url = params 
+    ? `/api/slots/${tenantId}?${params}`
+    : `/api/slots/${tenantId}`
+  
+  return apiCall(url, { requireAuth: true })
 }
 
 export async function createSlot(slotData: any) {
@@ -157,10 +159,8 @@ export async function getRooms() {
   })
 }
 
-export async function getServiceTypes() {
-  return apiCall('/api/service-types', {
-    requireAuth: true
-  })
+export async function getServiceTypes(tenantId: string) {
+  return apiCall(`/api/service-types/${tenantId}`, { requireAuth: true })
 }
 
 export async function createServiceType(serviceTypeData: any) {
@@ -283,10 +283,8 @@ export async function bulkGenerateSlots(bulkData: any) {
 }
 
 // Získání doktorů (pro adminy)
-export async function getDoctors() {
-  return apiCall('/api/doctors', {
-    requireAuth: true
-  })
+export async function getDoctors(tenantId: string) {
+  return apiCall(`/api/doctors/${tenantId}`, { requireAuth: true })
 }
 
 // Test spojení

@@ -249,7 +249,9 @@ export default function Home() {
     petName: '',
     petType: '',
     description: '',
+    phone: '',
   })
+  const [phoneError, setPhoneError] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'calendar'>('calendar')
 
   useEffect(() => {
@@ -314,12 +316,36 @@ export default function Home() {
     }
     setSelectedSlotForReservation(slot)
     setShowReservationForm(true)
+    
+    // Načtení profilu uživatele pro předvyplnění telefonu
+    loadUserProfile()
+  }
+
+  const loadUserProfile = async () => {
+    try {
+      const { getUserProfile } = await import('../lib/api-client')
+      const userProfile = await getUserProfile()
+      
+      // Předvyplnění telefonu pokud existuje
+      if (userProfile.phone) {
+        setReservationForm(prev => ({ 
+          ...prev, 
+          phone: userProfile.phone 
+        }))
+      }
+    } catch (error) {
+      // Tichá chyba - profil není kritický pro formulář
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Chyba při načítání profilu uživatele:', error)
+      }
+    }
   }
 
   const closeReservationForm = () => {
     setShowReservationForm(false)
     setSelectedSlotForReservation(null)
-    setReservationForm({ petName: '', petType: '', description: '' })
+    setReservationForm({ petName: '', petType: '', description: '', phone: '' })
+    setPhoneError('')
   }
 
   const createReservation = async (e: React.FormEvent) => {
@@ -327,6 +353,12 @@ export default function Home() {
     
     if (!selectedSlotForReservation || !session) {
       addNotification('error', 'Chyba při vytváření rezervace.')
+      return
+    }
+
+    // Zkontrolovat validaci telefonu před odesláním
+    if (reservationForm.phone && phoneError) {
+      addNotification('error', 'Opravte prosím chyby ve formuláři před odesláním.')
       return
     }
 
@@ -413,6 +445,55 @@ export default function Home() {
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
     return tomorrow.toISOString().split('T')[0]
+  }
+
+  // Funkce pro validaci telefonního čísla
+  const validatePhone = (phone: string): string => {
+    if (!phone.trim()) return '' // Prázdné je OK - volitelné pole
+    
+    const cleaned = phone.replace(/[\s\-\(\)]/g, '')
+    
+    // České telefonní číslo - různé formáty
+    const czechPatterns = [
+      /^[67]\d{8}$/,                    // 777456789
+      /^0[67]\d{8}$/,                   // 0777456789
+      /^\+420[67]\d{8}$/,               // +420777456789
+      /^420[67]\d{8}$/,                 // 420777456789
+      /^00420[67]\d{8}$/,               // 00420777456789
+    ]
+    
+    // Mezinárodní čísla
+    const internationalPattern = /^\+[1-9]\d{6,14}$/
+    
+    // Testování vzorů
+    const isCzechValid = czechPatterns.some(pattern => pattern.test(cleaned))
+    const isInternationalValid = internationalPattern.test(cleaned)
+    
+    if (!isCzechValid && !isInternationalValid) {
+      return 'Neplatný formát. Použijte: 777456789, 0777456789 nebo +420777456789'
+    }
+    
+    // Dodatečná validace pro české čísla
+    if (isCzechValid) {
+      let coreNumber = cleaned
+      if (cleaned.startsWith('+420')) coreNumber = cleaned.substring(4)
+      else if (cleaned.startsWith('420')) coreNumber = cleaned.substring(3)
+      else if (cleaned.startsWith('00420')) coreNumber = cleaned.substring(5)
+      else if (cleaned.startsWith('0')) coreNumber = cleaned.substring(1)
+      
+      if (coreNumber.length === 9 && !/^[67]/.test(coreNumber)) {
+        return 'České číslo musí začínat číslicí 6 nebo 7'
+      }
+    }
+    
+    return ''
+  }
+
+  // Handler pro změnu telefonu s validací
+  const handlePhoneChange = (value: string) => {
+    setReservationForm(prev => ({ ...prev, phone: value }))
+    const error = validatePhone(value)
+    setPhoneError(error)
   }
 
   // Show different content based on authentication status
@@ -545,6 +626,31 @@ export default function Home() {
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Popište prosím důvod návštěvy..."
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Telefonní číslo
+                  </label>
+                  <input
+                    type="tel"
+                    value={reservationForm.phone}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 ${
+                      phoneError 
+                        ? 'border-red-300 focus:ring-red-500' 
+                        : 'border-gray-300 focus:ring-blue-500'
+                    }`}
+                    placeholder="777 123 456 nebo +420 777 123 456"
+                  />
+                  {phoneError && (
+                    <p className="text-xs text-red-600 mt-1">{phoneError}</p>
+                  )}
+                  {!phoneError && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Volitelné. Pro účely případného upřesnění požadavku. Číslo bude automaticky formátováno.
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex justify-end space-x-3 pt-4">

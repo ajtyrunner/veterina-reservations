@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { parsePragueDateTime, parseTimezoneDateTime, logTimezoneDebug } from '../utils/timezone'
 import { getCachedTenantTimezone } from '../utils/tenant'
+import { normalizePhoneNumber } from '../utils/contact'
 import { NotificationService } from '../services/notificationService'
 import { bulkOperationLimit, createOperationLimit } from '../middleware/rateLimiter'
 import { 
@@ -113,12 +114,44 @@ router.get('/reservations', validateQueryParams, async (req: Request, res: Respo
   }
 })
 
+// Získání profilu aktuálního uživatele
+router.get('/user/profile', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.sub
+    const tenantId = req.user?.tenant
+
+    if (!userId || !tenantId) {
+      return res.status(400).json({ error: 'Chybí uživatelské údaje' })
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { id: userId, tenantId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        image: true,
+      },
+    })
+
+    if (!user) {
+      return res.status(404).json({ error: 'Uživatel nenalezen' })
+    }
+
+    res.json(user)
+  } catch (error) {
+    console.error('Chyba při načítání profilu uživatele:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
 // Vytvoření nové rezervace
 router.post('/reservations', createOperationLimit, validateCreateReservation, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
-    const { slotId, petName, petType, description } = req.body
+    const { slotId, petName, petType, description, phone } = req.body
 
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
@@ -146,6 +179,14 @@ router.post('/reservations', createOperationLimit, validateCreateReservation, as
 
     if (slot.reservations.length > 0) {
       return res.status(409).json({ error: 'Slot je již rezervovaný' })
+    }
+
+    // Aktualizovat telefon uživatele, pokud je zadán
+    if (phone) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { phone: normalizePhoneNumber(phone.trim()) },
+      })
     }
 
     // Vytvořit rezervaci

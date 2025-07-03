@@ -232,4 +232,8 @@ export async function testRailwayConnection() {
     }
     return null
   }
+}
+
+export async function getUserProfile() {
+  return apiCall('/api/user/profile')
 } 

@@ -4,7 +4,7 @@ import { Request, Response } from 'express'
 // Základní rate limiter pro všechny API endpointy
 export const basicRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minut
-  max: 100, // max 100 požadavků na IP za 15 minut
+  max: process.env.NODE_ENV === 'development' ? 1000 : 100, // Development: 1000, Production: 100 požadavků
   message: {
     error: 'Příliš mnoho požadavků. Zkuste to prosím později.',
     retryAfter: 15 * 60 // 15 minut v sekundách
@@ -14,6 +14,14 @@ export const basicRateLimit = rateLimit({
   // Custom key generator pro lepší tracking
   keyGenerator: (req: Request) => {
     return req.ip || 'unknown'
+  },
+  // V development skipujeme rate limiting pro localhost
+  skip: (req: Request) => {
+    if (process.env.NODE_ENV === 'development') {
+      const ip = req.ip || ''
+      return ip.includes('127.0.0.1') || ip.includes('::1') || ip.includes('localhost')
+    }
+    return false
   }
 })
 
@@ -45,11 +53,19 @@ export const bulkOperationLimit = rateLimit({
 // Limiter pro vytváření slotů/rezervací
 export const createOperationLimit = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minut
-  max: 20, // max 20 vytvoření za 5 minut
+  max: process.env.NODE_ENV === 'development' ? 100 : 20, // Development: 100, Production: 20 vytvoření za 5 minut
   message: {
     error: 'Příliš rychlé vytváření. Zkuste to prosím za chvíli.',
     retryAfter: 5 * 60
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // V development skipujeme rate limiting pro localhost
+  skip: (req: Request) => {
+    if (process.env.NODE_ENV === 'development') {
+      const ip = req.ip || ''
+      return ip.includes('127.0.0.1') || ip.includes('::1') || ip.includes('localhost')
+    }
+    return false
+  }
 }) 

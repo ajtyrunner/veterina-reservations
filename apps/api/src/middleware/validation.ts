@@ -57,6 +57,61 @@ export const validateCreateReservation = [
     })
     .withMessage('Popis nesmí být delší než 1000 znaků a nesmí obsahovat HTML'),
   
+  body('phone')
+    .optional()
+    .isString()
+    .isLength({ max: 20 })
+    .custom((value) => {
+      if (value) {
+        // Odebereme mezery, pomlčky a závorky pro validaci
+        const cleaned = value.replace(/[\s\-\(\)]/g, '')
+        
+        // České telefonní číslo - různé formáty
+        const czechPatterns = [
+          /^[67]\d{8}$/,                    // 777456789 (9 číslic, začíná 6 nebo 7)
+          /^0[67]\d{8}$/,                   // 0777456789 (10 číslic, začíná 06 nebo 07)
+          /^\+420[67]\d{8}$/,               // +420777456789 (mezinárodní s +)
+          /^420[67]\d{8}$/,                 // 420777456789 (mezinárodní bez +)
+          /^00420[67]\d{8}$/,               // 00420777456789 (mezinárodní s 00)
+        ]
+        
+        // Mezinárodní čísla (základní validace)
+        const internationalPattern = /^\+[1-9]\d{6,14}$/
+        
+        // Odebereme + pro testování vzorů bez +
+        const cleanedWithoutPlus = cleaned.startsWith('+') ? cleaned.substring(1) : cleaned
+        
+        // Testujeme české vzory
+        const isCzechValid = czechPatterns.some(pattern => 
+          pattern.test(cleaned) || pattern.test(cleanedWithoutPlus)
+        )
+        
+        // Testujeme mezinárodní vzor
+        const isInternationalValid = internationalPattern.test(cleaned)
+        
+        if (!isCzechValid && !isInternationalValid) {
+          throw new Error('Neplatný formát telefonního čísla. Podporované formáty: 777456789, 0777456789, +420777456789')
+        }
+        
+        // Další validace pro české čísla
+        if (isCzechValid) {
+          // Extrahujeme čísla bez předvolby pro dodatečnou validaciju
+          let coreNumber = cleaned
+          if (cleaned.startsWith('+420')) coreNumber = cleaned.substring(4)
+          else if (cleaned.startsWith('420')) coreNumber = cleaned.substring(3)
+          else if (cleaned.startsWith('00420')) coreNumber = cleaned.substring(5)
+          else if (cleaned.startsWith('0')) coreNumber = cleaned.substring(1)
+          
+          // České mobilní čísla musí začínat 6 nebo 7
+          if (coreNumber.length === 9 && !/^[67]/.test(coreNumber)) {
+            throw new Error('České telefonní číslo musí začínat číslicí 6 nebo 7')
+          }
+        }
+      }
+      return true
+    })
+    .withMessage('Telefonní číslo musí být v platném formátu'),
+  
   handleValidationErrors
 ]
 

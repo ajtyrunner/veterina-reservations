@@ -127,7 +127,7 @@ async function main() {
       description: 'Specializace na psy a kočky, chirurgie',
     },
     {
-      email: 'milankopp@email.cz', // Milan Kopp pro testování
+      email: 'milankopp@seznam.cz', // Milan Kopp pro testování
       username: 'milan.kopp',
       name: 'MVDr. Milan Kopp',
       phone: '+420 777 456 789', // Vlastní telefon

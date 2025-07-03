@@ -15,11 +15,16 @@ export const basicRateLimit = rateLimit({
   keyGenerator: (req: Request) => {
     return req.ip || 'unknown'
   },
-  // V development skipujeme rate limiting pro localhost
+  // V development skipujeme rate limiting pro localhost a lvh.me
   skip: (req: Request) => {
     if (process.env.NODE_ENV === 'development') {
       const ip = req.ip || ''
-      return ip.includes('127.0.0.1') || ip.includes('::1') || ip.includes('localhost')
+      const host = req.get('host') || ''
+      return ip.includes('127.0.0.1') || 
+             ip.includes('::1') || 
+             ip.includes('localhost') ||
+             host.includes('lvh.me') ||
+             host.includes('localhost')
     }
     return false
   }

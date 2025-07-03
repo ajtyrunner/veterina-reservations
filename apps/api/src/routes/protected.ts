@@ -14,10 +14,9 @@ import {
   validateCreateServiceType,
   validateQueryParams
 } from '../middleware/validation'
+import { prisma, notificationService } from '../index'
 
 const router = Router()
-const prisma = new PrismaClient()
-const notificationService = new NotificationService(prisma)
 
 // Získání rezervací (uživatelské pro CLIENT, všechny pro DOCTOR/ADMIN)
 router.get('/reservations', validateQueryParams, async (req: Request, res: Response) => {
@@ -169,7 +168,13 @@ router.post('/reservations', createOperationLimit, validateCreateReservation, as
         isAvailable: true,
       },
       include: {
-        reservations: true,
+        reservations: {
+          where: {
+            status: {
+              in: ['PENDING', 'CONFIRMED']
+            }
+          }
+        },
       },
     })
 

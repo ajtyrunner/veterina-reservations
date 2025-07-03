@@ -453,6 +453,20 @@ export default function Home() {
     
     const cleaned = phone.replace(/[\s\-\(\)]/g, '')
     
+    // Kontrola základní délky
+    if (cleaned.length < 7) {
+      return 'Telefonní číslo je příliš krátké. Minimálně 7 číslic.'
+    }
+    
+    if (cleaned.length > 15) {
+      return 'Telefonní číslo je příliš dlouhé. Maximálně 15 číslic.'
+    }
+    
+    // Kontrola, že obsahuje pouze číslice a povolené znaky
+    if (!/^[\+\d]+$/.test(cleaned)) {
+      return 'Telefonní číslo může obsahovat pouze číslice a znak +.'
+    }
+    
     // České telefonní číslo - různé formáty
     const czechPatterns = [
       /^[67]\d{8}$/,                    // 777456789
@@ -470,7 +484,27 @@ export default function Home() {
     const isInternationalValid = internationalPattern.test(cleaned)
     
     if (!isCzechValid && !isInternationalValid) {
-      return 'Neplatný formát. Použijte: 777456789, 0777456789 nebo +420777456789'
+      // Specifická diagnostika pro české číslo
+      if (cleaned.length === 9 || cleaned.length === 10 || 
+          cleaned.startsWith('420') || cleaned.startsWith('+420') || cleaned.startsWith('00420')) {
+        
+        // Extrahujeme základní číslo pro diagnostiku
+        let coreNumber = cleaned
+        if (cleaned.startsWith('+420')) coreNumber = cleaned.substring(4)
+        else if (cleaned.startsWith('420')) coreNumber = cleaned.substring(3)
+        else if (cleaned.startsWith('00420')) coreNumber = cleaned.substring(5)
+        else if (cleaned.startsWith('0')) coreNumber = cleaned.substring(1)
+        
+        if (coreNumber.length !== 9) {
+          return `České číslo má nesprávnou délku. Má ${coreNumber.length} číslic, ale očekává se 9. Příklad: 777123456`
+        }
+        
+        if (!/^[67]/.test(coreNumber)) {
+          return `České mobilní číslo musí začínat číslicí 6 nebo 7. Vaše číslo začíná ${coreNumber[0]}. Příklad: 777123456`
+        }
+      }
+      
+      return 'Neplatný formát. České: 777123456, 0777123456, +420777123456. Mezinárodní: +49123456789'
     }
     
     // Dodatečná validace pro české čísla
@@ -482,7 +516,7 @@ export default function Home() {
       else if (cleaned.startsWith('0')) coreNumber = cleaned.substring(1)
       
       if (coreNumber.length === 9 && !/^[67]/.test(coreNumber)) {
-        return 'České číslo musí začínat číslicí 6 nebo 7'
+        return `České mobilní číslo musí začínat číslicí 6 nebo 7. Vaše číslo začíná ${coreNumber[0]}. Příklad: 777123456`
       }
     }
     

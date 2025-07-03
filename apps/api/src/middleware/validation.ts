@@ -66,6 +66,20 @@ export const validateCreateReservation = [
         // Odebereme mezery, pomlčky a závorky pro validaci
         const cleaned = value.replace(/[\s\-\(\)]/g, '')
         
+        // Kontrola základní délky
+        if (cleaned.length < 7) {
+          throw new Error('Telefonní číslo je příliš krátké. Minimálně 7 číslic.')
+        }
+        
+        if (cleaned.length > 15) {
+          throw new Error('Telefonní číslo je příliš dlouhé. Maximálně 15 číslic.')
+        }
+        
+        // Kontrola, že obsahuje pouze číslice a povolené znaky
+        if (!/^[\+\d]+$/.test(cleaned)) {
+          throw new Error('Telefonní číslo může obsahovat pouze číslice a znak +.')
+        }
+        
         // České telefonní číslo - různé formáty
         const czechPatterns = [
           /^[67]\d{8}$/,                    // 777456789 (9 číslic, začíná 6 nebo 7)
@@ -90,7 +104,27 @@ export const validateCreateReservation = [
         const isInternationalValid = internationalPattern.test(cleaned)
         
         if (!isCzechValid && !isInternationalValid) {
-          throw new Error('Neplatný formát telefonního čísla. Podporované formáty: 777456789, 0777456789, +420777456789')
+          // Specifická diagnostika pro české číslo
+          if (cleaned.length === 9 || cleaned.length === 10 || 
+              cleaned.startsWith('420') || cleaned.startsWith('+420') || cleaned.startsWith('00420')) {
+            
+            // Extrahujeme základní číslo pro diagnostiku
+            let coreNumber = cleaned
+            if (cleaned.startsWith('+420')) coreNumber = cleaned.substring(4)
+            else if (cleaned.startsWith('420')) coreNumber = cleaned.substring(3)
+            else if (cleaned.startsWith('00420')) coreNumber = cleaned.substring(5)
+            else if (cleaned.startsWith('0')) coreNumber = cleaned.substring(1)
+            
+            if (coreNumber.length !== 9) {
+              throw new Error(`České číslo má nesprávnou délku. Má ${coreNumber.length} číslic, ale očekává se 9. Příklad: 777123456`)
+            }
+            
+            if (!/^[67]/.test(coreNumber)) {
+              throw new Error(`České mobilní číslo musí začínat číslicí 6 nebo 7. Vaše číslo začíná ${coreNumber[0]}. Příklad: 777123456`)
+            }
+          }
+          
+          throw new Error('Neplatný formát telefonního čísla. Podporované formáty:\n• České: 777123456, 0777123456, +420777123456\n• Mezinárodní: +49123456789, +33123456789')
         }
         
         // Další validace pro české čísla
@@ -104,13 +138,12 @@ export const validateCreateReservation = [
           
           // České mobilní čísla musí začínat 6 nebo 7
           if (coreNumber.length === 9 && !/^[67]/.test(coreNumber)) {
-            throw new Error('České telefonní číslo musí začínat číslicí 6 nebo 7')
+            throw new Error(`České mobilní číslo musí začínat číslicí 6 nebo 7. Vaše číslo začíná ${coreNumber[0]}. Příklad: 777123456`)
           }
         }
       }
       return true
-    })
-    .withMessage('Telefonní číslo musí být v platném formátu'),
+    }),
   
   handleValidationErrors
 ]

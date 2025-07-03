@@ -121,8 +121,8 @@ export default function ReservationManagementPage() {
   const updateReservationStatus = async (reservationId: string, newStatus: string) => {
     setUpdatingReservation(reservationId)
     try {
-      const { updateDoctorReservationStatus } = await import('../../../lib/api-client')
-      await updateDoctorReservationStatus(reservationId, newStatus)
+      const { updateReservationStatus } = await import('../../../lib/api-client')
+      await updateReservationStatus(reservationId, newStatus)
       if (process.env.NODE_ENV === 'development') {
         console.log('✅ Stav rezervace aktualizován v Railway')
       }

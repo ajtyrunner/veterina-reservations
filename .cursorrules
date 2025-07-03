@@ -1,0 +1,95 @@
+# Veterinární rezervační systém - Cursor Rules
+
+## 🚨 DŮLEŽITÉ: Node.js verze
+
+**PŘED KAŽDÝM SPUŠTĚNÍM JAVASCRIPT/Node.js PŘÍKAZŮ MUSÍTE:**
+
+```bash
+source ~/.nvm/nvm.sh
+```
+
+**Důvod:** Systém má starou verzi Node.js v16.20.2, ale projekt potřebuje novější verzi v22.16.0 z NVM.
+
+## 📁 Struktura projektu
+
+- **Backend API:** `apps/api/` - Express.js server s Prisma ORM
+- **Frontend:** `apps/web/` - Next.js aplikace
+- **Databáze:** `prisma/` - Prisma schema a migrace (vždy v root, ne v apps/web/prisma!)
+
+## 🔧 Klíčové příkazy
+
+### Databáze
+```bash
+# Vždy nejdříve načíst NVM
+source ~/.nvm/nvm.sh
+
+# Prisma příkazy (vždy z root adresáře)
+npx prisma generate
+npx prisma migrate dev --name nazev_migrace
+npx tsx prisma/seed.ts  # DŮLEŽITÉ: Použít tsx, ne npx prisma db seed
+```
+
+### Development
+```bash
+# Backend
+cd apps/api && npm run dev
+
+# Frontend  
+cd apps/web && npm run dev
+```
+
+## 🌍 Timezone handling
+
+Projekt používá tenant-aware timezone handling:
+- Každý tenant má vlastní timezone (default: Europe/Prague)
+- PostgreSQL používá TIMESTAMPTZ
+- API používá `parseTimezoneDateTime()` a `formatTimezoneDateTime()`
+- Frontend automaticky načte tenant timezone
+
+## 🔒 Bezpečnost
+
+- Rate limiting na API endpointy
+- JWT autentizace s role-based přístupem
+- XSS ochrana v validaci
+- HTTPS enforcement v produkci
+
+## 📧 Notifikace
+
+- Email notifikace přes NotificationService
+- Podporuje fallback na tenant default email/phone
+- Automatické připomínky rezervací
+
+## 🚀 Deployment
+
+- **API:** Railway (PostgreSQL + Node.js)
+- **Frontend:** Vercel
+- **Domény:** Automatické SSL certifikáty
+
+## 🐛 Debug
+
+- Debug logy pouze v development režimu
+- Používat `process.env.NODE_ENV === 'development'` pro podmíněné logování
+- Railway connection testy skryty v produkci
+
+## 📞 Telefonní validace
+
+Robustní validace českých a mezinárodních čísel:
+- České: 777123456, 0777123456, +420777123456
+- Mezinárodní: +49123456789
+- Specifické chybové zprávy pro různé problémy
+
+## 🔄 Workflow
+
+1. Vždy načíst NVM: `source ~/.nvm/nvm.sh`
+2. Prisma operace z root adresáře
+3. Seed přes `npx tsx prisma/seed.ts`
+4. Testovat validace telefonních čísel
+5. Commit s popisnou zprávou
+6. Push na GitHub → automatický deployment
+
+## 📚 Dokumentace
+
+- `RESERVATION-MANAGEMENT-ANALYSIS.md` - Analýza systému rezervací
+- `RESERVATION-TECHNICAL-SPECS.md` - Technická specifikace
+- `SECURITY-CHECKLIST.md` - Bezpečnostní audit
+- `TIMEZONE-REFACTOR-SUMMARY.md` - Timezone implementace 

@@ -175,10 +175,22 @@ Každý tenant může mít:
 - **Development:** Docker, lvh.me
 - **Deployment:** Ready for Vercel/Railway
 
+## 📖 Dokumentace
+
+### Architektonické dokumenty
+- 📊 **[RESERVATION-MANAGEMENT-ANALYSIS.md](RESERVATION-MANAGEMENT-ANALYSIS.md)** - Komplexní analýza systému rezervací s vývojovým diagramem
+- 🔧 **[RESERVATION-TECHNICAL-SPECS.md](RESERVATION-TECHNICAL-SPECS.md)** - Technická specifikace API a algoritmů
+- 🔒 **[SECURITY-CHECKLIST.md](SECURITY-CHECKLIST.md)** - Bezpečnostní audit a checklist
+- 🌍 **[TIMEZONE-REFACTOR-SUMMARY.md](TIMEZONE-REFACTOR-SUMMARY.md)** - Implementace timezone podpory
+
+### Deployment dokumenty  
+- 🚀 **[DEPLOYMENT-VERCEL-RENDER.md](DEPLOYMENT-VERCEL-RENDER.md)** - Nasazení na Vercel + Railway
+- 📞 **[PHONE-AND-CONTACT-MIGRATION.md](PHONE-AND-CONTACT-MIGRATION.md)** - Kontaktní údaje v systému
+
 ## 🎯 Další kroky
 
 - [ ] Socket.IO chat mezi klientem a doktorem
-- [ ] Email notifikace
+- [ ] Email notifikace ✅ (implementováno)
 - [ ] SMS notifikace  
 - [ ] Kalendářní integrace
 - [ ] Mobile aplikace
@@ -186,4 +198,4 @@ Každý tenant může mít:
 
 ---
 
-**Tip:** Pro produkční nasazení změň `lvh.me` domény na vlastní domény a nastav SSL certifikáty..
+**Tip:** Pro produkční nasazení změň `lvh.me` domény na vlastní domény a nastav SSL certifikáty.

@@ -12,6 +12,7 @@ import protectedRouter from './routes/protected'
 import authRouter from './routes/auth'
 import { parsePragueDateTime, parseTimezoneDateTime, getStartOfDayInTimezone, getEndOfDayInTimezone } from './utils/timezone'
 import { getCachedTenantTimezone } from './utils/tenant'
+import { NotificationService } from './services/notificationService'
 
 // Načtení .env souboru pouze v development prostředí
 if (process.env.NODE_ENV !== 'production') {
@@ -98,6 +99,9 @@ app.use(basicRateLimit)
 
 // Inicializace Prisma klienta až po načtení proměnných prostředí
 const prisma = new PrismaClient()
+
+// Inicializace notification service
+const notificationService = new NotificationService(prisma)
 
 // GLOBAL HTTPS ENFORCEMENT - před všemi ostatními middleware
 app.use((req, res, next) => {
@@ -346,5 +350,7 @@ app.listen(PORT, '0.0.0.0', () => {
   startDatabaseKeepalive(prisma)
 })
 
+// Export pro použití v routách
+export { prisma, notificationService }
 
 export default app

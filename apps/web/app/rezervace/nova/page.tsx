@@ -103,8 +103,17 @@ export default function NewReservationPage() {
         toast.success('Rezervace byla úspěšně vytvořena!')
         router.push('/rezervace')
       } else {
-        const error = await response.json()
-        toast.error(`Chyba při vytváření rezervace: ${error.error}`)
+        const errorData = await response.json()
+        // Vylepšené zobrazení chyby z API
+        if (errorData.error && errorData.error.includes('aktivní rezervaci na službu')) {
+          // Speciální formátování pro duplicitní rezervace
+          toast.error(errorData.error, {
+            duration: 5000,
+          })
+        } else {
+          // Standardní formátování pro ostatní chyby
+          toast.error(`Chyba při vytváření rezervace: ${errorData.error}`)
+        }
       }
     } catch (error) {
       console.error('Chyba při vytváření rezervace:', error)

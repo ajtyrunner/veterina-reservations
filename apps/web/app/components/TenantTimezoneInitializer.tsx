@@ -17,18 +17,21 @@ export function TenantTimezoneInitializer({ children }: Props) {
       try {
         // Získáme tenant slug z URL (pro teď použijeme fallback)
         const tenantSlug = 'svahy' // TODO: získat z URL path nebo subdomain
-        
-        console.log(`🌍 Inicializuji tenant timezone pro: ${tenantSlug}`)
-        
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`🌍 Inicializuji tenant timezone pro: ${tenantSlug}`)
+        }
+
         // Načteme a aplikujeme tenant konfiguraci
         const tenantInfo = await initializeTenant(tenantSlug)
         
         if (tenantInfo) {
-          console.log(`✅ Tenant timezone nastaven: ${tenantInfo.timezone}`)
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`✅ Tenant timezone nastaven: ${tenantInfo.timezone}`)
+          }
         } else {
           console.warn(`⚠️ Nepodařilo se načíst tenant info pro: ${tenantSlug}`)
         }
-        
       } catch (error) {
         console.error('❌ Chyba při inicializaci tenant timezone:', error)
       }

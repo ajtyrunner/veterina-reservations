@@ -129,7 +129,10 @@ export default function SlotsPage() {
     try {
       console.log('🔄 Načítám sloty přímo z Railway API...')
       const { getSlots } = await import('../../lib/api-client')
-      const data = await getSlots()
+      if (!session) {
+        throw new Error('Session is not available')
+      }
+      const data = await getSlots(session.user.tenantId)
       console.log('✅ Sloty načteny z Railway:', data)
       setSlots(data)
     } catch (error) {
@@ -154,7 +157,10 @@ export default function SlotsPage() {
   const loadServiceTypes = async () => {
     try {
       const { getServiceTypes } = await import('../../lib/api-client')
-      const data = await getServiceTypes()
+      if (!session) {
+        throw new Error('Session is not available')
+      }
+      const data = await getServiceTypes(session.user.tenantId)
       console.log('✅ Service types načteny z Railway:', data)
       setServiceTypes(data.filter((service: ServiceType) => service.isActive))
     } catch (error) {

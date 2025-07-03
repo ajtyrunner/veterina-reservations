@@ -50,7 +50,9 @@ export function setTenantTimezone(timezone: TimezoneId): void {
     return
   }
   
-  console.log(`🌍 Nastaven tenant timezone: ${timezone}`)
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`🌍 Nastaven tenant timezone: ${timezone}`)
+  }
   currentTenantTimezone = timezone
 }
 

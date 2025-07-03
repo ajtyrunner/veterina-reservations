@@ -163,7 +163,7 @@ model Reservation {
   id          String   @id @default(cuid())
   userId      String
   doctorId    String
-  slotId      String   @unique
+  slotId      String
   petName     String?
   petType     String?
   description String?
@@ -176,6 +176,9 @@ model Reservation {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   slot   Slot   @relation(fields: [slotId], references: [id], onDelete: Cascade)
+
+  // Index pro rychlé vyhledávání
+  @@index([slotId, status])
 
   @@map("reservations")
 }

@@ -137,14 +137,18 @@ export default function BulkSlotGenerationPage() {
     try {
       const { getServiceTypes, getRooms, getDoctors } = await import('../../../lib/api-client')
       
+      if (!session) {
+        throw new Error('Session is not available')
+      }
+      
       const promises = [
-        getServiceTypes(),
+        getServiceTypes(session.user.tenantId),
         getRooms(),
       ]
       
       // Přidej getDoctors pouze pro ADMIN
       if (session?.user.role === 'ADMIN') {
-        promises.push(getDoctors())
+        promises.push(getDoctors(session.user.tenantId))
       }
       
       const results = await Promise.all(promises)

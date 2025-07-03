@@ -648,7 +648,7 @@ export default function Home() {
                   )}
                   {!phoneError && (
                     <p className="text-xs text-gray-500 mt-1">
-                      Volitelné. Pro účely případného upřesnění požadavku. Číslo bude automaticky formátováno.
+                      Volitelné. Pro účely případného upřesnění požadavku.
                     </p>
                   )}
                 </div>

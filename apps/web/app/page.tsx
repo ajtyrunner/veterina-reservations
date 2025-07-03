@@ -357,7 +357,9 @@ export default function Home() {
     try {
       const { getPublicDoctors } = await import('../lib/api-client')
       const data = await getPublicDoctors(session.user.tenantId)
-      console.log('✅ Doktoři načteni z Railway:', data)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Doktoři načteni z Railway:', data)
+      }
       setDoctors(data)
     } catch (error) {
       console.error('Chyba při načítání doktorů z Railway:', error)
@@ -370,7 +372,9 @@ export default function Home() {
     try {
       const { getPublicServiceTypes } = await import('../lib/api-client')
       const data = await getPublicServiceTypes(session.user.tenantId)
-      console.log('✅ Service types načteny z Railway:', data)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Service types načteny z Railway:', data)
+      }
       setServiceTypes(data)
     } catch (error) {
       console.error('Chyba při načítání druhů služeb z Railway:', error)
@@ -389,7 +393,9 @@ export default function Home() {
 
       const { getPublicSlots } = await import('../lib/api-client')
       const data = await getPublicSlots(session.user.tenantId, params)
-      console.log('✅ Sloty načteny z Railway:', data)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Sloty načteny z Railway:', data)
+      }
       setSlots(data)
     } catch (error) {
       console.error('Chyba při načítání slotů z Railway:', error)

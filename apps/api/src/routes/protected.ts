@@ -175,6 +175,7 @@ router.post('/reservations', createOperationLimit, validateCreateReservation, as
             }
           }
         },
+        serviceType: true,
       },
     })
 
@@ -184,6 +185,35 @@ router.post('/reservations', createOperationLimit, validateCreateReservation, as
 
     if (slot.reservations.length > 0) {
       return res.status(409).json({ error: 'Slot je již rezervovaný' })
+    }
+
+    // Kontrola existující rezervace pro stejný typ služby
+    if (slot.serviceType) {
+      const existingReservation = await prisma.reservation.findFirst({
+        where: {
+          userId,
+          tenantId,
+          status: {
+            in: ['PENDING', 'CONFIRMED']
+          },
+          slot: {
+            serviceTypeId: slot.serviceType.id
+          }
+        },
+        include: {
+          slot: {
+            include: {
+              serviceType: true
+            }
+          }
+        }
+      })
+
+      if (existingReservation) {
+        return res.status(409).json({ 
+          error: `Již máte aktivní rezervaci na službu "${slot.serviceType.name}". Před vytvořením nové rezervace musíte počkat na dokončení stávající rezervace nebo ji zrušit.` 
+        })
+      }
     }
 
     // Aktualizovat telefon uživatele, pokud je zadán

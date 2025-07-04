@@ -169,8 +169,14 @@ export function getEndOfDayInTimezone(date: string | Date, timezone: TimezoneId)
   // Získáme YYYY-MM-DD část
   const dateStr = inputDate.toISOString().split('T')[0]
   
-  // Vytvoříme konec dne v target timezone
-  return parseTimezoneDateTime(`${dateStr}T23:59:59.999`, timezone)
+  // Vytvoříme konec dne v target timezone (23:59:59.999)
+  const nextDay = new Date(dateStr)
+  nextDay.setDate(nextDay.getDate() + 1)
+  const nextDayStr = nextDay.toISOString().split('T')[0]
+  
+  // Použijeme začátek následujícího dne mínus 1 milisekundu
+  const startOfNextDay = parseTimezoneDateTime(`${nextDayStr}T00:00:00`, timezone)
+  return new Date(startOfNextDay.getTime() - 1)
 }
 
 /**

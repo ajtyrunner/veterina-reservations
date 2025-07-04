@@ -451,12 +451,13 @@ export default function Home() {
       filtered = filtered.filter(slot => slot.doctorId === selectedDoctor)
     }
 
-    if (selectedDate) {
-      filtered = filtered.filter(slot => isSameDayInTimezone(new Date(slot.startTime), new Date(selectedDate)))
-    }
+    // Datum už je filtrované na API
+    // if (selectedDate) {
+    //   filtered = filtered.filter(slot => isSameDayInTimezone(new Date(slot.startTime), new Date(selectedDate)))
+    // }
 
     return filtered
-  }, [slots, selectedServiceType, selectedDoctor, selectedDate])
+  }, [slots, selectedServiceType, selectedDoctor])
 
   // Používáme unifikované funkce z timezone.ts
   // const formatTime = formatDisplayTime

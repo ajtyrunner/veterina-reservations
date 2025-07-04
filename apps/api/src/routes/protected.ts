@@ -1305,7 +1305,10 @@ router.get('/service-types', async (req: Request, res: Response) => {
     }
 
     const serviceTypes = await prisma.serviceType.findMany({
-      where: { tenantId },
+      where: { 
+        tenantId,
+        isActive: true 
+      },
       orderBy: { name: 'asc' },
     })
 

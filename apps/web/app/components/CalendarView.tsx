@@ -212,9 +212,18 @@ export default function CalendarView({ slots, selectedDoctor, selectedServiceTyp
             </div>
           ) : (
             <div className="grid gap-3">
-              {calendarDays
-                .find(day => day.date.getTime() === selectedDay.getTime())
-                ?.slots.map(slot => (
+              {slots
+                .filter(slot => {
+                  const slotDate = new Date(slot.startTime)
+                  return (
+                    slotDate.getDate() === selectedDay.getDate() &&
+                    slotDate.getMonth() === selectedDay.getMonth() &&
+                    slotDate.getFullYear() === selectedDay.getFullYear() &&
+                    (!selectedDoctor || slot.doctorId === selectedDoctor) &&
+                    (!selectedServiceType || slot.serviceTypeId === selectedServiceType)
+                  )
+                })
+                .map(slot => (
                   <div
                     key={slot.id}
                     className="flex items-center justify-between p-3 bg-white rounded-md border border-gray-200 hover:border-blue-300 transition-colors shadow-sm"

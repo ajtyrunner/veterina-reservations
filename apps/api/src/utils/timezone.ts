@@ -150,33 +150,26 @@ export function formatTimezoneDateTime(date: Date, timezone: string = 'Europe/Pr
 /**
  * Získá začátek dne v daném timezone jako UTC Date
  */
-export function getStartOfDayInTimezone(date: string | Date, timezone: TimezoneId): Date {
-  const inputDate = typeof date === 'string' ? new Date(date) : date
-  
-  // Získáme YYYY-MM-DD část
-  const dateStr = inputDate.toISOString().split('T')[0]
-  
-  // Vytvoříme začátek dne v target timezone
-  return parseTimezoneDateTime(`${dateStr}T00:00:00`, timezone)
+export function getStartOfDayInTimezone(dateStr: string, timezone: string): Date {
+  // Create date at start of day (00:00:00.000) in the target timezone
+  const localDate = `${dateStr}T00:00:00`
+  return parseTimezoneDateTime(localDate, timezone)
 }
 
 /**
  * Získá konec dne v daném timezone jako UTC Date
  */
-export function getEndOfDayInTimezone(date: string | Date, timezone: TimezoneId): Date {
-  const inputDate = typeof date === 'string' ? new Date(date) : date
-  
-  // Získáme YYYY-MM-DD část
-  const dateStr = inputDate.toISOString().split('T')[0]
-  
-  // Vytvoříme konec dne v target timezone (23:59:59.999)
+export function getEndOfDayInTimezone(dateStr: string, timezone: string): Date {
+  // Create date at start of next day in target timezone and subtract 1 millisecond
   const nextDay = new Date(dateStr)
   nextDay.setDate(nextDay.getDate() + 1)
   const nextDayStr = nextDay.toISOString().split('T')[0]
+  const nextDayStart = `${nextDayStr}T00:00:00`
   
-  // Použijeme začátek následujícího dne mínus 1 milisekundu
-  const startOfNextDay = parseTimezoneDateTime(`${nextDayStr}T00:00:00`, timezone)
-  return new Date(startOfNextDay.getTime() - 1)
+  // Get the UTC time for start of next day and subtract 1ms
+  const nextDayUTC = parseTimezoneDateTime(nextDayStart, timezone)
+  nextDayUTC.setMilliseconds(-1)
+  return nextDayUTC
 }
 
 /**

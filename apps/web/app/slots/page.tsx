@@ -162,7 +162,8 @@ export default function SlotsPage() {
       }
       const data = await getServiceTypes(session.user.tenantId)
       console.log('✅ Service types načteny z Railway:', data)
-      setServiceTypes(data.filter((service: ServiceType) => service.isActive))
+      // Odstraním filtrování podle isActive, protože to už dělá API
+      setServiceTypes(data)
     } catch (error) {
       console.error('Chyba při načítání druhů služeb z Railway:', error)
     }

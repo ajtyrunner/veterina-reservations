@@ -200,14 +200,21 @@ app.get('/api/slots/:tenantId', authMiddleware, async (req, res) => {
       const tenantTimezone = await getCachedTenantTimezone(prisma, tenantId)
       const startDateUTC = getStartOfDayInTimezone(inputDate, tenantTimezone)
       const endDateUTC = getEndOfDayInTimezone(inputDate, tenantTimezone)
-
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🔍 Timezone filtering:')
-        console.log('- Input date:', inputDate)
-        console.log('- Tenant timezone:', tenantTimezone)
-        console.log('- Start UTC:', startDateUTC.toISOString())
-        console.log('- End UTC:', endDateUTC.toISOString())
-      }
+      
+      // Rozšířené debug logování i pro produkci
+      console.log('🔍 Timezone filtering debug:')
+      console.log('- Input date:', inputDate)
+      console.log('- Tenant timezone:', tenantTimezone)
+      console.log('- Start UTC:', startDateUTC.toISOString())
+      console.log('- End UTC:', endDateUTC.toISOString())
+      console.log('- Server TZ:', process.env.TZ)
+      console.log('- Current server time:', new Date().toISOString())
+      console.log('- Where condition:', JSON.stringify({
+        startTime: {
+          gte: startDateUTC,
+          lte: endDateUTC,
+        }
+      }, null, 2))
 
       where.startTime = {
         gte: startDateUTC,

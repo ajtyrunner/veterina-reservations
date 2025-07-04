@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { getTenantSlugFromUrl } from '@/lib/tenant'
 import CalendarView from './components/CalendarView'
@@ -439,8 +439,27 @@ export default function Home() {
     }
   }
 
-  // No need for client-side date filtering since server handles it
-  const filteredSlots = slots
+  // Filtrované sloty podle vybraných filtrů
+  const filteredSlots = useMemo(() => {
+    let filtered = slots
+
+    if (selectedServiceType) {
+      filtered = filtered.filter(slot => slot.serviceTypeId === selectedServiceType)
+    }
+
+    if (selectedDoctor) {
+      filtered = filtered.filter(slot => slot.doctorId === selectedDoctor)
+    }
+
+    if (selectedDate) {
+      filtered = filtered.filter(slot => {
+        const slotDate = new Date(slot.startTime).toLocaleDateString('sv-SE')
+        return slotDate === selectedDate
+      })
+    }
+
+    return filtered
+  }, [slots, selectedServiceType, selectedDoctor, selectedDate])
 
   // Používáme unifikované funkce z timezone.ts
   // const formatTime = formatDisplayTime
@@ -745,92 +764,116 @@ export default function Home() {
         </div>
 
         {/* Filtry */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-700">Druh služby</label>
-            <select
-              value={selectedServiceType}
-              onChange={(e) => setSelectedServiceType(e.target.value)}
-              className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            >
-              <option value="">Všechny služby</option>
-              {serviceTypes.map((serviceType) => (
-                <option key={serviceType.id} value={serviceType.id}>
-                  {serviceType.name} ({serviceType.duration} min)
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-700">Veterinář</label>
-            <select
-              value={selectedDoctor}
-              onChange={(e) => setSelectedDoctor(e.target.value)}
-              className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            >
-              <option value="">Všichni veterináři</option>
-              {doctors.map((doctor) => (
-                <option key={doctor.id} value={doctor.id}>
-                  {doctor.user.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block mb-2 text-sm font-medium text-gray-700">Datum</label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            />
-          </div>
-        </div>
-
-        {/* Rychlé filtry pro druhy služeb */}
-        {serviceTypes.length > 0 && (
-          <div className="mb-8">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Rychlý výběr služby:</h3>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setSelectedServiceType('')}
-                className={`px-3 py-2 text-sm rounded-full transition-colors ${
-                  selectedServiceType === '' 
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-lg font-semibold mb-4">Filtry</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Druh služby</label>
+              <select
+                value={selectedServiceType}
+                onChange={(e) => setSelectedServiceType(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                Všechny služby
+                <option value="">Všechny služby</option>
+                {serviceTypes.map((serviceType) => (
+                  <option key={serviceType.id} value={serviceType.id}>
+                    {serviceType.name} ({serviceType.duration} min)
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Veterinář</label>
+              <select
+                value={selectedDoctor}
+                onChange={(e) => setSelectedDoctor(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Všichni veterináři</option>
+                {doctors.map((doctor) => (
+                  <option key={doctor.id} value={doctor.id}>
+                    {doctor.user.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Datum</label>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            
+            <div className="flex items-end">
+              <button
+                onClick={() => {
+                  setSelectedServiceType('')
+                  setSelectedDoctor('')
+                  setSelectedDate('')
+                }}
+                className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                Vymazat filtry
               </button>
-              {serviceTypes.map((serviceType) => (
-                <button
-                  key={serviceType.id}
-                  onClick={() => setSelectedServiceType(serviceType.id)}
-                  className={`px-3 py-2 text-sm rounded-full transition-colors ${
-                    selectedServiceType === serviceType.id
-                      ? 'text-white' 
-                      : 'text-gray-700 hover:opacity-80'
-                  }`}
-                  style={{
-                    backgroundColor: selectedServiceType === serviceType.id 
-                      ? serviceType.color || '#3B82F6'
-                      : '#f3f4f6',
-                    color: selectedServiceType === serviceType.id 
-                      ? 'white'
-                      : '#374151'
-                  }}
-                >
-                  {serviceType.name} ({serviceType.duration} min)
-                </button>
-              ))}
             </div>
           </div>
-        )}
+          
+          {/* Rychlé filtry */}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="text-sm font-medium text-gray-700">Rychlé filtry:</span>
+            <button
+              onClick={() => setSelectedDate(new Date().toLocaleDateString('sv-SE'))}
+              className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors"
+            >
+              Dnes
+            </button>
+            <button
+              onClick={() => {
+                const tomorrow = new Date()
+                tomorrow.setDate(tomorrow.getDate() + 1)
+                setSelectedDate(tomorrow.toLocaleDateString('sv-SE'))
+              }}
+              className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors"
+            >
+              Zítra
+            </button>
+            <button
+              onClick={() => {
+                const nextWeek = new Date()
+                nextWeek.setDate(nextWeek.getDate() + 7)
+                setSelectedDate(nextWeek.toLocaleDateString('sv-SE'))
+              }}
+              className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors"
+            >
+              Za týden
+            </button>
+            <button
+              onClick={() => {
+                setSelectedServiceType('')
+                setSelectedDoctor('')
+                setSelectedDate('')
+              }}
+              className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors"
+            >
+              Vše
+            </button>
+          </div>
+
+          {/* Počítadlo výsledků */}
+          <div className="mt-4 text-sm text-gray-600">
+            Zobrazeno: <span className="font-medium">{filteredSlots.length}</span> dostupných termínů
+          </div>
+        </div>
 
         {/* Zobrazení podle vybraného módu */}
         {viewMode === 'calendar' ? (
           <CalendarView
-            slots={slots}
+            slots={filteredSlots}
             selectedDoctor={selectedDoctor}
             selectedServiceType={selectedServiceType}
             selectedDate={selectedDate}
@@ -838,14 +881,21 @@ export default function Home() {
             loading={loading}
           />
         ) : (
-          <div className="mt-8">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4">Dostupné termíny</h2>
             {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-                <p className="mt-2 text-gray-600">Načítání dostupných termínů...</p>
+              <div className="text-center py-8">
+                <div className="text-gray-500">Načítání...</div>
               </div>
-            ) : filteredSlots.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            ) : filteredSlots.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                {slots.length === 0 
+                  ? "Momentálně nejsou k dispozici žádné termíny."
+                  : "Žádné termíny nevyhovují zvoleným filtrům."
+                }
+              </div>
+            ) : (
+              <div className="grid gap-4">
                 {filteredSlots.map((slot) => (
                   <div key={slot.id} className="p-4 bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
                     <div className="mb-3">
@@ -908,13 +958,6 @@ export default function Home() {
                     </button>
                   </div>
                 ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 text-gray-500">
-                <svg className="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <p>Žádné dostupné termíny nenalezeny.</p>
               </div>
             )}
           </div>

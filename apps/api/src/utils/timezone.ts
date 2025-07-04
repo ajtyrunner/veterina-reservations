@@ -151,25 +151,22 @@ export function formatTimezoneDateTime(date: Date, timezone: string = 'Europe/Pr
  * Získá začátek dne v daném timezone jako UTC Date
  */
 export function getStartOfDayInTimezone(dateStr: string, timezone: string): Date {
-  // Create date at start of day (00:00:00.000) in the target timezone
-  const localDate = `${dateStr}T00:00:00`
-  return parseTimezoneDateTime(localDate, timezone)
+  // Pro začátek dne v Prague timezone (00:00) musíme použít předchozí den v UTC (22:00)
+  const date = new Date(dateStr)
+  date.setDate(date.getDate() - 1)
+  const prevDayStr = date.toISOString().split('T')[0]
+  return parseTimezoneDateTime(`${prevDayStr}T22:00:00`, timezone)
 }
 
 /**
  * Získá konec dne v daném timezone jako UTC Date
  */
 export function getEndOfDayInTimezone(dateStr: string, timezone: string): Date {
-  // Create date at start of next day in target timezone and subtract 1 millisecond
-  const nextDay = new Date(dateStr)
-  nextDay.setDate(nextDay.getDate() + 1)
-  const nextDayStr = nextDay.toISOString().split('T')[0]
-  const nextDayStart = `${nextDayStr}T00:00:00`
-  
-  // Get the UTC time for start of next day and subtract 1ms
-  const nextDayUTC = parseTimezoneDateTime(nextDayStart, timezone)
-  nextDayUTC.setMilliseconds(-1)
-  return nextDayUTC
+  // Pro konec dne v Prague timezone (23:59:59.999) použijeme stejný den v UTC (21:59:59.999)
+  const endTime = new Date(dateStr)
+  const dayStr = endTime.toISOString().split('T')[0]
+  const endUTC = parseTimezoneDateTime(`${dayStr}T21:59:59.999`, timezone)
+  return endUTC
 }
 
 /**

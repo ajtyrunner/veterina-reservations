@@ -35,6 +35,7 @@ interface CalendarViewProps {
   slots: Slot[]
   selectedDoctor: string
   selectedServiceType?: string
+  selectedDate?: string
   onReserveSlot: (slot: Slot) => void
   loading: boolean
 }
@@ -45,7 +46,7 @@ interface CalendarDay {
   slots: Slot[]
 }
 
-export default function CalendarView({ slots, selectedDoctor, selectedServiceType, onReserveSlot, loading }: CalendarViewProps) {
+export default function CalendarView({ slots, selectedDoctor, selectedServiceType, selectedDate, onReserveSlot, loading }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([])
@@ -53,6 +54,15 @@ export default function CalendarView({ slots, selectedDoctor, selectedServiceTyp
   useEffect(() => {
     generateCalendarDays()
   }, [currentDate, slots, selectedDoctor, selectedServiceType])
+
+  // Navigate to selected date when date filter changes
+  useEffect(() => {
+    if (selectedDate) {
+      const filterDate = new Date(selectedDate)
+      setCurrentDate(new Date(filterDate.getFullYear(), filterDate.getMonth(), 1))
+      setSelectedDay(filterDate)
+    }
+  }, [selectedDate])
 
   const generateCalendarDays = () => {
     const year = currentDate.getFullYear()

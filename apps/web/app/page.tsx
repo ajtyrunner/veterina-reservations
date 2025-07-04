@@ -293,7 +293,7 @@ export default function Home() {
 
   useEffect(() => {
     loadSlots()
-  }, [selectedDoctor, selectedServiceType, selectedDate, viewMode])
+  }, [selectedDoctor, selectedServiceType, selectedDate])
 
   const addNotification = (type: NotificationType, message: string) => {
     const id = Math.random().toString(36).substring(7)
@@ -423,8 +423,8 @@ export default function Home() {
       const params = new URLSearchParams()
       if (selectedDoctor) params.append('doctorId', selectedDoctor)
       if (selectedServiceType) params.append('serviceTypeId', selectedServiceType)
-      // Date filter only for grid view - calendar handles its own date display
-      if (selectedDate && viewMode === 'grid') params.append('date', selectedDate)
+      // Date filter works for both views
+      if (selectedDate) params.append('date', selectedDate)
 
       const { getSlots } = await import('../lib/api-client')
       const data = await getSlots(session.user.tenantId, params)
@@ -439,18 +439,8 @@ export default function Home() {
     }
   }
 
-  // Filter slots for list view by date if selected
-  const filteredSlots = viewMode === 'grid' && selectedDate 
-    ? slots.filter(slot => {
-        const slotDate = new Date(slot.startTime)
-        const filterDate = new Date(selectedDate)
-        return (
-          slotDate.getDate() === filterDate.getDate() &&
-          slotDate.getMonth() === filterDate.getMonth() &&
-          slotDate.getFullYear() === filterDate.getFullYear()
-        )
-      })
-    : slots
+  // No need for client-side date filtering since server handles it
+  const filteredSlots = slots
 
   // Používáme unifikované funkce z timezone.ts
   // const formatTime = formatDisplayTime
@@ -786,27 +776,15 @@ export default function Home() {
               ))}
             </select>
           </div>
-          {viewMode === 'grid' && (
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">Datum</label>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              />
-              <p className="text-xs text-gray-500 mt-1">Filtr podle data je dostupný pouze v režimu seznamu</p>
-            </div>
-          )}
-          {viewMode === 'calendar' && (
-            <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">Datum</label>
-              <div className="block w-full mt-1 border-gray-300 rounded-md shadow-sm bg-gray-100 px-3 py-2 text-sm text-gray-500">
-                Používejte navigaci v kalendáři
-              </div>
-              <p className="text-xs text-gray-500 mt-1">V kalendářovém režimu procházejte měsíce pomocí šipek</p>
-            </div>
-          )}
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-700">Datum</label>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            />
+          </div>
         </div>
 
         {/* Rychlé filtry pro druhy služeb */}
@@ -855,6 +833,7 @@ export default function Home() {
             slots={slots}
             selectedDoctor={selectedDoctor}
             selectedServiceType={selectedServiceType}
+            selectedDate={selectedDate}
             onReserveSlot={openReservationForm}
             loading={loading}
           />

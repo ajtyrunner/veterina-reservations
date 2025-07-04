@@ -106,7 +106,6 @@ export function parseTimezoneDateTime(datetimeStr: string, timezone: string = 'E
     }
 
     return resultUTC
-    
   } catch (error) {
     console.error(`❌ Error in parseTimezoneDateTime:`, error)
     const errorMessage = error instanceof Error ? error.message : String(error)

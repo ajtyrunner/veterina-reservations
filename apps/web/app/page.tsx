@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { getTenantSlugFromUrl } from '@/lib/tenant'
 import CalendarView from './components/CalendarView'
-import { formatDisplayTime, formatDisplayDate } from '../lib/timezone'
+import { formatDisplayTime, formatDisplayDate, isSameDayInTimezone } from '../lib/timezone'
 
 interface Slot {
   id: string
@@ -452,10 +452,7 @@ export default function Home() {
     }
 
     if (selectedDate) {
-      filtered = filtered.filter(slot => {
-        const slotDate = new Date(slot.startTime).toLocaleDateString('sv-SE')
-        return slotDate === selectedDate
-      })
+      filtered = filtered.filter(slot => isSameDayInTimezone(new Date(slot.startTime), new Date(selectedDate)))
     }
 
     return filtered

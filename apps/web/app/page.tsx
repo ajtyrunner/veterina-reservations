@@ -14,6 +14,7 @@ interface Slot {
   equipment?: string
   roomId?: string
   serviceTypeId?: string
+  doctorId: string
   doctor: {
     specialization?: string
     user: {
@@ -292,7 +293,7 @@ export default function Home() {
 
   useEffect(() => {
     loadSlots()
-  }, [selectedDoctor, selectedServiceType, selectedDate])
+  }, [selectedDoctor, selectedServiceType, selectedDate, viewMode])
 
   const addNotification = (type: NotificationType, message: string) => {
     const id = Math.random().toString(36).substring(7)
@@ -422,7 +423,8 @@ export default function Home() {
       const params = new URLSearchParams()
       if (selectedDoctor) params.append('doctorId', selectedDoctor)
       if (selectedServiceType) params.append('serviceTypeId', selectedServiceType)
-      if (selectedDate) params.append('date', selectedDate)
+      // Date filter only for grid view - calendar handles its own date display
+      if (selectedDate && viewMode === 'grid') params.append('date', selectedDate)
 
       const { getSlots } = await import('../lib/api-client')
       const data = await getSlots(session.user.tenantId, params)
@@ -436,6 +438,19 @@ export default function Home() {
       setLoading(false)
     }
   }
+
+  // Filter slots for list view by date if selected
+  const filteredSlots = viewMode === 'grid' && selectedDate 
+    ? slots.filter(slot => {
+        const slotDate = new Date(slot.startTime)
+        const filterDate = new Date(selectedDate)
+        return (
+          slotDate.getDate() === filterDate.getDate() &&
+          slotDate.getMonth() === filterDate.getMonth() &&
+          slotDate.getFullYear() === filterDate.getFullYear()
+        )
+      })
+    : slots
 
   // Používáme unifikované funkce z timezone.ts
   // const formatTime = formatDisplayTime
@@ -780,6 +795,16 @@ export default function Home() {
                 onChange={(e) => setSelectedDate(e.target.value)}
                 className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
+              <p className="text-xs text-gray-500 mt-1">Filtr podle data je dostupný pouze v režimu seznamu</p>
+            </div>
+          )}
+          {viewMode === 'calendar' && (
+            <div>
+              <label className="block mb-2 text-sm font-medium text-gray-700">Datum</label>
+              <div className="block w-full mt-1 border-gray-300 rounded-md shadow-sm bg-gray-100 px-3 py-2 text-sm text-gray-500">
+                Používejte navigaci v kalendáři
+              </div>
+              <p className="text-xs text-gray-500 mt-1">V kalendářovém režimu procházejte měsíce pomocí šipek</p>
             </div>
           )}
         </div>
@@ -840,9 +865,9 @@ export default function Home() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
                 <p className="mt-2 text-gray-600">Načítání dostupných termínů...</p>
               </div>
-            ) : slots.length > 0 ? (
+            ) : filteredSlots.length > 0 ? (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {slots.map((slot) => (
+                {filteredSlots.map((slot) => (
                   <div key={slot.id} className="p-4 bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
                     <div className="mb-3">
                       <p className="text-lg font-semibold text-gray-800">

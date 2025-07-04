@@ -10,6 +10,7 @@ interface Slot {
   equipment?: string
   roomId?: string
   serviceTypeId?: string
+  doctorId: string
   doctor: {
     specialization?: string
     user: {
@@ -51,7 +52,7 @@ export default function CalendarView({ slots, selectedDoctor, selectedServiceTyp
 
   useEffect(() => {
     generateCalendarDays()
-  }, [currentDate, slots])
+  }, [currentDate, slots, selectedDoctor, selectedServiceType])
 
   const generateCalendarDays = () => {
     const year = currentDate.getFullYear()
@@ -78,7 +79,7 @@ export default function CalendarView({ slots, selectedDoctor, selectedServiceTyp
     const currentDateIter = new Date(startDate)
     
     while (currentDateIter <= endDate) {
-      const daySlots = slots.filter(slot => {
+      let daySlots = slots.filter(slot => {
         const slotDate = new Date(slot.startTime)
         return (
           slotDate.getDate() === currentDateIter.getDate() &&
@@ -86,6 +87,15 @@ export default function CalendarView({ slots, selectedDoctor, selectedServiceTyp
           slotDate.getFullYear() === currentDateIter.getFullYear()
         )
       })
+      
+      // Apply filters for calendar view
+      if (selectedDoctor) {
+        daySlots = daySlots.filter(slot => slot.doctorId === selectedDoctor)
+      }
+      
+      if (selectedServiceType) {
+        daySlots = daySlots.filter(slot => slot.serviceTypeId === selectedServiceType)
+      }
       
       days.push({
         date: new Date(currentDateIter),

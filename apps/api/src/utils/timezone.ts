@@ -40,7 +40,7 @@ export function isValidTimezone(timezone: string): timezone is TimezoneId {
  * Podporuje formáty: 'YYYY-MM-DDTHH:mm' a 'YYYY-MM-DDTHH:mm:ss'
  */
 export function parseTimezoneDateTime(datetimeStr: string, timezone: string = 'Europe/Prague'): Date {
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production') {
     console.log(`🕐 parseTimezoneDateTime: ${datetimeStr} in ${timezone}`)
   }
 
@@ -96,7 +96,7 @@ export function parseTimezoneDateTime(datetimeStr: string, timezone: string = 'E
     // Výsledek: původní datum minus offset
     const resultUTC = new Date(inputDate.getTime() - offset)
     
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production') {
       console.log(`   Input: ${datetimeStr}`)
       console.log(`   ISO format: ${isoString}`)
       console.log(`   In ${timezone}: ${tzString}`)

@@ -282,6 +282,15 @@ export async function bulkGenerateSlots(bulkData: any) {
   })
 }
 
+// Bulk smazání slotů
+export async function bulkDeleteSlots(deleteData: any) {
+  return apiCall('/api/doctor/slots/bulk-delete', {
+    method: 'POST',
+    body: deleteData,
+    requireAuth: true
+  })
+}
+
 // Získání doktorů (pro adminy)
 export async function getDoctors(tenantId: string) {
   return apiCall(`/api/doctors/${tenantId}`, { requireAuth: true })

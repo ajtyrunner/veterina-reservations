@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { PrismaClient } from '@prisma/client'
-import { parsePragueDateTime, parseTimezoneDateTime, logTimezoneDebug } from '../utils/timezone'
+import { parsePragueDateTime, parseTimezoneDateTime, logTimezoneDebug, getStartOfDayInTimezone, getEndOfDayInTimezone } from '../utils/timezone'
 import { getCachedTenantTimezone } from '../utils/tenant'
 import { normalizePhoneNumber } from '../utils/contact'
 import { NotificationService } from '../services/notificationService'
@@ -1635,6 +1635,164 @@ router.post('/doctor/slots/bulk-generate', bulkOperationLimit, validateBulkSlotG
     
   } catch (error) {
     console.error('Chyba při bulk generování slotů:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Bulk smazání slotů podle kritérií
+router.post('/doctor/slots/bulk-delete', bulkOperationLimit, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.sub
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+    const { 
+      dateFrom, 
+      dateTo, 
+      doctorId, 
+      serviceTypeId, 
+      roomId,
+      onlyEmpty = true // Defaultně mazat pouze prázdné sloty
+    } = req.body
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: Bulk slot deletion ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+      console.log('criteria:', { dateFrom, dateTo, doctorId, serviceTypeId, roomId, onlyEmpty })
+    }
+
+    if (!userId || !tenantId) {
+      return res.status(400).json({ error: 'Chybí uživatelské údaje' })
+    }
+
+    if (userRole !== 'DOCTOR' && userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
+    }
+
+    // Validace povinných parametrů
+    if (!dateFrom || !dateTo) {
+      return res.status(400).json({ error: 'Datum od a do jsou povinné' })
+    }
+
+    // Určení target doktora
+    let targetDoctorId: string | undefined
+
+    if (userRole === 'ADMIN') {
+      if (doctorId) {
+        const doctor = await prisma.doctor.findFirst({
+          where: { id: doctorId, tenantId },
+        })
+        if (!doctor) {
+          return res.status(404).json({ error: 'Specifikovaný doktor nenalezen' })
+        }
+        targetDoctorId = doctorId
+      }
+      // Pokud admin nespecifikuje doktora, smaže sloty všech doktorů
+    } else {
+      const doctor = await prisma.doctor.findFirst({
+        where: { userId, tenantId },
+      })
+      if (!doctor) {
+        return res.status(404).json({ error: 'Profil doktora nenalezen' })
+      }
+      targetDoctorId = doctor.id
+    }
+
+    // Timezone handling
+    const tenantTimezone = await getCachedTenantTimezone(prisma, tenantId)
+    const startDateUTC = getStartOfDayInTimezone(dateFrom, tenantTimezone)
+    const endDateUTC = getEndOfDayInTimezone(dateTo, tenantTimezone)
+
+    // Sestavení where podmínek
+    const whereCondition: any = {
+      tenantId,
+      startTime: {
+        gte: startDateUTC,
+        lte: endDateUTC,
+      },
+    }
+
+    if (targetDoctorId) {
+      whereCondition.doctorId = targetDoctorId
+    }
+
+    if (serviceTypeId) {
+      whereCondition.serviceTypeId = serviceTypeId
+    }
+
+    if (roomId) {
+      whereCondition.roomId = roomId
+    }
+
+    // Pokud onlyEmpty = true, najdeme pouze sloty bez rezervací
+    if (onlyEmpty) {
+      whereCondition.reservations = {
+        none: {
+          status: {
+            in: ['PENDING', 'CONFIRMED']
+          }
+        }
+      }
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Where condition for bulk delete:', JSON.stringify(whereCondition, null, 2))
+    }
+
+    // Najdeme sloty k smazání
+    const slotsToDelete = await prisma.slot.findMany({
+      where: whereCondition,
+      include: {
+        reservations: {
+          where: {
+            status: {
+              in: ['PENDING', 'CONFIRMED']
+            }
+          }
+        }
+      }
+    })
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Found ${slotsToDelete.length} slots to delete`)
+    }
+
+    // Bezpečnostní kontrola - pokud onlyEmpty = false, zkontroluj rezervace
+    if (!onlyEmpty) {
+      const slotsWithReservations = slotsToDelete.filter(slot => slot.reservations.length > 0)
+      if (slotsWithReservations.length > 0) {
+        return res.status(409).json({ 
+          error: `Nelze smazat ${slotsWithReservations.length} slotů s aktivními rezervacemi. Použijte možnost "Pouze prázdné sloty".`,
+          slotsWithReservations: slotsWithReservations.length
+        })
+      }
+    }
+
+    // Smazání slotů
+    const deleteResult = await prisma.slot.deleteMany({
+      where: whereCondition
+    })
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Deleted ${deleteResult.count} slots`)
+    }
+
+    res.json({
+      message: `Úspěšně smazáno ${deleteResult.count} slotů`,
+      deletedCount: deleteResult.count,
+      criteria: {
+        dateFrom,
+        dateTo,
+        doctorId: targetDoctorId,
+        serviceTypeId,
+        roomId,
+        onlyEmpty
+      }
+    })
+
+  } catch (error) {
+    console.error('Chyba při bulk mazání slotů:', error)
     res.status(500).json({ error: 'Interní chyba serveru' })
   }
 })

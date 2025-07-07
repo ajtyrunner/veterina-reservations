@@ -86,7 +86,69 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-3">
-              6. Kontakt
+              6. Cookies a sledovací technologie
+            </h2>
+            <p className="leading-relaxed mb-4">
+              Náš web používá cookies a podobné technologie pro zlepšení vašeho zážitku a analýzu používání.
+            </p>
+            
+            <div className="space-y-4">
+              <div className="border-l-4 border-orange-500 pl-4 bg-orange-50 p-4 rounded-r-lg">
+                <h3 className="font-semibold text-gray-900 mb-2">Nutné cookies</h3>
+                <p className="text-sm text-gray-700 mb-2">
+                  Tyto cookies jsou nezbytné pro základní funkčnost webu a nelze je vypnout.
+                </p>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Přihlašovací tokeny (next-auth.session-token)</li>
+                  <li>• Bezpečnostní tokeny (next-auth.csrf-token)</li>
+                  <li>• Nastavení cookies (cookie-consent)</li>
+                  <li>• Jazykové preference</li>
+                </ul>
+              </div>
+
+              <div className="border-l-4 border-blue-500 pl-4 bg-blue-50 p-4 rounded-r-lg">
+                <h3 className="font-semibold text-gray-900 mb-2">Analytické cookies</h3>
+                <p className="text-sm text-gray-700 mb-2">
+                  Používáme Google Analytics pro analýzu návštěvnosti a zlepšení uživatelského zážitku.
+                </p>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• <strong>Poskytovatel:</strong> Google LLC</li>
+                  <li>• <strong>Cookies:</strong> _ga, _ga_*, _gid</li>
+                  <li>• <strong>Účel:</strong> Anonymní analýza návštěvnosti</li>
+                  <li>• <strong>Doba uchování:</strong> 26 měsíců</li>
+                  <li>• <strong>Tracking ID:</strong> G-9L3Q6MQVS5</li>
+                </ul>
+                <p className="text-xs text-gray-500 mt-2">
+                  Data jsou zpracovávána v souladu s 
+                  <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 underline ml-1">
+                    Google Privacy Policy
+                  </a>
+                </p>
+              </div>
+
+              <div className="border-l-4 border-gray-400 pl-4 bg-gray-50 p-4 rounded-r-lg">
+                <h3 className="font-semibold text-gray-900 mb-2">Marketingové cookies</h3>
+                <p className="text-sm text-gray-700">
+                  Momentálně nepoužíváme žádné marketingové nebo reklamní cookies.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <h4 className="font-semibold text-gray-900 mb-2">Správa cookies</h4>
+              <p className="text-sm text-gray-700 mb-2">
+                Můžete spravovat své preference cookies pomocí banneru na našem webu nebo 
+                v nastavení vašeho prohlížeče.
+              </p>
+              <p className="text-xs text-gray-600">
+                Vypnutí cookies může ovlivnit funkčnost některých částí webu.
+              </p>
+            </div>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-gray-900 mb-3">
+              7. Kontakt
             </h2>
             <p className="leading-relaxed">
               Pokud máte jakékoliv dotazy ohledně ochrany osobních údajů, kontaktujte nás na:
@@ -107,7 +169,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 mb-3">
-              7. Změny těchto zásad
+              8. Změny těchto zásad
             </h2>
             <p className="leading-relaxed">
               Tyto zásady ochrany osobních údajů můžeme čas od času aktualizovat. 

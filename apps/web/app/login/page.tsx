@@ -2,6 +2,7 @@
 import { signIn, useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { trackLogin } from '../../lib/analytics';
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
@@ -19,6 +20,9 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
+      // Track Google login attempt
+      trackLogin('google');
+      
       await signIn('google', { 
         callbackUrl: '/',
         redirect: false 

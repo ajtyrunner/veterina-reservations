@@ -16,8 +16,8 @@ export default function Footer() {
               <h3 className="text-xl font-bold text-orange-400">Slotito</h3>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
-              Moderní rezervační systém pro veterinární ordinace. 
-              Jednoduché online rezervace pro vaše domácí mazlíčky.
+              Inteligentní rezervační systém pro efektivní správu termínů. 
+              Rezervujte si čas rychle a jednoduše.
             </p>
             <div className="flex space-x-4">
               <a 

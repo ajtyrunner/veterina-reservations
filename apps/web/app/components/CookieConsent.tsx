@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { GA_TRACKING_ID, updateConsent } from '../../lib/analytics'
+import { GA_TRACKING_ID, updateConsent, debugGA } from '../../lib/analytics'
 
 interface CookiePreferences {
   necessary: boolean
@@ -30,6 +30,11 @@ export default function CookieConsent() {
       // Aktivuj Google Analytics pouze pokud je povoleno
       if (savedPreferences.analytics) {
         updateConsent(true)
+        
+        // Debug v development
+        if (process.env.NODE_ENV === 'development') {
+          setTimeout(() => debugGA(), 1000)
+        }
       }
     }
   }, [])
@@ -46,6 +51,12 @@ export default function CookieConsent() {
     localStorage.setItem('cookie-consent-date', new Date().toISOString())
     
     updateConsent(true)
+    
+    // Debug v development
+    if (process.env.NODE_ENV === 'development') {
+      setTimeout(() => debugGA(), 1000)
+    }
+    
     setShowBanner(false)
   }
 

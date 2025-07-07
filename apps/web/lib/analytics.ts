@@ -16,6 +16,7 @@ export const pageview = (url: string) => {
   if (isGAAvailable()) {
     window.gtag('config', GA_TRACKING_ID, {
       page_path: url,
+      cookie_domain: 'auto',
     })
   }
 }
@@ -50,6 +51,16 @@ export const updateConsent = (analytics: boolean) => {
       ad_user_data: 'denied',
       ad_personalization: 'denied',
     })
+    
+    // Re-initialize GA config when consent is granted
+    if (analytics) {
+      window.gtag('config', GA_TRACKING_ID, {
+        cookie_domain: 'auto',
+        anonymize_ip: true,
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false,
+      })
+    }
   }
 }
 
@@ -85,6 +96,36 @@ export const trackPageView = (page: string) => {
     category: 'Navigation',
     label: page,
   })
+}
+
+// Debug function for troubleshooting
+export const debugGA = () => {
+  if (typeof window !== 'undefined') {
+    console.log('🔍 GA Debug Info:')
+    console.log('- NODE_ENV:', process.env.NODE_ENV)
+    console.log('- GA_TRACKING_ID:', GA_TRACKING_ID)
+    console.log('- gtag available:', typeof window.gtag === 'function')
+    console.log('- Current domain:', window.location.hostname)
+    console.log('- Current URL:', window.location.href)
+    console.log('- User agent:', navigator.userAgent)
+    
+    // Check cookies
+    const gaCookies = document.cookie
+      .split(';')
+      .filter(cookie => cookie.trim().startsWith('_ga'))
+      .map(cookie => cookie.trim())
+    
+    console.log('- GA Cookies:', gaCookies.length > 0 ? gaCookies : 'None found')
+    
+    // Test gtag call
+    if (typeof window.gtag === 'function') {
+      console.log('- Testing gtag call...')
+      window.gtag('event', 'debug_test', {
+        event_category: 'Debug',
+        event_label: 'GA Debug Test',
+      })
+    }
+  }
 }
 
 // TypeScript declarations for gtag

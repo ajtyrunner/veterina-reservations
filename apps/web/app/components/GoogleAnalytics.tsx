@@ -47,6 +47,8 @@ export default function GoogleAnalytics() {
             anonymize_ip: true,
             allow_google_signals: false,
             allow_ad_personalization_signals: false,
+            cookie_domain: 'auto',
+            cookie_flags: 'SameSite=None;Secure',
           });
         `}
       </Script>

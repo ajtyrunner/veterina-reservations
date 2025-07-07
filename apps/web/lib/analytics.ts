@@ -16,7 +16,7 @@ export const pageview = (url: string) => {
   if (isGAAvailable()) {
     window.gtag('config', GA_TRACKING_ID, {
       page_path: url,
-      cookie_domain: 'auto',
+      cookie_domain: window.location.hostname,
     })
   }
 }
@@ -54,8 +54,12 @@ export const updateConsent = (analytics: boolean) => {
     
     // Re-initialize GA config when consent is granted
     if (analytics) {
+      console.log('🔍 Re-initializing GA with domain:', window.location.hostname)
       window.gtag('config', GA_TRACKING_ID, {
-        cookie_domain: 'auto',
+        cookie_domain: window.location.hostname,
+        cookie_expires: 63072000,
+        cookie_update: true,
+        cookie_flags: 'SameSite=Lax;Secure',
         anonymize_ip: true,
         allow_google_signals: false,
         allow_ad_personalization_signals: false,

@@ -390,7 +390,7 @@ export default function Home() {
 
     try {
       const { getDoctors } = await import('../lib/api-client')
-      const data = await getDoctors(session.user.tenantId)
+      const data = await getDoctors()
       if (process.env.NODE_ENV === 'development') {
         console.log('✅ Doktoři načteni z Railway:', data)
       }

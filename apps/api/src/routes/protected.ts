@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express'
 import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 import { parsePragueDateTime, parseTimezoneDateTime, logTimezoneDebug, getStartOfDayInTimezone, getEndOfDayInTimezone } from '../utils/timezone'
 import { getCachedTenantTimezone } from '../utils/tenant'
 import { normalizePhoneNumber } from '../utils/contact'
@@ -1382,36 +1383,69 @@ router.put('/service-types/:id', async (req: Request, res: Response) => {
 
 // === SPRÁVA DOKTORŮ ===
 
-// Získání všech doktorů (pouze pro ADMIN)
+// Získání doktorů podle role uživatele
 router.get('/doctors', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant
     const userRole = req.user?.role
 
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: GET /doctors ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+    }
+
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
     }
 
-    if (userRole !== 'ADMIN') {
-      return res.status(403).json({ error: 'Nedostatečná oprávnění - pouze admin' })
+    // Role-based přístup
+    let whereCondition: any = { tenantId }
+    let userSelect: any = {
+      id: true,
+      name: true,
+      image: true,
     }
 
-    const doctors = await prisma.doctor.findMany({
-      where: {
+    if (userRole === 'ADMIN') {
+      // ADMIN vidí všechny doktory včetně neaktivních + kompletní údaje
+      whereCondition = { tenantId }
+      userSelect = {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        username: true,
+        isActive: true,
+        image: true,
+      }
+    } else if (userRole === 'DOCTOR') {
+      // DOCTOR vidí pouze aktivní doktory + základní údaje
+      whereCondition = {
         tenantId,
         user: {
           isActive: true
         }
-      },
+      }
+    } else if (userRole === 'CLIENT') {
+      // CLIENT vidí pouze aktivní doktory + základní údaje (pro rezervace)
+      whereCondition = {
+        tenantId,
+        user: {
+          isActive: true
+        }
+      }
+    } else {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
+    }
+
+    const doctors = await prisma.doctor.findMany({
+      where: whereCondition,
       include: {
         user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
+          select: userSelect,
         },
       },
       orderBy: {
@@ -1420,6 +1454,10 @@ router.get('/doctors', async (req: Request, res: Response) => {
         },
       },
     })
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Found ${doctors.length} doctors for role ${userRole}`)
+    }
 
     res.json(doctors)
   } catch (error) {
@@ -1967,6 +2005,274 @@ router.post('/notifications/send-reminders', async (req: Request, res: Response)
     })
   } catch (error) {
     console.error('Chyba při odesílání připomínek:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// === ADMIN SPRÁVA DOKTORŮ ===
+
+// Vytvoření nového doktora (pouze pro ADMIN)
+router.post('/admin/doctors', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.sub
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+    const { name, email, username, phone, specialization, description, password } = req.body
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: POST /admin/doctors ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+    }
+
+    if (!userId || !tenantId) {
+      return res.status(400).json({ error: 'Chybí uživatelské údaje' })
+    }
+
+    if (userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění - pouze admin' })
+    }
+
+    // Validace povinných polí
+    if (!name || !username || !password) {
+      return res.status(400).json({ error: 'Jméno, username a heslo jsou povinné' })
+    }
+
+    // Kontrola, zda username už neexistuje
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        username,
+        tenantId,
+      },
+    })
+
+    if (existingUser) {
+      return res.status(409).json({ error: 'Username už existuje' })
+    }
+
+    // Kontrola, zda email už neexistuje (pokud je zadán)
+    if (email) {
+      const existingEmailUser = await prisma.user.findFirst({
+        where: {
+          email,
+          tenantId,
+        },
+      })
+
+      if (existingEmailUser) {
+        return res.status(409).json({ error: 'Email už existuje' })
+      }
+    }
+
+    // Hash hesla
+    const hashedPassword = await bcrypt.hash(password, 12)
+
+    // Vytvoření uživatele
+    const doctorUser = await prisma.user.create({
+      data: {
+        email: email || null,
+        username,
+        name,
+        phone: phone || null,
+        password: hashedPassword,
+        authProvider: 'INTERNAL',
+        role: 'DOCTOR',
+        tenantId,
+      },
+    })
+
+    // Vytvoření doctor záznamu
+    const doctor = await prisma.doctor.create({
+      data: {
+        userId: doctorUser.id,
+        specialization: specialization || 'Malá zvířata',
+        description: description || null,
+        tenantId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            username: true,
+            isActive: true,
+          },
+        },
+      },
+    })
+
+    res.status(201).json(doctor)
+  } catch (error) {
+    console.error('Chyba při vytváření doktora:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Aktualizace doktora (pouze pro ADMIN)
+router.put('/admin/doctors/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.sub
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+    const { id } = req.params
+    const { name, email, phone, specialization, description, password } = req.body
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: PUT /admin/doctors/:id ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+      console.log('doctorId:', id)
+    }
+
+    if (!userId || !tenantId) {
+      return res.status(400).json({ error: 'Chybí uživatelské údaje' })
+    }
+
+    if (userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění - pouze admin' })
+    }
+
+    // Najdi doktora
+    const existingDoctor = await prisma.doctor.findFirst({
+      where: { id, tenantId },
+      include: { user: true },
+    })
+
+    if (!existingDoctor) {
+      return res.status(404).json({ error: 'Doktor nenalezen' })
+    }
+
+    // Kontrola email konfliktu (pokud se mění)
+    if (email && email !== existingDoctor.user.email) {
+      const existingEmailUser = await prisma.user.findFirst({
+        where: {
+          email,
+          tenantId,
+          id: { not: existingDoctor.user.id },
+        },
+      })
+
+      if (existingEmailUser) {
+        return res.status(409).json({ error: 'Email už existuje' })
+      }
+    }
+
+    // Příprava dat pro update uživatele
+    const userUpdateData: any = {
+      name,
+      email: email || null,
+      phone: phone || null,
+    }
+
+    // Hash nového hesla pokud je zadané
+    if (password) {
+      userUpdateData.password = await bcrypt.hash(password, 12)
+    }
+
+    // Aktualizace uživatele
+    const updatedUser = await prisma.user.update({
+      where: { id: existingDoctor.user.id },
+      data: userUpdateData,
+    })
+
+    // Aktualizace doctor záznamu
+    const updatedDoctor = await prisma.doctor.update({
+      where: { id },
+      data: {
+        specialization: specialization || 'Malá zvířata',
+        description: description || null,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            username: true,
+            isActive: true,
+          },
+        },
+      },
+    })
+
+    res.json(updatedDoctor)
+  } catch (error) {
+    console.error('Chyba při aktualizaci doktora:', error)
+    res.status(500).json({ error: 'Interní chyba serveru' })
+  }
+})
+
+// Změna stavu doktora (aktivní/neaktivní) - pouze pro ADMIN
+router.patch('/admin/doctors/:id/status', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.sub
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+    const { id } = req.params
+    const { isActive } = req.body
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== DEBUG: PATCH /admin/doctors/:id/status ===')
+      console.log('userId:', userId)
+      console.log('tenantId:', tenantId)
+      console.log('userRole:', userRole)
+      console.log('doctorId:', id)
+      console.log('isActive:', isActive)
+    }
+
+    if (!userId || !tenantId) {
+      return res.status(400).json({ error: 'Chybí uživatelské údaje' })
+    }
+
+    if (userRole !== 'ADMIN') {
+      return res.status(403).json({ error: 'Nedostatečná oprávnění - pouze admin' })
+    }
+
+    if (typeof isActive !== 'boolean') {
+      return res.status(400).json({ error: 'isActive musí být boolean' })
+    }
+
+    // Najdi doktora
+    const existingDoctor = await prisma.doctor.findFirst({
+      where: { id, tenantId },
+      include: { user: true },
+    })
+
+    if (!existingDoctor) {
+      return res.status(404).json({ error: 'Doktor nenalezen' })
+    }
+
+    // Aktualizace stavu uživatele
+    const updatedUser = await prisma.user.update({
+      where: { id: existingDoctor.user.id },
+      data: { isActive },
+    })
+
+    // Vrátíme aktualizovaného doktora
+    const updatedDoctor = await prisma.doctor.findFirst({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            username: true,
+            isActive: true,
+          },
+        },
+      },
+    })
+
+    res.json(updatedDoctor)
+  } catch (error) {
+    console.error('Chyba při změně stavu doktora:', error)
     res.status(500).json({ error: 'Interní chyba serveru' })
   }
 })

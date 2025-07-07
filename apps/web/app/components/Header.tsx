@@ -235,6 +235,26 @@ export default function Header() {
                           </div>
                         </div>
                       </div>
+                      {session.user.role === 'ADMIN' && (
+                        <>
+                          <div className="h-6 border-l border-orange-300"></div>
+                          <div className="relative group">
+                            <span className="text-white hover:text-orange-100 font-medium transition-colors cursor-pointer">
+                              Admin
+                            </span>
+                            <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                              <div className="py-2">
+                                <Link 
+                                  href="/admin/doctors" 
+                                  className="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                                >
+                                  👨‍⚕️ Správa doktorů
+                                </Link>
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </>
                   )}
                 </>
@@ -406,6 +426,21 @@ export default function Header() {
                         >
                           🩺 Služby
                         </Link>
+                        {session.user.role === 'ADMIN' && (
+                          <>
+                            <div className="border-t border-orange-300 my-2"></div>
+                            <div className="text-orange-100 text-xs uppercase tracking-wide px-3 py-1">
+                              Admin
+                            </div>
+                            <Link 
+                              href="/admin/doctors" 
+                              className="block text-white hover:text-orange-100 font-medium py-2 px-3 rounded transition-colors"
+                              onClick={closeMobileMenu}
+                            >
+                              👨‍⚕️ Správa doktorů
+                            </Link>
+                          </>
+                        )}
                       </>
                     )}
                   </div>

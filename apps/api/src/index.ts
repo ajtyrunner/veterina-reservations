@@ -272,34 +272,7 @@ app.get('/api/slots/:tenantId', authMiddleware, async (req, res) => {
   }
 })
 
-// Chráněné API pro získání doktorů
-app.get('/api/doctors/:tenantId', authMiddleware, async (req, res) => {
-  try {
-    const { tenantId } = req.params
-
-    const doctors = await prisma.doctor.findMany({
-      where: {
-        tenantId,
-        user: {
-          isActive: true
-        }
-      },
-      include: {
-        user: {
-          select: {
-            name: true,
-            image: true,
-          },
-        },
-      },
-    })
-
-    res.json(doctors)
-  } catch (error) {
-    console.error('Chyba při načítání doktorů:', error)
-    res.status(500).json({ error: 'Interní chyba serveru' })
-  }
-})
+// Poznámka: Endpoint pro doktory je nyní v protected.ts jako /api/doctors s role-based přístupem
 
 // Chráněné API pro získání service types
 app.get('/api/service-types/:tenantId', authMiddleware, async (req, res) => {

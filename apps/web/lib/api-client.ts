@@ -267,10 +267,6 @@ export async function getPublicSlots(tenantId: string, params?: URLSearchParams)
   return apiCall(url, { requireAuth: false })
 }
 
-export async function getPublicDoctors(tenantId: string) {
-  return apiCall(`/api/public/doctors/${tenantId}`, { requireAuth: false })
-}
-
 export async function getPublicServiceTypes(tenantId: string) {
   return apiCall(`/api/public/service-types/${tenantId}`, { requireAuth: false })
 }
@@ -297,9 +293,9 @@ export async function bulkDeleteSlots(deleteData: any) {
   })
 }
 
-// Získání doktorů (pro adminy)
-export async function getDoctors(tenantId: string) {
-  return apiCall(`/api/doctors/${tenantId}`, { requireAuth: true })
+// Získání doktorů podle role uživatele (ADMIN vidí všechny, ostatní pouze aktivní)
+export async function getDoctors() {
+  return apiCall('/api/doctors', { requireAuth: true })
 }
 
 // Test spojení
@@ -328,6 +324,31 @@ export async function testRailwayConnection() {
 
 export async function getUserProfile() {
   return apiCall('/api/user/profile', {
+    requireAuth: true
+  })
+}
+
+// Admin funkce pro správu doktorů
+export async function createDoctor(doctorData: any) {
+  return apiCall('/api/admin/doctors', {
+    method: 'POST',
+    body: doctorData,
+    requireAuth: true
+  })
+}
+
+export async function updateDoctor(doctorId: string, doctorData: any) {
+  return apiCall(`/api/admin/doctors/${doctorId}`, {
+    method: 'PUT',
+    body: doctorData,
+    requireAuth: true
+  })
+}
+
+export async function toggleDoctorStatus(doctorId: string, isActive: boolean) {
+  return apiCall(`/api/admin/doctors/${doctorId}/status`, {
+    method: 'PATCH',
+    body: { isActive },
     requireAuth: true
   })
 } 

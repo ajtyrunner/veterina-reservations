@@ -191,7 +191,7 @@ export default function BulkSlotGenerationPage() {
       
       // Přidej getDoctors pouze pro ADMIN
       if (session?.user.role === 'ADMIN') {
-        promises.push(getDoctors(session.user.tenantId))
+        promises.push(getDoctors())
       }
       
       const results = await Promise.all(promises)

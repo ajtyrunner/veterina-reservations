@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth'
 import SessionProvider from './components/SessionProvider'
 import Header from './components/Header'
+import Footer from './components/Footer'
 import { TenantTimezoneInitializer } from './components/TenantTimezoneInitializer'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -26,11 +27,12 @@ export default async function RootLayout({
       <body className={inter.className}>
         <SessionProvider session={session}>
           <TenantTimezoneInitializer>
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-gray-50 flex flex-col">
               <Header />
-              <main className="container mx-auto px-4 py-8">
+              <main className="flex-1 container mx-auto px-4 py-8">
                 {children}
               </main>
+              <Footer />
             </div>
           </TenantTimezoneInitializer>
         </SessionProvider>

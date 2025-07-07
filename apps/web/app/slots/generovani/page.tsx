@@ -494,55 +494,47 @@ export default function BulkSlotGenerationPage() {
     setLoadingDeletePreview(true)
     
     try {
-      const { getSlots } = await import('../../../lib/api-client')
+      const { getDoctorSlots } = await import('../../../lib/api-client')
       
-      // Sestavíme parametry pro dotaz
-      const params = new URLSearchParams()
-      params.append('date', deleteForm.dateFrom) // Použijeme od datum pro první dotaz
+      // Použijeme doctor/slots endpoint který už má správné filtrování podle role
+      const allSlots = await getDoctorSlots()
       
-      if (deleteForm.doctorId) {
-        params.append('doctorId', deleteForm.doctorId)
-      }
-      
-      if (deleteForm.serviceTypeId) {
-        params.append('serviceTypeId', deleteForm.serviceTypeId)
-      }
-
-      // Získáme sloty pro celé období den po dni
-      const allSlots = []
-      const startDate = new Date(deleteForm.dateFrom)
-      const endDate = new Date(deleteForm.dateTo)
-      
-      for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-        const dateStr = date.toISOString().split('T')[0]
-        const dateParams = new URLSearchParams(params)
-        dateParams.set('date', dateStr)
+      // Filtrujeme podle našich kritérií
+      const filteredSlots = allSlots.filter((slot: any) => {
+        // Filtr podle období
+        const slotDate = new Date(slot.startTime)
+        const startDate = new Date(deleteForm.dateFrom)
+        const endDate = new Date(deleteForm.dateTo)
+        endDate.setHours(23, 59, 59, 999) // Konec dne
         
-        try {
-          const daySlots = await getSlots(session.user.tenantId, dateParams)
-          
-          // Filtrujeme podle našich kritérií
-          const filteredSlots = daySlots.filter((slot: any) => {
-            // Filtr podle místnosti
-            if (deleteForm.roomId && slot.room?.id !== deleteForm.roomId) {
-              return false
-            }
-            
-            // Filtr podle prázdných slotů
-            if (deleteForm.onlyEmpty && slot.reservations && slot.reservations.length > 0) {
-              return false
-            }
-            
-            return true
-          })
-          
-          allSlots.push(...filteredSlots)
-        } catch (error) {
-          console.error(`Chyba při načítání slotů pro ${dateStr}:`, error)
+        if (slotDate < startDate || slotDate > endDate) {
+          return false
         }
-      }
+        
+        // Filtr podle doktora (pouze pro ADMIN)
+        if (deleteForm.doctorId && slot.doctor?.id !== deleteForm.doctorId) {
+          return false
+        }
+        
+        // Filtr podle služby
+        if (deleteForm.serviceTypeId && slot.serviceType?.id !== deleteForm.serviceTypeId) {
+          return false
+        }
+        
+        // Filtr podle místnosti
+        if (deleteForm.roomId && slot.room?.id !== deleteForm.roomId) {
+          return false
+        }
+        
+        // Filtr podle prázdných slotů
+        if (deleteForm.onlyEmpty && slot.reservations && slot.reservations.length > 0) {
+          return false
+        }
+        
+        return true
+      })
       
-      setDeletePreviewSlots(allSlots)
+      setDeletePreviewSlots(filteredSlots)
       setShowDeletePreview(true)
       
     } catch (error: any) {

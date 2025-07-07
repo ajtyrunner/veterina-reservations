@@ -153,6 +153,12 @@ export async function deleteSlot(id: string) {
   })
 }
 
+export async function getDoctorSlots() {
+  return apiCall('/api/doctor/slots', {
+    requireAuth: true
+  })
+}
+
 export async function getRooms() {
   return apiCall('/api/rooms', {
     requireAuth: true

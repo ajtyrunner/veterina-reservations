@@ -160,7 +160,7 @@ export async function getRooms() {
 }
 
 export async function getServiceTypes(tenantId: string) {
-  return apiCall('/api/service-types', { requireAuth: true })
+  return apiCall(`/api/service-types/${tenantId}`, { requireAuth: true })
 }
 
 export async function createServiceType(serviceTypeData: any) {

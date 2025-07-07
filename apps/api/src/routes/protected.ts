@@ -1290,34 +1290,8 @@ router.put('/rooms/:id', async (req: Request, res: Response) => {
 
 // === SPRÁVA SERVICE TYPES (DRUHŮ SLUŽEB) ===
 
-// Získání všech service types
-router.get('/service-types', async (req: Request, res: Response) => {
-  try {
-    const tenantId = req.user?.tenant
-    const userRole = req.user?.role
-
-    if (!tenantId) {
-      return res.status(400).json({ error: 'Chybí tenant ID' })
-    }
-
-    if (userRole !== 'DOCTOR' && userRole !== 'ADMIN') {
-      return res.status(403).json({ error: 'Nedostatečná oprávnění' })
-    }
-
-    const serviceTypes = await prisma.serviceType.findMany({
-      where: { 
-        tenantId,
-        isActive: true 
-      },
-      orderBy: { name: 'asc' },
-    })
-
-    res.json(serviceTypes)
-  } catch (error) {
-    console.error('Chyba při načítání druhů služeb:', error)
-    res.status(500).json({ error: 'Interní chyba serveru' })
-  }
-})
+// POZOR: Endpoint pro čtení service-types je v index.ts jako /api/service-types/:tenantId
+// Zde ponecháváme pouze POST a PUT endpointy pro správu
 
 // Vytvoření nového service type
 router.post('/service-types', async (req: Request, res: Response) => {

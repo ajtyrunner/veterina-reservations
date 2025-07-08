@@ -130,7 +130,7 @@ router.post('/credentials',
     }
 
     // Aktualizuj auditní informace při úspěšném přihlášení
-    const clientIp = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] as string || 'unknown'
+    const clientIp = req.ip || req.socket.remoteAddress || req.headers['x-forwarded-for'] as string || 'unknown'
     
     await prisma.user.update({
       where: { id: userRecord.id },
@@ -199,7 +199,7 @@ router.post('/google-user', async (req, res) => {
 
     if (existingUser) {
       // Aktualizuj auditní informace při přihlášení přes Google
-      const clientIp = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] as string || 'unknown'
+      const clientIp = req.ip || req.socket.remoteAddress || req.headers['x-forwarded-for'] as string || 'unknown'
       
       await prisma.user.update({
         where: { id: existingUser.id },
@@ -227,7 +227,9 @@ router.post('/google-user', async (req, res) => {
     }
 
     // Vytvoř nového uživatele s phone z OAuth
-    await prisma.user.create({
+    const clientIp = req.ip || req.socket.remoteAddress || req.headers['x-forwarded-for'] as string || 'unknown'
+    
+    const newUser = await prisma.user.create({
       data: {
         email,
         name,
@@ -236,10 +238,29 @@ router.post('/google-user', async (req, res) => {
         authProvider: 'GOOGLE',
         tenantId: tenant.id,
         role: 'CLIENT',
+        // ✅ OPRAVA: Nastavit auditní informace při prvotním přihlášení
+        lastLoginAt: new Date(),
+        lastLoginIp: clientIp,
+        loginCount: 1,
       },
     })
 
-    console.log('✅ Created Google OAuth user with phone:', { email, phone: phone || 'none' })
+    // ✅ OPRAVA: Zaloguj úspěšné přihlášení i pro nové uživatele
+    auditLog('LOGIN_SUCCESS', { 
+      email, 
+      role: 'CLIENT', 
+      tenant: tenant.slug,
+      provider: 'GOOGLE',
+      ip: clientIp,
+      isNewUser: true
+    }, req)
+
+    console.log('✅ Created Google OAuth user with audit info:', { 
+      email, 
+      phone: phone || 'none',
+      lastLoginAt: newUser.lastLoginAt,
+      loginCount: newUser.loginCount 
+    })
     res.json({ success: true })
   } catch (error) {
     console.error('Chyba při vytváření Google uživatele:', error)

@@ -13,7 +13,7 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <span className="text-2xl">🏥</span>
-              <h3 className="text-xl font-bold text-orange-400">Slotito</h3>
+              <h3 className="text-xl font-bold text-orange-400">Slotnito</h3>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
               Inteligentní rezervační systém pro efektivní správu termínů. 
@@ -127,7 +127,7 @@ export default function Footer() {
         <div className="border-t border-gray-700 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-sm text-gray-400">
-              © {currentYear} Slotito. Všechna práva vyhrazena.
+              © {currentYear} Slotnito. Všechna práva vyhrazena.
             </div>
             
             <div className="flex items-center space-x-6 text-sm text-gray-400">

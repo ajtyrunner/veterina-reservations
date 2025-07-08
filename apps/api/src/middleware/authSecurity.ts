@@ -28,7 +28,7 @@ setInterval(() => {
 
 // Brute force ochrana
 export const bruteForceProtection = (req: Request, res: Response, next: NextFunction) => {
-  const clientIP = req.ip || req.connection.remoteAddress || 'unknown'
+  const clientIP = req.ip || req.socket.remoteAddress || 'unknown'
   const email = req.body.email?.toLowerCase()
   const key = `${clientIP}:${email}`
   
@@ -202,7 +202,7 @@ export const auditLog = (event: string, details: any, req: Request) => {
   const logEntry = {
     timestamp: new Date().toISOString(),
     event,
-    ip: req.ip || req.connection.remoteAddress,
+    ip: req.ip || req.socket.remoteAddress,
     userAgent: req.get('User-Agent'),
     details: typeof details === 'object' ? JSON.stringify(details) : details
   }

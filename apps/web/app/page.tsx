@@ -254,6 +254,7 @@ export default function Home() {
   })
   const [phoneError, setPhoneError] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'calendar'>('calendar')
+  const [filtersExpanded, setFiltersExpanded] = useState(false) // State pro sbalení/rozbalení filtrů
 
   useEffect(() => {
     // Test přímého Railway spojení
@@ -734,7 +735,22 @@ export default function Home() {
       {/* Rezervační sekce */}
       <div id="rezervace" className="container mx-auto px-4 py-16">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold">Rezervace termínu</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-3xl font-bold">Rezervace termínu</h2>
+            {/* Tooltip ikona */}
+            <div className="relative group">
+              <svg className="w-5 h-5 text-gray-400 hover:text-blue-500 cursor-help transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {/* Tooltip obsah */}
+              <div className="absolute left-0 top-6 w-80 bg-gray-900 text-white text-sm rounded-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                <div className="font-medium mb-1">Dostupnost termínů</div>
+                <div>Termíny jsou k dispozici <strong>od následujícího dne</strong>. Dnešní termíny již nelze rezervovat. Pro naléhavé případy volejte přímo do ordinace.</div>
+                {/* Šipka tooltip */}
+                <div className="absolute -top-1 left-3 w-2 h-2 bg-gray-900 rotate-45"></div>
+              </div>
+            </div>
+          </div>
           
           {/* Přepínač pohledů */}
           <div className="flex bg-gray-100 rounded-lg p-1">
@@ -761,111 +777,131 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Filtry */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4">Filtry</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Druh služby</label>
-              <select
-                value={selectedServiceType}
-                onChange={(e) => setSelectedServiceType(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Všechny služby</option>
-                {serviceTypes.map((serviceType) => (
-                  <option key={serviceType.id} value={serviceType.id}>
-                    {serviceType.name} ({serviceType.duration} min)
-                  </option>
-                ))}
-              </select>
+        {/* Sbalitelné filtry */}
+        <div className="bg-white rounded-lg shadow-md mb-6">
+          {/* Hlavička filtrů */}
+          <div 
+            className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={() => setFiltersExpanded(!filtersExpanded)}
+          >
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold">Filtry</h2>
+              <span className="text-sm text-gray-500">
+                ({filteredSlots.length} dostupných termínů)
+              </span>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Veterinář</label>
-              <select
-                value={selectedDoctor}
-                onChange={(e) => setSelectedDoctor(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Všichni veterináři</option>
-                {doctors.map((doctor) => (
-                  <option key={doctor.id} value={doctor.id}>
-                    {doctor.user.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Datum</label>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            
-            <div className="flex items-end">
-              <button
-                onClick={() => {
-                  setSelectedServiceType('')
-                  setSelectedDoctor('')
-                  setSelectedDate('')
-                }}
-                className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                Vymazat filtry
-              </button>
-            </div>
-          </div>
-          
-          {/* Rychlé filtry */}
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="text-sm font-medium text-gray-700">Rychlé filtry:</span>
-            <button
-              onClick={() => setSelectedDate(new Date().toLocaleDateString('sv-SE'))}
-              className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors"
+            <svg 
+              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${filtersExpanded ? 'rotate-180' : ''}`}
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
             >
-              Dnes
-            </button>
-            <button
-              onClick={() => {
-                const tomorrow = new Date()
-                tomorrow.setDate(tomorrow.getDate() + 1)
-                setSelectedDate(tomorrow.toLocaleDateString('sv-SE'))
-              }}
-              className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors"
-            >
-              Zítra
-            </button>
-            <button
-              onClick={() => {
-                const nextWeek = new Date()
-                nextWeek.setDate(nextWeek.getDate() + 7)
-                setSelectedDate(nextWeek.toLocaleDateString('sv-SE'))
-              }}
-              className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors"
-            >
-              Za týden
-            </button>
-            <button
-              onClick={() => {
-                setSelectedServiceType('')
-                setSelectedDoctor('')
-                setSelectedDate('')
-              }}
-              className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors"
-            >
-              Vše
-            </button>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
 
-          {/* Počítadlo výsledků */}
-          <div className="mt-4 text-sm text-gray-600">
-            Zobrazeno: <span className="font-medium">{filteredSlots.length}</span> dostupných termínů
-          </div>
+          {/* Obsah filtrů */}
+          {filtersExpanded && (
+            <div className="px-4 pb-4 border-t">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Druh služby</label>
+                  <select
+                    value={selectedServiceType}
+                    onChange={(e) => setSelectedServiceType(e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Všechny služby</option>
+                    {serviceTypes.map((serviceType) => (
+                      <option key={serviceType.id} value={serviceType.id}>
+                        {serviceType.name} ({serviceType.duration} min)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Veterinář</label>
+                  <select
+                    value={selectedDoctor}
+                    onChange={(e) => setSelectedDoctor(e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Všichni veterináři</option>
+                    {doctors.map((doctor) => (
+                      <option key={doctor.id} value={doctor.id}>
+                        {doctor.user.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Datum</label>
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div className="flex items-end">
+                  <button
+                    onClick={() => {
+                      setSelectedServiceType('')
+                      setSelectedDoctor('')
+                      setSelectedDate('')
+                    }}
+                    className="w-full bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Vymazat filtry
+                  </button>
+                </div>
+              </div>
+              
+              {/* Rychlé filtry */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="text-sm font-medium text-gray-700">Rychlé filtry:</span>
+                <button
+                  onClick={() => setSelectedDate(new Date().toLocaleDateString('sv-SE'))}
+                  className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors"
+                >
+                  Dnes
+                </button>
+                <button
+                  onClick={() => {
+                    const tomorrow = new Date()
+                    tomorrow.setDate(tomorrow.getDate() + 1)
+                    setSelectedDate(tomorrow.toLocaleDateString('sv-SE'))
+                  }}
+                  className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors"
+                >
+                  Zítra
+                </button>
+                <button
+                  onClick={() => {
+                    const nextWeek = new Date()
+                    nextWeek.setDate(nextWeek.getDate() + 7)
+                    setSelectedDate(nextWeek.toLocaleDateString('sv-SE'))
+                  }}
+                  className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors"
+                >
+                  Za týden
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedServiceType('')
+                    setSelectedDoctor('')
+                    setSelectedDate('')
+                  }}
+                  className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  Vše
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Zobrazení podle vybraného módu */}

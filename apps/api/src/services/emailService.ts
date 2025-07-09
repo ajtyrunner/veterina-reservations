@@ -340,6 +340,7 @@ class EmailService {
             <div class="details">
                 <h3>📅 Detaily rezervace</h3>
                 <p><strong>Termín:</strong> ${formatTime(data.startTime)} - ${formatTime(data.endTime)}</p>
+                <p><strong>Veterinář:</strong> ${data.doctorName}</p>
                 <p><strong>Klient:</strong> ${data.customerName}</p>
                 <p><strong>Email:</strong> ${data.customerEmail}</p>
                 ${data.petName ? `<p><strong>Zvíře:</strong> ${data.petName} (${data.petType})</p>` : ''}
@@ -378,6 +379,7 @@ NOVÁ REZERVACE
 
 📅 DETAILY REZERVACE
 Termín: ${formatTime(data.startTime)} - ${formatTime(data.endTime)}
+Veterinář: ${data.doctorName}
 Klient: ${data.customerName}
 Email: ${data.customerEmail}
 ${data.petName ? `Zvíře: ${data.petName} (${data.petType})\n` : ''}${data.description ? `Popis: ${data.description}\n` : ''}${data.room ? `Místnost: ${data.room}\n` : ''}${data.serviceType ? `Služba: ${data.serviceType}\n` : ''}
@@ -571,6 +573,15 @@ ID rezervace: ${data.reservationId}
   }
 
   private generateReservationCompletedHtml(data: ReservationEmailData): string {
+    const formatTime = (date: Date) => date.toLocaleString('cs-CZ', { 
+      timeZone: data.timezone,
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+
     return `
 <!DOCTYPE html>
 <html>
@@ -598,6 +609,14 @@ ID rezervace: ${data.reservationId}
                 <strong>Vaše návštěva byla úspěšně dokončena.</strong>
             </div>
             
+            <div class="details">
+                <h3>📅 Dokončená návštěva</h3>
+                <p><strong>Veterinář:</strong> ${data.doctorName}</p>
+                ${data.petName ? `<p><strong>Zvíře:</strong> ${data.petName} (${data.petType})</p>` : ''}
+                ${data.room ? `<p><strong>Místnost:</strong> ${data.room}</p>` : ''}
+                ${data.serviceType ? `<p><strong>Služba:</strong> ${data.serviceType}</p>` : ''}
+            </div>
+            
             <p>Děkujeme za důvěru v naše služby. Doufáme, že jste byli spokojeni s péčí o ${data.petName || 'vašeho mazlíčka'}.</p>
             
             <p>V případě jakýchkoliv dotazů nebo potřeby další návštěvy nás neváhejte kontaktovat.</p>
@@ -614,11 +633,24 @@ ID rezervace: ${data.reservationId}
   }
 
   private generateReservationCompletedText(data: ReservationEmailData): string {
+    const formatTime = (date: Date) => date.toLocaleString('cs-CZ', { 
+      timeZone: data.timezone,
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+
     return `
 🏥 ${data.tenantName}
 NÁVŠTĚVA DOKONČENA
 
 🎉 Děkujeme za návštěvu!
+
+📅 DOKONČENÁ NÁVŠTĚVA
+Veterinář: ${data.doctorName}
+${data.petName ? `Zvíře: ${data.petName} (${data.petType})\n` : ''}${data.room ? `Místnost: ${data.room}\n` : ''}${data.serviceType ? `Služba: ${data.serviceType}\n` : ''}
 
 Vaše návštěva byla úspěšně dokončena.
 

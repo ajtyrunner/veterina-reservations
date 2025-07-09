@@ -176,6 +176,10 @@ app.get('/api/slots/:tenantId', authMiddleware, async (req, res) => {
   try {
     const { tenantId } = req.params
     const { doctorId, serviceTypeId, date } = req.query
+    const userRole = req.user?.role
+
+    // Získej timezone tenanta
+    const tenantTimezone = await getCachedTenantTimezone(prisma, tenantId)
 
     const where: any = {
       tenantId,
@@ -195,30 +199,73 @@ app.get('/api/slots/:tenantId', authMiddleware, async (req, res) => {
       where.serviceTypeId = serviceTypeId
     }
 
-    if (date) {
-      const inputDate = date as string
-      const tenantTimezone = await getCachedTenantTimezone(prisma, tenantId)
-      const startDateUTC = getStartOfDayInTimezone(inputDate, tenantTimezone)
-      const endDateUTC = getEndOfDayInTimezone(inputDate, tenantTimezone)
-      
-      // Rozšířené debug logování i pro produkci
-      console.log('🔍 Timezone filtering debug:')
-      console.log('- Input date:', inputDate)
-      console.log('- Tenant timezone:', tenantTimezone)
-      console.log('- Start UTC:', startDateUTC.toISOString())
-      console.log('- End UTC:', endDateUTC.toISOString())
-      console.log('- Server TZ:', process.env.TZ)
-      console.log('- Current server time:', new Date().toISOString())
-      console.log('- Where condition:', JSON.stringify({
-        startTime: {
+    // Role-based filtrování času
+    const isClient = userRole === 'CLIENT'
+    
+    if (isClient) {
+      // KLIENTI - pouze sloty od zítřka
+      const now = new Date()
+      const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+      const tomorrowDateStr = tomorrow.toLocaleDateString('sv-SE', { timeZone: tenantTimezone })
+      const tomorrowStartUTC = getStartOfDayInTimezone(tomorrowDateStr, tenantTimezone)
+
+      if (date) {
+        // Pokud klient specifikuje datum, ujisti se, že není dřív než zítřek
+        const inputDate = date as string
+        const startDateUTC = getStartOfDayInTimezone(inputDate, tenantTimezone)
+        const endDateUTC = getEndOfDayInTimezone(inputDate, tenantTimezone)
+        
+        const effectiveStartDate = startDateUTC >= tomorrowStartUTC ? startDateUTC : tomorrowStartUTC
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 CLIENT filtering debug:')
+          console.log('- User role:', userRole)
+          console.log('- Input date:', inputDate)
+          console.log('- Tomorrow start UTC:', tomorrowStartUTC.toISOString())
+          console.log('- Effective start UTC:', effectiveStartDate.toISOString())
+        }
+
+        where.startTime = {
+          gte: effectiveStartDate,
+          lte: endDateUTC,
+        }
+      } else {
+        // Bez specifikovaného data - pouze od zítřka
+        where.startTime = {
+          gte: tomorrowStartUTC,
+        }
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 CLIENT default filtering - from tomorrow:')
+          console.log('- User role:', userRole)
+          console.log('- Tomorrow start UTC:', tomorrowStartUTC.toISOString())
+        }
+      }
+    } else {
+      // DOKTOŘI a ADMINI - všechny sloty (včetně minulých pro správu)
+      if (date) {
+        const inputDate = date as string
+        const startDateUTC = getStartOfDayInTimezone(inputDate, tenantTimezone)
+        const endDateUTC = getEndOfDayInTimezone(inputDate, tenantTimezone)
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 DOCTOR/ADMIN filtering debug:')
+          console.log('- User role:', userRole)
+          console.log('- Input date:', inputDate)
+          console.log('- Start UTC:', startDateUTC.toISOString())
+          console.log('- End UTC:', endDateUTC.toISOString())
+        }
+
+        where.startTime = {
           gte: startDateUTC,
           lte: endDateUTC,
         }
-      }, null, 2))
-
-      where.startTime = {
-        gte: startDateUTC,
-        lte: endDateUTC,
+      }
+      // Bez date filtru - všechny sloty (žádné časové omezení)
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 DOCTOR/ADMIN - no time restrictions')
+        console.log('- User role:', userRole)
       }
     }
 

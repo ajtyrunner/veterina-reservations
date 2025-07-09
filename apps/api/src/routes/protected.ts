@@ -13,7 +13,8 @@ import {
   validateUpdateReservationStatus,
   validateCreateRoom,
   validateCreateServiceType,
-  validateQueryParams
+  validateQueryParams,
+  validateReservationTiming
 } from '../middleware/validation'
 import { prisma, notificationService } from '../index'
 
@@ -147,7 +148,7 @@ router.get('/user/profile', async (req: Request, res: Response) => {
 })
 
 // Vytvoření nové rezervace
-router.post('/reservations', createOperationLimit, validateCreateReservation, async (req: Request, res: Response) => {
+router.post('/reservations', createOperationLimit, validateCreateReservation, validateReservationTiming, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
     const tenantId = req.user?.tenant

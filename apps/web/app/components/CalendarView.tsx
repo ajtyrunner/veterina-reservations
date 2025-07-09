@@ -38,6 +38,7 @@ interface CalendarViewProps {
   selectedDate?: string
   onReserveSlot: (slot: Slot) => void
   loading: boolean
+  userRole?: string // Přidáno pro role-based zobrazování
 }
 
 interface CalendarDay {
@@ -46,7 +47,7 @@ interface CalendarDay {
   slots: Slot[]
 }
 
-export default function CalendarView({ slots, selectedDoctor, selectedServiceType, selectedDate, onReserveSlot, loading }: CalendarViewProps) {
+export default function CalendarView({ slots, selectedDoctor, selectedServiceType, selectedDate, onReserveSlot, loading, userRole }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([])
@@ -149,6 +150,26 @@ export default function CalendarView({ slots, selectedDoctor, selectedServiceTyp
     return compareDate < today
   }
 
+  // Nová funkce pro kontrolu, zda je slot v minulosti
+  const isSlotInPast = (slot: Slot) => {
+    const slotDate = new Date(slot.startTime)
+    const now = new Date()
+    return slotDate < now
+  }
+
+  // Funkce pro určení, zda lze na den kliknout
+  const canClickDay = (day: CalendarDay) => {
+    if (day.slots.length === 0) return false
+    
+    // Pro doktoři a adminy - mohou kliknout na jakýkoliv den se sloty
+    if (userRole === 'DOCTOR' || userRole === 'ADMIN') {
+      return true
+    }
+    
+    // Pro klienty - pouze budoucí dny
+    return !isPast(day.date)
+  }
+
   const monthNames = [
     'Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen',
     'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec'
@@ -223,49 +244,72 @@ export default function CalendarView({ slots, selectedDoctor, selectedServiceTyp
                     (!selectedServiceType || slot.serviceTypeId === selectedServiceType)
                   )
                 })
-                .map(slot => (
-                  <div
-                    key={slot.id}
-                    className="flex items-center justify-between p-3 bg-white rounded-md border border-gray-200 hover:border-blue-300 transition-colors shadow-sm"
-                  >
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {formatDisplayTime(new Date(slot.startTime))} - {formatDisplayTime(new Date(slot.endTime))}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {slot.doctor.user.name}
-                        {slot.doctor.specialization && ` • ${slot.doctor.specialization}`}
-                      </div>
-                      {slot.serviceType && (
-                        <div className="text-xs mb-1">
-                          <span 
-                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white"
-                            style={{ backgroundColor: slot.serviceType.color || '#3B82F6' }}
-                          >
-                            ⚕️ {slot.serviceType.name} • {slot.serviceType.duration} min
-                          </span>
-                        </div>
-                      )}
-                      {slot.room && (
-                        <div className="text-xs text-gray-500">
-                          🏥 {slot.room.name}
-                          {slot.room.description && ` (${slot.room.description})`}
-                        </div>
-                      )}
-                      {slot.equipment && (
-                        <div className="text-xs text-gray-500">
-                          🔧 {slot.equipment}
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => onReserveSlot(slot)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                .map(slot => {
+                  const isPastSlot = isSlotInPast(slot)
+                  const canReserve = !isPastSlot || (userRole === 'DOCTOR' || userRole === 'ADMIN')
+                  
+                  return (
+                    <div
+                      key={slot.id}
+                      className={`flex items-center justify-between p-3 bg-white rounded-md border transition-colors shadow-sm ${
+                        isPastSlot 
+                          ? 'border-gray-300 bg-gray-50 opacity-60' 
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
                     >
-                      Rezervovat
-                    </button>
-                  </div>
-                )) || (
+                      <div className={isPastSlot ? 'text-gray-500' : ''}>
+                        <div className={`font-medium ${isPastSlot ? 'text-gray-600' : 'text-gray-900'}`}>
+                          {formatDisplayTime(new Date(slot.startTime))} - {formatDisplayTime(new Date(slot.endTime))}
+                          {isPastSlot && (
+                            <span className="ml-2 text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
+                              Minulost
+                            </span>
+                          )}
+                        </div>
+                        <div className={`text-sm ${isPastSlot ? 'text-gray-500' : 'text-gray-600'}`}>
+                          {slot.doctor.user.name}
+                          {slot.doctor.specialization && ` • ${slot.doctor.specialization}`}
+                        </div>
+                        {slot.serviceType && (
+                          <div className="text-xs mb-1">
+                            <span 
+                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white ${
+                                isPastSlot ? 'opacity-70' : ''
+                              }`}
+                              style={{ backgroundColor: slot.serviceType.color || '#3B82F6' }}
+                            >
+                              ⚕️ {slot.serviceType.name} • {slot.serviceType.duration} min
+                            </span>
+                          </div>
+                        )}
+                        {slot.room && (
+                          <div className={`text-xs ${isPastSlot ? 'text-gray-400' : 'text-gray-500'}`}>
+                            🏥 {slot.room.name}
+                            {slot.room.description && ` (${slot.room.description})`}
+                          </div>
+                        )}
+                        {slot.equipment && (
+                          <div className={`text-xs ${isPastSlot ? 'text-gray-400' : 'text-gray-500'}`}>
+                            🔧 {slot.equipment}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => onReserveSlot(slot)}
+                        disabled={!canReserve}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          canReserve
+                            ? isPastSlot
+                              ? 'bg-gray-500 text-white hover:bg-gray-600'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
+                      >
+                        {isPastSlot ? 'Zobrazit' : 'Rezervovat'}
+                      </button>
+                    </div>
+                  )
+                }) || (
                 <p className="text-gray-500 text-center py-4">
                   Žádné dostupné termíny pro tento den.
                 </p>
@@ -287,81 +331,103 @@ export default function CalendarView({ slots, selectedDoctor, selectedServiceTyp
 
         {/* Kalendářová mřížka */}
         <div className="grid grid-cols-7 gap-2">
-          {calendarDays.map((day, index) => (
-            <div
-              key={index}
-              className={`
-                min-h-[90px] p-3 border-2 cursor-pointer transition-all duration-200 rounded-lg relative
-                ${!day.isCurrentMonth ? 'bg-gray-50 text-gray-400 border-gray-100' : 'bg-white text-gray-900 border-gray-200'}
-                ${isToday(day.date) ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-200' : ''}
-                ${selectedDay && selectedDay.getTime() === day.date.getTime() ? 'bg-purple-100 border-purple-400 ring-2 ring-purple-300 shadow-lg transform scale-105' : ''}
-                ${isPast(day.date) ? 'opacity-50 cursor-not-allowed' : ''}
-                ${day.slots.length > 0 && !isPast(day.date) ? 
-                  'bg-gradient-to-br from-green-50 to-green-100 border-green-400 shadow-md hover:shadow-lg hover:from-green-100 hover:to-green-200 transform hover:scale-105' : 
-                  'hover:bg-gray-50 hover:border-gray-300'}
-              `}
-              onClick={() => {
-                if (!isPast(day.date) && day.slots.length > 0) {
-                  setSelectedDay(day.date)
-                }
-              }}
-            >
-              {/* Indikátor dostupnosti - zelený kroužek */}
-              {day.slots.length > 0 && !isPast(day.date) && (
-                <div className="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
-              )}
-              
-              <div className={`text-sm font-medium mb-1 ${
-                day.slots.length > 0 && !isPast(day.date) ? 'text-green-800 font-bold' : ''
-              }`}>
-                {day.date.getDate()}
-              </div>
-              
-              {day.slots.length > 0 && !isPast(day.date) && (
-                <div className="space-y-1">
-                  <div className="text-xs text-green-700 font-semibold bg-green-200 px-2 py-1 rounded-full text-center">
-                    {day.slots.length} {day.slots.length === 1 ? 'termín' : 'termínů'}
-                  </div>
-                  
-                  {/* Názvy služeb jako text */}
-                  <div className="space-y-0.5">
-                    {Array.from(new Set(day.slots
-                      .filter(slot => slot.serviceType)
-                      .map(slot => slot.serviceType!.id)
-                    )).slice(0, 2).map(serviceTypeId => {
-                      const serviceType = day.slots.find(slot => slot.serviceType?.id === serviceTypeId)?.serviceType
-                      return serviceType ? (
-                        <div
-                          key={serviceTypeId}
-                          className="text-xs px-1 py-0.5 rounded text-white font-medium text-center"
-                          style={{ backgroundColor: serviceType.color || '#3B82F6' }}
-                          title={`${serviceType.name} (${serviceType.duration} min)`}
-                        >
-                          {serviceType.name.length > 10 ? serviceType.name.substring(0, 10) + '...' : serviceType.name}
-                        </div>
-                      ) : null
-                    })}
-                    {Array.from(new Set(day.slots
-                      .filter(slot => slot.serviceType)
-                      .map(slot => slot.serviceType!.id)
-                    )).length > 2 && (
-                      <div className="text-xs text-gray-600 text-center font-medium">
-                        +{Array.from(new Set(day.slots
-                          .filter(slot => slot.serviceType)
-                          .map(slot => slot.serviceType!.id)
-                        )).length - 2} dalších
-                      </div>
-                    )}
-                  </div>
+          {calendarDays.map((day, index) => {
+            const isPastDay = isPast(day.date)
+            const hasSlots = day.slots.length > 0
+            const canShowPastSlots = userRole === 'DOCTOR' || userRole === 'ADMIN'
+            const showSlots = hasSlots && (!isPastDay || canShowPastSlots)
+            
+            return (
+              <div
+                key={index}
+                className={`
+                  min-h-[90px] p-3 border-2 cursor-pointer transition-all duration-200 rounded-lg relative
+                  ${!day.isCurrentMonth ? 'bg-gray-50 text-gray-400 border-gray-100' : 'bg-white text-gray-900 border-gray-200'}
+                  ${isToday(day.date) ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-200' : ''}
+                  ${selectedDay && selectedDay.getTime() === day.date.getTime() ? 'bg-purple-100 border-purple-400 ring-2 ring-purple-300 shadow-lg transform scale-105' : ''}
+                  ${isPastDay && !canShowPastSlots ? 'opacity-50 cursor-not-allowed' : ''}
+                  ${isPastDay && canShowPastSlots && hasSlots ? 'bg-gradient-to-br from-gray-100 to-gray-200 border-gray-400 opacity-70 hover:opacity-85' : ''}
+                  ${showSlots && !isPastDay ? 
+                    'bg-gradient-to-br from-green-50 to-green-100 border-green-400 shadow-md hover:shadow-lg hover:from-green-100 hover:to-green-200 transform hover:scale-105' : 
+                    'hover:bg-gray-50 hover:border-gray-300'}
+                `}
+                onClick={() => {
+                  if (canClickDay(day)) {
+                    setSelectedDay(day.date)
+                  }
+                }}
+              >
+                {/* Indikátor dostupnosti - zelený kroužek pro budoucí, šedý pro minulé */}
+                {showSlots && (
+                  <div className={`absolute top-2 right-2 w-3 h-3 rounded-full border-2 border-white shadow-sm ${
+                    isPastDay ? 'bg-gray-500' : 'bg-green-500'
+                  }`}></div>
+                )}
+                
+                <div className={`text-sm font-medium mb-1 ${
+                  showSlots && !isPastDay ? 'text-green-800 font-bold' : 
+                  showSlots && isPastDay ? 'text-gray-600 font-bold' : ''
+                }`}>
+                  {day.date.getDate()}
                 </div>
-              )}
-              
-              {/* Dnešní den indikátor */}
-              {isToday(day.date) && (
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-blue-500 rounded-full"></div>
-              )}
-            </div>
-          ))}
+                
+                {showSlots && (
+                  <div className="space-y-1">
+                    <div className={`text-xs font-semibold px-2 py-1 rounded-full text-center ${
+                      isPastDay 
+                        ? 'text-gray-600 bg-gray-300' 
+                        : 'text-green-700 bg-green-200'
+                    }`}>
+                      {day.slots.length} {day.slots.length === 1 ? 'termín' : 'termínů'}
+                      {isPastDay && (
+                        <span className="block text-xs font-normal">minulost</span>
+                      )}
+                    </div>
+                    
+                    {/* Názvy služeb jako text */}
+                    <div className="space-y-0.5">
+                      {Array.from(new Set(day.slots
+                        .filter(slot => slot.serviceType)
+                        .map(slot => slot.serviceType!.id)
+                      )).slice(0, 2).map(serviceTypeId => {
+                        const serviceType = day.slots.find(slot => slot.serviceType?.id === serviceTypeId)?.serviceType
+                        return serviceType ? (
+                          <div
+                            key={serviceTypeId}
+                            className={`text-xs px-1 py-0.5 rounded text-white font-medium text-center ${
+                              isPastDay ? 'opacity-70' : ''
+                            }`}
+                            style={{ backgroundColor: serviceType.color || '#3B82F6' }}
+                            title={`${serviceType.name} (${serviceType.duration} min)`}
+                          >
+                            {serviceType.name.length > 10 ? serviceType.name.substring(0, 10) + '...' : serviceType.name}
+                          </div>
+                        ) : null
+                      })}
+                      {Array.from(new Set(day.slots
+                        .filter(slot => slot.serviceType)
+                        .map(slot => slot.serviceType!.id)
+                      )).length > 2 && (
+                        <div className={`text-xs text-center font-medium ${
+                          isPastDay ? 'text-gray-500' : 'text-gray-600'
+                        }`}>
+                          +{Array.from(new Set(day.slots
+                            .filter(slot => slot.serviceType)
+                            .map(slot => slot.serviceType!.id)
+                          )).length - 2} dalších
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Dnešní den indikátor */}
+                {isToday(day.date) && (
+                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-blue-500 rounded-full"></div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

@@ -877,6 +877,7 @@ export default function Home() {
             selectedDate={selectedDate}
             onReserveSlot={openReservationForm}
             loading={loading}
+            userRole={session?.user?.role}
           />
         ) : (
           <div className="bg-white rounded-lg shadow-md p-6">

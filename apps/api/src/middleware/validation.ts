@@ -1,6 +1,11 @@
 import { body, param, query, validationResult } from 'express-validator'
 import { Request, Response, NextFunction } from 'express'
 import validator from 'validator'
+import { PrismaClient } from '@prisma/client'
+import { getCachedTenantTimezone } from '../utils/tenant'
+import { getStartOfDayInTimezone } from '../utils/timezone'
+
+const prisma = new PrismaClient()
 
 // Middleware pro handling validation errors
 export const handleValidationErrors = (req: Request, res: Response, next: NextFunction) => {
@@ -147,6 +152,84 @@ export const validateCreateReservation = [
   
   handleValidationErrors
 ]
+
+// Nová validace pro kontrolu časování rezervace (pouze pro klienty)
+export const validateReservationTiming = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { slotId } = req.body
+    const tenantId = req.user?.tenant
+    const userRole = req.user?.role
+
+    if (!slotId || !tenantId) {
+      return next() // Základní validace se řeší jinde
+    }
+
+    // Pouze klienti mají omezení "od zítřka"
+    if (userRole !== 'CLIENT') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🕐 Validace časování: DOCTOR/ADMIN - bez omezení')
+        console.log('- User role:', userRole)
+      }
+      return next() // Doktoři a admini mohou rezervovat kdykoliv
+    }
+
+    // Najdi slot a jeho čas
+    const slot = await prisma.slot.findFirst({
+      where: {
+        id: slotId,
+        tenantId,
+      },
+      select: {
+        startTime: true,
+        endTime: true,
+      },
+    })
+
+    if (!slot) {
+      return next() // Existence slotu se řeší jinde
+    }
+
+    // Získej timezone tenanta
+    const tenantTimezone = await getCachedTenantTimezone(prisma, tenantId)
+    
+    // Získej začátek zítřejšího dne v tenant timezone
+    const now = new Date()
+    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+    const tomorrowDateStr = tomorrow.toLocaleDateString('sv-SE', { timeZone: tenantTimezone })
+    const tomorrowStartUTC = getStartOfDayInTimezone(tomorrowDateStr, tenantTimezone)
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🕐 Validace časování rezervace (CLIENT):')
+      console.log('- User role:', userRole)
+      console.log('- Aktuální čas:', now.toISOString())
+      console.log('- Tenant timezone:', tenantTimezone)
+      console.log('- Zítřejší datum:', tomorrowDateStr)
+      console.log('- Začátek zítřka UTC:', tomorrowStartUTC.toISOString())
+      console.log('- Slot začíná:', slot.startTime.toISOString())
+      console.log('- Slot je od zítřka:', slot.startTime >= tomorrowStartUTC)
+    }
+
+    // Kontrola, že slot je nejdříve od zítřka (pouze pro klienty)
+    if (slot.startTime < tomorrowStartUTC) {
+      const slotDateInTimezone = slot.startTime.toLocaleDateString('cs-CZ', { 
+        timeZone: tenantTimezone,
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+      
+      return res.status(400).json({ 
+        error: `Rezervace lze vytvářet nejdříve od následujícího dne. Vybraný termín (${slotDateInTimezone}) je příliš brzy. Prosím vyberte termín od zítřka.` 
+      })
+    }
+
+    next()
+  } catch (error) {
+    console.error('Chyba při validaci časování rezervace:', error)
+    return res.status(500).json({ error: 'Interní chyba serveru při validaci času' })
+  }
+}
 
 // Validace pro vytvoření slotu
 export const validateCreateSlot = [

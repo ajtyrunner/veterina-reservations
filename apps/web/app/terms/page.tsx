@@ -71,8 +71,8 @@ export default function TermsPage() {
               <div>
                 <h3 className="font-semibold text-gray-900">Zrušení:</h3>
                 <p className="leading-relaxed">
-                  Rezervaci lze zrušit nejpozději 2 hodiny před stanoveným termínem. 
-                  Pozdní zrušení nebo nedostavení se může být zpoplatněno.
+                  Rezervaci lze zrušit prostřednictvím rezervačního systému. 
+                  Nedostavení se může penalizovat.
                 </p>
               </div>
             </div>
@@ -149,12 +149,6 @@ export default function TermsPage() {
                   koppito.solutions@gmail.com
                 </a>
               </p>
-              <p className="font-medium mt-2">📞 Telefon: 
-                <a href="tel:+420777123456" className="text-orange-600 hover:text-orange-700 ml-1">
-                  +420 777 123 456
-                </a>
-              </p>
-              <p className="font-medium mt-2">🕐 Podpora: Po-Pá 8:00-18:00</p>
             </div>
           </section>
 

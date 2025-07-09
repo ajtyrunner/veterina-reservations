@@ -159,11 +159,6 @@ export default function PrivacyPage() {
                   koppito.solutions@gmail.com
                 </a>
               </p>
-              <p className="font-medium mt-2">📞 Telefon: 
-                <a href="tel:+420777123456" className="text-orange-600 hover:text-orange-700 ml-1">
-                  +420 777 123 456
-                </a>
-              </p>
             </div>
           </section>
 

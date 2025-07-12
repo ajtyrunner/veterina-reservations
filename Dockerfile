@@ -3,11 +3,15 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-COPY apps/api/package*.json ./apps/api/
 COPY package*.json ./
+COPY apps/api/package*.json ./apps/api/
 COPY prisma ./prisma/
 
-RUN cd apps/api && npm ci
+# Install root dependencies first
+RUN npm install
+
+# Then install API dependencies
+RUN cd apps/api && npm install
 
 COPY apps/api ./apps/api/
 

@@ -15,8 +15,10 @@ RUN cd apps/api && npm ci
 
 COPY apps/api ./apps/api/
 
+# Generate Prisma Client
 RUN npx prisma generate
 
+# Build API with its own build script
 RUN cd apps/api && npm run build
 
 FROM node:18-alpine AS runner

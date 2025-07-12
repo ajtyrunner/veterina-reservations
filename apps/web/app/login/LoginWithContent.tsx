@@ -153,9 +153,6 @@ export default function LoginWithContent() {
             onClick={handleGoogleSignIn}
             disabled={loading}
             className="w-full flex justify-center items-center py-4 px-6 border border-gray-300 rounded-xl shadow-lg text-base font-semibold text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-xl"
-            style={{ 
-              ':focus': { ringColor: primaryColor }
-            }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = primaryColor;
             }}

@@ -92,7 +92,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
       
       // Replace placeholders like {{STAFF}} with actual values
       const placeholderRegex = /\{\{(\w+)\}\}/g;
-      value = value.replace(placeholderRegex, (match, placeholder) => {
+      value = value.replace(placeholderRegex, (match: string, placeholder: string) => {
         const replacementValue = getNestedValue(content.labels, placeholder);
         return replacementValue !== undefined ? String(replacementValue) : match;
       });

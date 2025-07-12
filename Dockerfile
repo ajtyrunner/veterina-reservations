@@ -13,7 +13,14 @@ RUN npm ci --ignore-scripts
 # Install API dependencies
 RUN cd apps/api && npm ci
 
-COPY apps/api ./apps/api/
+# Copy API source, excluding test files and scripts
+COPY apps/api/src ./apps/api/src/
+COPY apps/api/tsconfig.json ./apps/api/
+COPY apps/api/package*.json ./apps/api/
+
+# Remove test and development files
+RUN rm -rf apps/api/src/routes/test-auth.ts && \
+    rm -rf apps/api/src/scripts/
 
 # Generate Prisma Client to root node_modules
 RUN npx prisma generate

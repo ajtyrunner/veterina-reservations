@@ -15,24 +15,18 @@ RUN cd apps/api && npm ci
 
 COPY apps/api ./apps/api/
 
-# Generate Prisma Client to root node_modules (as in development)
+# Generate Prisma Client to root node_modules
 RUN npx prisma generate
 
-# Debug: Check what was generated
-RUN ls -la node_modules/@prisma/client/
-RUN cat node_modules/@prisma/client/index.d.ts
-RUN ls -la node_modules/.prisma/client/
-RUN cat node_modules/.prisma/client/index.d.ts | grep -E "(AuthProvider|UserRole)" | head -10
+# Create directories if they don't exist
+RUN mkdir -p apps/api/node_modules/.prisma && \
+    mkdir -p apps/api/node_modules/@prisma
 
-# Create symlinks so API can find Prisma Client
-RUN cd apps/api && \
-    ln -s ../../node_modules/.prisma node_modules/.prisma && \
-    ln -s ../../node_modules/@prisma node_modules/@prisma
+# Copy generated Prisma Client to API node_modules
+RUN cp -r node_modules/.prisma/client apps/api/node_modules/.prisma/ && \
+    cp -r node_modules/@prisma/client apps/api/node_modules/@prisma/
 
-# Debug: Verify symlinks
-RUN ls -la apps/api/node_modules/@prisma/
-
-# Build API (now it can find Prisma Client via symlinks)
+# Build API
 RUN cd apps/api && npx tsc
 
 FROM node:18-alpine AS runner

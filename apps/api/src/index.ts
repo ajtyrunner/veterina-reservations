@@ -50,9 +50,12 @@ const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
     ? [
         'https://veterina-reservations.vercel.app',
+        'https://veterina-svahy.slotnito.online',
+        'https://agility-nikol.slotnito.online',
+        'https://*.slotnito.online',  // Wildcard pro všechny subdomény
         process.env.FRONTEND_URL,
         process.env.NEXTAUTH_URL,
-        'https://veterina-reservations-production.up.railway.app'  // Přidáme Railway URL
+        'https://veterina-reservations-production.up.railway.app'
       ].filter((url): url is string => Boolean(url))
     : [
         'http://localhost:3000',

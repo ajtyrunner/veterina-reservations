@@ -10,6 +10,43 @@ router.get('/test', (req, res) => {
   res.json({ message: 'Public API is working' });
 });
 
+// Endpoint pro základní informace o tenantovi
+router.get('/tenant/:identifier', async (req, res) => {
+  try {
+    const { identifier } = req.params;
+    
+    // Nejdřív zkus najít podle subdomain, pak podle slug
+    let tenant = await prisma.tenant.findUnique({
+      where: { subdomain: identifier }
+    });
+
+    if (!tenant) {
+      tenant = await prisma.tenant.findUnique({
+        where: { slug: identifier }
+      });
+    }
+
+    if (!tenant) {
+      return res.status(404).json({ error: 'Tenant not found' });
+    }
+
+    // Vrátíme základní informace o tenantovi
+    res.json({
+      id: tenant.id,
+      slug: tenant.slug,
+      name: tenant.name,
+      subdomain: tenant.subdomain,
+      primaryColor: tenant.primaryColor,
+      secondaryColor: tenant.secondaryColor,
+      timezone: tenant.timezone,
+      locale: tenant.locale
+    });
+  } catch (error) {
+    console.error('Error fetching tenant:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Content API pro tenant
 router.get('/tenant/:identifier/content', async (req, res) => {
   try {

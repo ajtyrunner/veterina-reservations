@@ -47,7 +47,7 @@ router.post('/test/mock-google-login', async (req, res) => {
         lastLoginAt: new Date(),
         loginCount: { increment: 1 },
         lastLoginIp: req.ip || 'test',
-        name: name || user.name
+        name: name
       },
       create: {
         email,

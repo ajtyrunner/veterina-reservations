@@ -71,10 +71,8 @@ async function main() {
         update: {},
         create: {
           userId: user.id,
-          name: userData.name,
           specialization: 'Test Veterinář',
-          phone: '+420 777 888 999',
-          email: userData.email
+          description: 'Testovací doktor pro vývoj'
         }
       })
       console.log(`   👨‍⚕️ Created doctor profile for ${user.username}`)

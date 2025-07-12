@@ -7,11 +7,11 @@ COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY prisma ./prisma/
 
-# Install only production dependencies without postinstall
-RUN npm ci --ignore-scripts --omit=dev
+# Install all dependencies without postinstall
+RUN npm ci --ignore-scripts
 
 # Install API dependencies
-RUN cd apps/api && npm ci --omit=dev
+RUN cd apps/api && npm ci
 
 COPY apps/api ./apps/api/
 

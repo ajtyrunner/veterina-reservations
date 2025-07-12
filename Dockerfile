@@ -7,11 +7,11 @@ COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY prisma ./prisma/
 
-# Install root dependencies first
-RUN npm install
+# Install dependencies without running postinstall
+RUN npm ci --ignore-scripts
 
-# Then install API dependencies
-RUN cd apps/api && npm install
+# Install API dependencies
+RUN cd apps/api && npm ci
 
 COPY apps/api ./apps/api/
 

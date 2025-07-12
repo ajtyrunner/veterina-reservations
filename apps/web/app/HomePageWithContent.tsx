@@ -237,12 +237,6 @@ function ServicesSection() {
     }
   ]
 
-  const cardStyle = {
-    ':hover': {
-      borderColor: colors.primary,
-      transform: 'translateY(-4px)'
-    }
-  }
 
   return (
     <div className="py-16 bg-gray-50">

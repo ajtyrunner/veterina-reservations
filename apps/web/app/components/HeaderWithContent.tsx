@@ -195,15 +195,13 @@ export default function HeaderWithContent() {
                             <Link 
                               href="/slots" 
                               className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
-                              style={{ ':hover': { color: colors.primary } }}
-                            >
+                                                          >
                               📋 Přehled {t('SLOT', 'termínů').toLowerCase()}
                             </Link>
                             <Link 
                               href="/slots/generovani" 
                               className="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
-                              style={{ ':hover': { color: colors.primary } }}
-                            >
+                                                          >
                               📅 Generovat {t('SLOT', 'termíny').toLowerCase()}
                             </Link>
                           </div>

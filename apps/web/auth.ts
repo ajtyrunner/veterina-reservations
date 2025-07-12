@@ -23,8 +23,8 @@ export const authOptions: AuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        domain: '.lvh.me' // Sdílené pro všechny subdomény
+        secure: process.env.NODE_ENV === 'production'
+        // Nepoužívat domain - nechat NextAuth automaticky detekovat
       }
     },
     callbackUrl: {
@@ -34,8 +34,7 @@ export const authOptions: AuthOptions = {
       options: {
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        domain: '.lvh.me'
+        secure: process.env.NODE_ENV === 'production'
       }
     },
     csrfToken: {
@@ -44,8 +43,7 @@ export const authOptions: AuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
-        domain: '.lvh.me'
+        secure: process.env.NODE_ENV === 'production'
       }
     },
     pkceCodeVerifier: {
@@ -55,7 +53,6 @@ export const authOptions: AuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: '.lvh.me',
         maxAge: 900
       }
     },
@@ -66,7 +63,6 @@ export const authOptions: AuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: '.lvh.me',
         maxAge: 900
       }
     },
@@ -77,7 +73,6 @@ export const authOptions: AuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: '.lvh.me'
       }
     }
   },

@@ -39,12 +39,21 @@ export async function middleware(request: NextRequest) {
     // Pro jakékoliv auth operace, ulož tenant do cookie
     if (request.nextUrl.pathname.startsWith('/api/auth/')) {
       console.log('🍪 Setting oauth-tenant cookie:', tenantSlug)
+      // Dynamicky urči cookie domain podle hostname
+      let cookieDomain = undefined;
+      if (hostname.includes('lvh.me')) {
+        cookieDomain = '.lvh.me';
+      } else if (hostname.includes('slotnito.online')) {
+        cookieDomain = '.slotnito.online';
+      }
+      // Pro localhost a jiné domény nepoužívej domain parametr
+      
       response.cookies.set('oauth-tenant', tenantSlug, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
-        domain: '.lvh.me', // Sdílené pro všechny subdomény
+        ...(cookieDomain && { domain: cookieDomain }),
         maxAge: 60 * 10 // 10 minutes for auth flow
       })
     }

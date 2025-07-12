@@ -15,12 +15,15 @@ RUN cd apps/api && npm ci
 
 COPY apps/api ./apps/api/
 
-# Generate Prisma Client with correct paths
-# Schema is in /app/prisma/schema.prisma
-# Output to /app/apps/api/node_modules/@prisma/client
-RUN cd apps/api && npx prisma generate --schema=/app/prisma/schema.prisma
+# Generate Prisma Client to root node_modules (as in development)
+RUN npx prisma generate
 
-# Build API (Prisma Client is already generated)
+# Create symlinks so API can find Prisma Client
+RUN cd apps/api && \
+    ln -s ../../node_modules/.prisma node_modules/.prisma && \
+    ln -s ../../node_modules/@prisma node_modules/@prisma
+
+# Build API (now it can find Prisma Client via symlinks)
 RUN cd apps/api && npx tsc
 
 FROM node:18-alpine AS runner

@@ -1,9 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getTenantSlugFromHostname } from './lib/tenant'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   const tenantSlug = getTenantSlugFromHostname(hostname)
+  
+  console.log('🔍 Middleware:', {
+    path: request.nextUrl.pathname,
+    hostname,
+    tenantSlug,
+    cookies: request.cookies.getAll().map(c => ({ name: c.name, hasValue: !!c.value }))
+  })
+  
+  // Skip rate limiting for auth endpoints in development
+  if (process.env.NODE_ENV === 'development' && 
+      process.env.DISABLE_RATE_LIMIT === 'true' &&
+      request.nextUrl.pathname.startsWith('/api/auth/')) {
+    // Add custom header to indicate rate limit should be skipped
+    const response = NextResponse.next()
+    response.headers.set('x-skip-rate-limit', 'true')
+    return response
+  }
   
   // Přidej tenant slug do headers pro server components
   const requestHeaders = new Headers(request.headers)
@@ -18,6 +35,20 @@ export function middleware(request: NextRequest) {
     })
     
     response.headers.set('x-tenant-slug', tenantSlug)
+    
+    // Pro jakékoliv auth operace, ulož tenant do cookie
+    if (request.nextUrl.pathname.startsWith('/api/auth/')) {
+      console.log('🍪 Setting oauth-tenant cookie:', tenantSlug)
+      response.cookies.set('oauth-tenant', tenantSlug, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        domain: '.lvh.me', // Sdílené pro všechny subdomény
+        maxAge: 60 * 10 // 10 minutes for auth flow
+      })
+    }
+    
     return response
   }
   

@@ -53,7 +53,7 @@ export default function SluzbyPage() {
         throw new Error('Session is not available')
       }
       const { getServiceTypes } = await import('../../../lib/api-client')
-      const data = await getServiceTypes(session.user.tenantId)
+      const data = await getServiceTypes(session.user.tenant)
       console.log('✅ Service types načteny z Railway:', data)
       setServiceTypes(data)
     } catch (error) {

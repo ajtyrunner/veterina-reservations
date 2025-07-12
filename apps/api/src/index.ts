@@ -10,6 +10,8 @@ import { authMiddleware } from './middleware/auth'
 import { basicRateLimit, strictRateLimit } from './middleware/rateLimiter'
 import protectedRouter from './routes/protected'
 import authRouter from './routes/auth'
+import testAuthRouter from './routes/test-auth'
+import publicRouter from './routes/public'
 import { parsePragueDateTime, parseTimezoneDateTime, getStartOfDayInTimezone, getEndOfDayInTimezone } from './utils/timezone'
 import { getCachedTenantTimezone } from './utils/tenant'
 import { NotificationService } from './services/notificationService'
@@ -55,14 +57,15 @@ const corsOptions = {
       ].filter((url): url is string => Boolean(url))
     : [
         'http://localhost:3000',
-        'http://svahy.lvh.me:3000',
+        'http://veterina-svahy.lvh.me:3000',
+        'http://agility-nikol.lvh.me:3000',
         'https://veterina-reservations.vercel.app',
         process.env.FRONTEND_URL,
         process.env.NEXTAUTH_URL
       ].filter((url): url is string => Boolean(url)),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'x-tenant-slug'],
 }
 
 // Trust proxy - MUST be before rate limit middleware
@@ -172,14 +175,40 @@ app.get('/api/public/tenant/:slug', async (req, res) => {
 })
 
 // Chráněné API pro získání dostupných slotů
-app.get('/api/slots/:tenantId', authMiddleware, async (req, res) => {
+app.get('/api/slots/:tenantSlug', authMiddleware, async (req, res) => {
   try {
-    const { tenantId } = req.params
-    const { doctorId, serviceTypeId, date } = req.query
+    const { tenantSlug } = req.params
+    const { doctorId, serviceTypeId, date, startDate, endDate } = req.query
     const userRole = req.user?.role
+    const userTenantSlug = req.user?.tenant
 
-    // Získej timezone tenanta
-    const tenantTimezone = await getCachedTenantTimezone(prisma, tenantId)
+    // Debug info
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 Slots endpoint debug:', {
+        urlTenantSlug: tenantSlug,
+        userTenantSlug,
+        jwtTenant: req.user?.tenant,
+        jwtTenantId: req.user?.tenantId
+      })
+    }
+
+    // Kontrola, že uživatel má přístup k tomuto tenantovi
+    if (userTenantSlug !== tenantSlug) {
+      return res.status(403).json({ error: `Přístup odepřen - nesprávný tenant (user: ${userTenantSlug}, requested: ${tenantSlug})` })
+    }
+
+    // Najdi tenant podle slug
+    const tenant = await prisma.tenant.findUnique({
+      where: { slug: tenantSlug },
+      select: { id: true, timezone: true }
+    })
+
+    if (!tenant) {
+      return res.status(404).json({ error: 'Tenant nenalezen' })
+    }
+
+    const tenantId = tenant.id
+    const tenantTimezone = tenant.timezone
 
     const where: any = {
       tenantId,
@@ -209,8 +238,27 @@ app.get('/api/slots/:tenantId', authMiddleware, async (req, res) => {
       const tomorrowDateStr = tomorrow.toLocaleDateString('sv-SE', { timeZone: tenantTimezone })
       const tomorrowStartUTC = getStartOfDayInTimezone(tomorrowDateStr, tenantTimezone)
 
-      if (date) {
-        // Pokud klient specifikuje datum, ujisti se, že není dřív než zítřek
+      if (startDate && endDate) {
+        // Date range query for calendar view
+        const startDateUTC = getStartOfDayInTimezone(startDate as string, tenantTimezone)
+        const endDateUTC = getEndOfDayInTimezone(endDate as string, tenantTimezone)
+        
+        const effectiveStartDate = startDateUTC >= tomorrowStartUTC ? startDateUTC : tomorrowStartUTC
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 CLIENT date range filtering:')
+          console.log('- Start date:', startDate)
+          console.log('- End date:', endDate)
+          console.log('- Effective start UTC:', effectiveStartDate.toISOString())
+          console.log('- End UTC:', endDateUTC.toISOString())
+        }
+
+        where.startTime = {
+          gte: effectiveStartDate,
+          lte: endDateUTC,
+        }
+      } else if (date) {
+        // Single day query
         const inputDate = date as string
         const startDateUTC = getStartOfDayInTimezone(inputDate, tenantTimezone)
         const endDateUTC = getEndOfDayInTimezone(inputDate, tenantTimezone)
@@ -243,7 +291,25 @@ app.get('/api/slots/:tenantId', authMiddleware, async (req, res) => {
       }
     } else {
       // DOKTOŘI a ADMINI - všechny sloty (včetně minulých pro správu)
-      if (date) {
+      if (startDate && endDate) {
+        // Date range query for calendar view
+        const startDateUTC = getStartOfDayInTimezone(startDate as string, tenantTimezone)
+        const endDateUTC = getEndOfDayInTimezone(endDate as string, tenantTimezone)
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 DOCTOR/ADMIN date range filtering:')
+          console.log('- Start date:', startDate)
+          console.log('- End date:', endDate)
+          console.log('- Start UTC:', startDateUTC.toISOString())
+          console.log('- End UTC:', endDateUTC.toISOString())
+        }
+
+        where.startTime = {
+          gte: startDateUTC,
+          lte: endDateUTC,
+        }
+      } else if (date) {
+        // Single day query
         const inputDate = date as string
         const startDateUTC = getStartOfDayInTimezone(inputDate, tenantTimezone)
         const endDateUTC = getEndOfDayInTimezone(inputDate, tenantTimezone)
@@ -322,9 +388,37 @@ app.get('/api/slots/:tenantId', authMiddleware, async (req, res) => {
 // Poznámka: Endpoint pro doktory je nyní v protected.ts jako /api/doctors s role-based přístupem
 
 // Chráněné API pro získání service types
-app.get('/api/service-types/:tenantId', authMiddleware, async (req, res) => {
+app.get('/api/service-types/:tenantSlug', authMiddleware, async (req, res) => {
   try {
-    const { tenantId } = req.params
+    const { tenantSlug } = req.params
+    const userTenantSlug = req.user?.tenant
+
+    // Debug info
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 Service types endpoint debug:', {
+        urlTenantSlug: tenantSlug,
+        userTenantSlug,
+        jwtTenant: req.user?.tenant,
+        jwtTenantId: req.user?.tenantId
+      })
+    }
+
+    // Kontrola, že uživatel má přístup k tomuto tenantovi
+    if (userTenantSlug !== tenantSlug) {
+      return res.status(403).json({ error: `Přístup odepřen - nesprávný tenant (user: ${userTenantSlug}, requested: ${tenantSlug})` })
+    }
+
+    // Najdi tenant podle slug
+    const tenant = await prisma.tenant.findUnique({
+      where: { slug: tenantSlug },
+      select: { id: true }
+    })
+
+    if (!tenant) {
+      return res.status(404).json({ error: 'Tenant nenalezen' })
+    }
+
+    const tenantId = tenant.id
 
     const serviceTypes = await prisma.serviceType.findMany({
       where: { 
@@ -351,8 +445,17 @@ app.get('/api/service-types/:tenantId', authMiddleware, async (req, res) => {
   }
 })
 
+// Public routes - bez autentizace
+app.use('/api/public', publicRouter)
+
 // Auth routes - bez autentizace, ale s přísným rate limitingem
 app.use('/api/auth', strictRateLimit, authRouter)
+
+// Test routes - pouze v development/test prostředí
+if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+  app.use('/', testAuthRouter)
+  console.log('⚠️  Test auth routes enabled - DO NOT USE IN PRODUCTION')
+}
 
 // Chráněné routes - vše ostatní pod /api vyžaduje autentizaci
 app.use('/api', authMiddleware, protectedRouter)

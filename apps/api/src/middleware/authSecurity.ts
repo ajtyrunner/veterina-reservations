@@ -28,6 +28,12 @@ setInterval(() => {
 
 // Brute force ochrana
 export const bruteForceProtection = (req: Request, res: Response, next: NextFunction) => {
+  // Skip rate limiting in development if configured
+  if (process.env.NODE_ENV === 'development' && process.env.DISABLE_RATE_LIMIT === 'true') {
+    console.log('⚠️  Rate limiting disabled for development')
+    return next()
+  }
+
   const clientIP = req.ip || req.socket.remoteAddress || 'unknown'
   const email = req.body.email?.toLowerCase()
   const key = `${clientIP}:${email}`

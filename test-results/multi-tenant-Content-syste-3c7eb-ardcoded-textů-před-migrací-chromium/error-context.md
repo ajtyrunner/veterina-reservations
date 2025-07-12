@@ -1,0 +1,97 @@
+# Page snapshot
+
+```yaml
+- text: "📱 Mobil: 721 049 699 ✉️ veterina-svahy@email.cz"
+- link "👥 Facebook":
+  - /url: https://www.facebook.com/people/Veterina-Svahy/100049515202415/
+- banner:
+  - link "Veterina Svahy Logo Veterinární ordinace Svahy Veterinární ordinace":
+    - /url: /
+    - img "Veterina Svahy Logo"
+    - heading "Veterinární ordinace Svahy" [level=1]
+    - paragraph: Veterinární ordinace
+  - navigation
+  - link "Přihlásit se":
+    - /url: /login
+- main:
+  - heading "Rezervujte si termín online" [level=1]
+  - paragraph: Jednoduché a rychlé rezervace veterinárních služeb přímo z pohodlí domova
+  - img
+  - text: Online rezervace 24/7
+  - img
+  - text: Kvalifikovaní veterináři
+  - img
+  - text: Moderní vybavení
+  - link "🐾 Rezervovat termín":
+    - /url: /login
+  - link "Jak to funguje?":
+    - /url: /jak-to-funguje
+  - text: 🏥 📅 Online rezervace ⏰ Flexibilní časy 👨‍⚕️ Zkušení veterináři ❤️ Péče o zvířata
+  - heading "Naše služby" [level=2]
+  - paragraph: Poskytujeme komplexní veterinární péči pro vaše domácí mazlíčky
+  - text: 🔍
+  - heading "Základní vyšetření" [level=3]
+  - paragraph: Rutinní kontrola zdravotního stavu
+  - text: 💉
+  - heading "Očkování" [level=3]
+  - paragraph: Preventivní očkování podle věku
+  - text: 🏥
+  - heading "Chirurgický zákrok" [level=3]
+  - paragraph: Operativní výkony
+  - text: 📸
+  - heading "RTG vyšetření" [level=3]
+  - paragraph: Rentgenové snímkování
+  - text: 🔊
+  - heading "Ultrazvuk" [level=3]
+  - paragraph: Ultrazvukové vyšetření
+  - text: 🦷
+  - heading "Dentální péče" [level=3]
+  - paragraph: Ošetření zubů a dásní
+  - img
+  - heading "Připraveni na rezervaci?" [level=3]
+  - paragraph: Pro rezervaci termínu se přihlaste pomocí Google účtu
+  - link "Přihlásit se a rezervovat":
+    - /url: /login
+- contentinfo:
+  - text: 🏥
+  - heading "Slotnito" [level=3]
+  - paragraph: Inteligentní rezervační systém pro efektivní správu termínů. Rezervujte si čas rychle a jednoduše.
+  - link "Email":
+    - /url: mailto:koppito.solutions@gmail.com
+    - img
+  - heading "Rychlé odkazy" [level=4]
+  - navigation:
+    - link "🏠 Domů":
+      - /url: /
+    - link "📅 Rezervace":
+      - /url: /rezervace
+    - link "❓ Jak to funguje":
+      - /url: /jak-to-funguje
+    - link "🔐 Přihlášení":
+      - /url: /login
+  - heading "Naše služby" [level=4]
+  - text: 🔍 Základní vyšetření 💉 Očkování 🏥 Chirurgické zákroky 📸 RTG vyšetření 🦷 Dentální péče
+  - heading "Kontakt" [level=4]
+  - img
+  - link "koppito.solutions@gmail.com":
+    - /url: mailto:koppito.solutions@gmail.com
+  - img
+  - text: Systém dostupný 24/7 Rezervace kdykoliv online © 2025 Slotnito. Všechna práva vyhrazena.
+  - link "Ochrana osobních údajů":
+    - /url: /privacy
+  - link "Obchodní podmínky":
+    - /url: /terms
+  - text: Vytvořeno s ❤️ pomocí
+  - link "Koppito Solutions":
+    - /url: mailto:koppito.solutions@gmail.com
+- alert
+- heading "Používáme cookies" [level=3]
+- paragraph:
+  - text: Tento web používá cookies pro zajištění základní funkčnosti a analytické cookies pro zlepšení uživatelského zážitku. Analytické cookies nám pomáhají pochopit, jak návštěvníci používají náš web. Více informací najdete v našich
+  - link "zásadách ochrany osobních údajů":
+    - /url: /privacy
+  - text: .
+- button "Odmítnout vše"
+- button "Nastavit preference"
+- button "Přijmout vše"
+```

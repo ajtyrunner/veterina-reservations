@@ -151,7 +151,7 @@ export default function Footer() {
                   href="mailto:koppito.solutions@gmail.com"
                   className="text-orange-400 hover:text-orange-300 transition-colors font-medium"
                 >
-                  Koppito Solutions
+                  Slotnito
                 </a>
               </div>
             </div>

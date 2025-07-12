@@ -9,6 +9,60 @@ const nextConfig = {
   // Produkční optimalizace
   output: 'standalone',
   
+  // API Proxy rewrites - pouze pro development
+  async rewrites() {
+    // V produkci nepoužíváme rewrites - frontend volá API přímo
+    if (process.env.NODE_ENV === 'production') {
+      return []
+    }
+    
+    // Pro development - proxy na lokální API server
+    const apiUrl = process.env.API_URL || 'http://lvh.me:4000'
+    return [
+      {
+        source: '/api/public/:path*',
+        destination: `${apiUrl}/api/public/:path*`,
+      },
+      {
+        source: '/api/protected/:path*',
+        destination: `${apiUrl}/api/protected/:path*`,
+      },
+      {
+        source: '/api/doctors',
+        destination: `${apiUrl}/api/doctors`,
+      },
+      {
+        source: '/api/doctors/:path*',
+        destination: `${apiUrl}/api/doctors/:path*`,
+      },
+      {
+        source: '/api/slots/:path*',
+        destination: `${apiUrl}/api/slots/:path*`,
+      },
+      {
+        source: '/api/service-types/:path*',
+        destination: `${apiUrl}/api/service-types/:path*`,
+      },
+      {
+        source: '/api/reservations',
+        destination: `${apiUrl}/api/reservations`,
+      },
+      {
+        source: '/api/reservations/:path*',
+        destination: `${apiUrl}/api/reservations/:path*`,
+      },
+      {
+        source: '/api/rooms',
+        destination: `${apiUrl}/api/rooms`,
+      },
+      {
+        source: '/api/rooms/:path*',
+        destination: `${apiUrl}/api/rooms/:path*`,
+      },
+      // Nezahrnujeme /api/auth/* - to zpracovává NextAuth přímo
+    ]
+  },
+
   // Security headers
   async headers() {
     return [

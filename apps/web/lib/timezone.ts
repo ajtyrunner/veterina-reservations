@@ -105,10 +105,10 @@ export function getTomorrowDateTime(timezone?: TimezoneId): string {
   const now = new Date()
   const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
   
-  // Převedeme na target timezone a nastavíme čas na 10:00
+  // Převedeme na target timezone a nastavíme čas na 8:00
   const tomorrowDateStr = tomorrow.toLocaleDateString('sv-SE', { timeZone: tz })
   
-  return `${tomorrowDateStr}T10:00`
+  return `${tomorrowDateStr}T08:00`
 }
 
 /**

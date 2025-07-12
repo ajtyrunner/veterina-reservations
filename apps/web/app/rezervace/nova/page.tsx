@@ -5,18 +5,30 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
 import { getTenantSlugFromUrl } from '@/lib/tenant'
+import { getSlots, createReservation as apiCreateReservation } from '@/lib/api-client'
 
 interface Slot {
   id: string
   startTime: string
   endTime: string
-  room?: string
+  room?: {
+    id: string
+    name: string
+    description?: string
+  }
   equipment?: string
   doctor: {
     specialization?: string
     user: {
       name: string
     }
+  }
+  serviceType?: {
+    id: string
+    name: string
+    description?: string
+    duration: number
+    color?: string
   }
 }
 
@@ -32,6 +44,7 @@ export default function NewReservationPage() {
     petName: '',
     petType: '',
     description: '',
+    phone: '',
   })
 
   useEffect(() => {
@@ -53,23 +66,14 @@ export default function NewReservationPage() {
 
     try {
       const tenantSlug = session?.user?.tenant || getTenantSlugFromUrl()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://lvh.me:4000'
       
-      // Získej tenant ID
-      const tenantResponse = await fetch(`${apiUrl}/api/public/tenant/${tenantSlug}`)
-      if (!tenantResponse.ok) return
-      
-      const tenantData = await tenantResponse.json()
-      
-      // Načti všechny sloty a najdi konkrétní slot
-      const slotsResponse = await fetch(`${apiUrl}/api/public/slots/${tenantData.id}`)
-      if (slotsResponse.ok) {
-        const slots = await slotsResponse.json()
-        const foundSlot = slots.find((s: Slot) => s.id === slotId)
-        setSlot(foundSlot || null)
-      }
+      // Načti všechny sloty pomocí api-client
+      const slots = await getSlots(tenantSlug)
+      const foundSlot = slots.find((s: Slot) => s.id === slotId)
+      setSlot(foundSlot || null)
     } catch (error) {
       console.error('Chyba při načítání slotu:', error)
+      toast.error('Nepodařilo se načíst informace o termínu')
     }
   }
 
@@ -83,41 +87,27 @@ export default function NewReservationPage() {
 
     setLoading(true)
     try {
-      // V reálné implementaci by zde byl správný JWT token
-      const token = 'placeholder-jwt-token'
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://lvh.me:4000'
-      
-      const response = await fetch(`${apiUrl}/api/reservations`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          slotId,
-          ...formData,
-        }),
+      // Použij api-client který automaticky získá JWT token
+      await apiCreateReservation({
+        slotId,
+        ...formData,
       })
 
-      if (response.ok) {
-        toast.success('Rezervace byla úspěšně vytvořena!')
-        router.push('/rezervace')
-      } else {
-        const errorData = await response.json()
-        // Vylepšené zobrazení chyby z API
-        if (errorData.error && errorData.error.includes('aktivní rezervaci na službu')) {
-          // Speciální formátování pro duplicitní rezervace
-          toast.error(errorData.error, {
-            duration: 5000,
-          })
-        } else {
-          // Standardní formátování pro ostatní chyby
-          toast.error(`Chyba při vytváření rezervace: ${errorData.error}`)
-        }
-      }
-    } catch (error) {
+      toast.success('Rezervace byla úspěšně vytvořena!')
+      router.push('/rezervace')
+    } catch (error: any) {
       console.error('Chyba při vytváření rezervace:', error)
-      toast.error('Chyba při vytváření rezervace.')
+      
+      // Vylepšené zobrazení chyby z API
+      if (error.message && error.message.includes('aktivní rezervaci na službu')) {
+        // Speciální formátování pro duplicitní rezervace
+        toast.error(error.message, {
+          duration: 5000,
+        })
+      } else {
+        // Standardní formátování pro ostatní chyby
+        toast.error(error.message || 'Chyba při vytváření rezervace.')
+      }
     } finally {
       setLoading(false)
     }
@@ -237,7 +227,13 @@ export default function NewReservationPage() {
             {slot.room && (
               <div className="mb-2">
                 <span className="font-medium">Místnost:</span>
-                <span className="ml-2">{slot.room}</span>
+                <span className="ml-2">{slot.room.name}</span>
+              </div>
+            )}
+            {slot.serviceType && (
+              <div className="mb-2">
+                <span className="font-medium">Typ služby:</span>
+                <span className="ml-2">{slot.serviceType.name} ({slot.serviceType.duration} min)</span>
               </div>
             )}
             {slot.equipment && (
@@ -285,6 +281,20 @@ export default function NewReservationPage() {
               <option value="plaz">Plaz</option>
               <option value="jiné">Jiné</option>
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Telefonní číslo
+            </label>
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+              placeholder="např. 777123456"
+              required
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
 
           <div>

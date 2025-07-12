@@ -20,6 +20,21 @@ model Tenant {
   defaultEmail String?  // Email pro notifikace, pokud doktor nemá vlastní
   defaultPhone String?  // Telefon pro komunikaci, pokud doktor nemá vlastní
   
+  // Legacy pole (existuje v databázi)
+  locale String @default("cs-CZ")
+  
+  // Content System fields (již existují v databázi)
+  contentData   Json?    // Texty a labely
+  customStyles  Json?    // Vlastní styly a barvy
+  subdomain     String?  @unique // Pro subdomain routing (např. "veterina-svahy")
+  googleClientId     String?  // Per-tenant Google OAuth
+  googleClientSecret String?  // Per-tenant Google OAuth secret
+  enabledFeatures    Json?    // Feature flags ["reservations", "payments", "sms"]
+  
+  // Template reference
+  contentTemplateId String?
+  contentTemplate   ContentTemplate? @relation(fields: [contentTemplateId], references: [id])
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -188,4 +203,36 @@ enum ReservationStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
+}
+
+// Content Template model pro různé typy businessů
+model ContentTemplate {
+  id          String   @id @default(cuid())
+  name        String   @unique  // např. "veterinary", "dental", "beauty", "fitness"
+  displayName String   // např. "Veterinární ordinace"
+  category    String   // např. "healthcare", "beauty", "fitness"
+  
+  // UI Content
+  labels      Json     // Všechny UI texty {"hero.title": "Rezervujte si termín"}
+  messages    Json     // Chybové zprávy, notifikace
+  
+  // Email Templates
+  emailTemplates Json  // Email subject/body templates
+  
+  // Styling
+  colorScheme    Json  // Barevné schéma {"primary": "#f97316"}
+  typography     Json? // Fonty a velikosti (volitelné)
+  
+  // Features
+  features    Json     // Povolené funkce ["reservations", "pet_management"]
+  
+  // Metadata
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  tenants     Tenant[]
+  
+  @@map("content_templates")
 }

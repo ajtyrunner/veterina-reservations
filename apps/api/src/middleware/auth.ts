@@ -6,6 +6,7 @@ interface JWTPayload {
   email: string
   role: string
   tenant: string
+  tenantId?: string
   iat: number
   exp: number
 }
@@ -36,6 +37,26 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
     const decoded = jwt.verify(token, secret) as JWTPayload
     req.user = decoded
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔐 JWT decoded:', {
+        sub: decoded.sub,
+        tenant: decoded.tenant,
+        tenantId: decoded.tenantId,
+        role: decoded.role
+      })
+    }
+    
+    // Kontrola tenant přístupu
+    const requestedTenantSlug = req.headers['x-tenant-slug'] as string
+    if (requestedTenantSlug && decoded.tenant !== requestedTenantSlug) {
+      console.error('🚫 Tenant mismatch:', {
+        requestedTenant: requestedTenantSlug,
+        userTenant: decoded.tenant,
+        userId: decoded.sub
+      })
+      return res.status(403).json({ error: 'Přístup zamítnut - nesprávný tenant' })
+    }
     
     next()
   } catch (error) {

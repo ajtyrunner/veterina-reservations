@@ -132,7 +132,7 @@ export default function SlotsPage() {
       if (!session) {
         throw new Error('Session is not available')
       }
-      const data = await getSlots(session.user.tenantId)
+      const data = await getSlots(session.user.tenant)
       console.log('✅ Sloty načteny z Railway:', data)
       setSlots(data)
     } catch (error) {
@@ -160,7 +160,7 @@ export default function SlotsPage() {
       if (!session) {
         throw new Error('Session is not available')
       }
-      const data = await getServiceTypes(session.user.tenantId)
+      const data = await getServiceTypes(session.user.tenant)
       console.log('✅ Service types načteny z Railway:', data)
       // Odstraním filtrování podle isActive, protože to už dělá API
       setServiceTypes(data)

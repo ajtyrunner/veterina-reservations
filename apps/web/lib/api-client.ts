@@ -1,4 +1,6 @@
 // API client pro přímé volání Railway API s JWT autentizací
+import { getTenantSlugFromUrl } from './tenant'
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://veterina-reservations-production.up.railway.app'
 
 interface ApiOptions {
@@ -63,6 +65,10 @@ export async function apiCall(endpoint: string, options: ApiOptions = {}) {
       'Content-Type': 'application/json',
     }
 
+    // Přidání tenant hlavičky
+    const tenantSlug = getTenantSlugFromUrl()
+    headers['x-tenant-slug'] = tenantSlug
+
     // Přidání JWT tokenu pro autentizované endpointy
     if (options.requireAuth) {
       const token = await getAuthToken()
@@ -102,6 +108,17 @@ export async function apiCall(endpoint: string, options: ApiOptions = {}) {
         throw new Error('Pro pokračování se prosím přihlaste')
       }
       if (response.status === 403) {
+        // Speciální handling pro tenant mismatch
+        if (data.error && data.error.includes('nesprávný tenant')) {
+          // Přesměruj na login s vyčištěním session
+          if (typeof window !== 'undefined') {
+            const tenantSlug = getTenantSlugFromUrl()
+            const protocol = window.location.protocol
+            const port = window.location.port ? `:${window.location.port}` : ''
+            const callbackUrl = `${protocol}//${tenantSlug}.lvh.me${port}/login`
+            window.location.href = `/api/auth/signout?callbackUrl=${encodeURIComponent(callbackUrl)}`
+          }
+        }
         throw new Error('Nemáte oprávnění k této akci')
       }
       if (response.status === 404) {
@@ -122,10 +139,10 @@ export async function apiCall(endpoint: string, options: ApiOptions = {}) {
 }
 
 // Convenience funkce pro běžné operace
-export async function getSlots(tenantId: string, params?: URLSearchParams) {
+export async function getSlots(tenantSlug: string, params?: URLSearchParams) {
   const url = params 
-    ? `/api/slots/${tenantId}?${params}`
-    : `/api/slots/${tenantId}`
+    ? `/api/slots/${tenantSlug}?${params}`
+    : `/api/slots/${tenantSlug}`
   
   return apiCall(url, { requireAuth: true })
 }
@@ -165,8 +182,8 @@ export async function getRooms() {
   })
 }
 
-export async function getServiceTypes(tenantId: string) {
-  return apiCall(`/api/service-types/${tenantId}`, { requireAuth: true })
+export async function getServiceTypes(tenantSlug: string) {
+  return apiCall(`/api/service-types/${tenantSlug}`, { requireAuth: true })
 }
 
 export async function createServiceType(serviceTypeData: any) {

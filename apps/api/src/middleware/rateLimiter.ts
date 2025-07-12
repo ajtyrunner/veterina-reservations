@@ -33,7 +33,7 @@ export const basicRateLimit = rateLimit({
 // Přísný limiter pro citlivé operace (přihlášení, registrace)
 export const strictRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minut
-  max: 5, // max 5 pokusů za 15 minut
+  max: process.env.DISABLE_RATE_LIMIT === 'true' ? 1000 : 5, // Disabled: 1000, Normal: 5 pokusů za 15 minut
   message: {
     error: 'Příliš mnoho pokusů o přihlášení. Zkuste to prosím za 15 minut.',
     retryAfter: 15 * 60
@@ -41,6 +41,10 @@ export const strictRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true, // Nepočítej úspěšné požadavky
+  skip: (req: Request) => {
+    // Skip rate limiting if disabled in development
+    return process.env.NODE_ENV === 'development' && process.env.DISABLE_RATE_LIMIT === 'true'
+  }
 })
 
 // Limiter pro bulk operace

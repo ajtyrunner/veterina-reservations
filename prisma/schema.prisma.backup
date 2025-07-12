@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model content_templates {
+  id             String    @id
+  name           String    @unique
+  displayName    String
+  category       String
+  labels         Json
+  messages       Json
+  emailTemplates Json
+  colorScheme    Json
+  typography     Json?
+  features       Json
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  tenants        tenants[]
+}
+
+model doctors {
+  id             String         @id
+  userId         String         @unique
+  specialization String?
+  description    String?
+  tenantId       String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime
+  tenants        tenants        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  users          users          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reservations   reservations[]
+  slots          slots[]
+}
+
+model reservations {
+  id          String            @id
+  userId      String
+  doctorId    String
+  slotId      String
+  petName     String?
+  petType     String?
+  description String?
+  status      ReservationStatus @default(PENDING)
+  tenantId    String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime
+  doctors     doctors           @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  slots       slots             @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  tenants     tenants           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  users       users             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([slotId, status])
+}
+
+model rooms {
+  id          String   @id
+  name        String
+  description String?
+  capacity    Int      @default(1)
+  tenantId    String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  tenants     tenants  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  slots       slots[]
+
+  @@unique([tenantId, name])
+}
+
+model service_types {
+  id          String   @id
+  name        String
+  description String?
+  duration    Int
+  price       Decimal? @db.Decimal(10, 2)
+  color       String?
+  tenantId    String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  tenants     tenants  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  slots       slots[]
+
+  @@unique([tenantId, name])
+}
+
+model slots {
+  id            String         @id
+  doctorId      String
+  startTime     DateTime       @db.Timestamptz(6)
+  endTime       DateTime       @db.Timestamptz(6)
+  isAvailable   Boolean        @default(true)
+  equipment     String?
+  tenantId      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime
+  notes         String?
+  roomId        String?
+  serviceTypeId String?
+  reservations  reservations[]
+  doctors       doctors        @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  rooms         rooms?         @relation(fields: [roomId], references: [id])
+  service_types service_types? @relation(fields: [serviceTypeId], references: [id])
+  tenants       tenants        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, startTime, endTime])
+}
+
+model tenants {
+  id                 String             @id
+  slug               String             @unique
+  name               String
+  logoUrl            String?
+  primaryColor       String             @default("#4F46E5")
+  secondaryColor     String             @default("#7C3AED")
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime
+  timezone           String             @default("Europe/Prague")
+  defaultEmail       String?
+  defaultPhone       String?
+  locale             String             @default("cs-CZ")
+  contentData        Json?
+  customStyles       Json?
+  subdomain          String?
+  googleClientId     String?
+  googleClientSecret String?
+  enabledFeatures    Json?
+  contentTemplateId  String?
+  doctors            doctors[]
+  reservations       reservations[]
+  rooms              rooms[]
+  service_types      service_types[]
+  slots              slots[]
+  content_templates  content_templates? @relation(fields: [contentTemplateId], references: [id])
+  users              users[]
+}
+
+model users {
+  id           String         @id
+  email        String?
+  name         String?
+  image        String?
+  password     String?
+  role         UserRole       @default(CLIENT)
+  tenantId     String
+  createdAt    DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime       @db.Timestamptz(6)
+  authProvider AuthProvider   @default(INTERNAL)
+  isActive     Boolean        @default(true)
+  lastLoginAt  DateTime?      @db.Timestamptz(6)
+  lastLoginIp  String?
+  loginCount   Int            @default(0)
+  username     String?
+  phone        String?
+  doctors      doctors?
+  reservations reservations[]
+  tenants      tenants        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([email, authProvider, tenantId])
+  @@unique([username, tenantId])
+}
+
+enum AuthProvider {
+  INTERNAL
+  GOOGLE
+  FACEBOOK
+  APPLE
+  MICROSOFT
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum UserRole {
+  CLIENT
+  DOCTOR
+  ADMIN
+}

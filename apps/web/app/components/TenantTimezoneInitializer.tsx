@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { getTenantSlugFromHeaders } from '../../lib/tenant'
+import { getTenantSlugFromUrl } from '../../lib/tenant'
 import { initializeTenant } from '../../lib/tenant-timezone'
 
 interface Props {
@@ -15,8 +15,8 @@ export function TenantTimezoneInitializer({ children }: Props) {
   useEffect(() => {
     const initTenant = async () => {
       try {
-        // Získáme tenant slug z URL (pro teď použijeme fallback)
-        const tenantSlug = 'svahy' // TODO: získat z URL path nebo subdomain
+        // Získáme tenant slug z aktuální URL
+        const tenantSlug = getTenantSlugFromUrl()
 
         if (process.env.NODE_ENV === 'development') {
           console.log(`🌍 Inicializuji tenant timezone pro: ${tenantSlug}`)

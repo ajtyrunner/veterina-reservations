@@ -1,0 +1,2206 @@
+# Page snapshot
+
+```yaml
+- text: "📱 Mobil: 721 049 699 ✉️ veterina-svahy@email.cz"
+- link "👥 Facebook":
+  - /url: https://www.facebook.com/people/Veterina-Svahy/100049515202415/
+- banner:
+  - link "Veterina Svahy Logo Veterinární ordinace Svahy Veterinární ordinace":
+    - /url: /
+    - img "Veterina Svahy Logo"
+    - heading "Veterinární ordinace Svahy" [level=1]
+    - paragraph: Veterinární ordinace
+  - navigation:
+    - link "Rezervovat termín":
+      - /url: /
+    - link "Moje rezervace":
+      - /url: /rezervace
+    - link "Správa slotů":
+      - /url: /slots
+    - link "Správa rezervací":
+      - /url: /rezervace/sprava
+    - text: Číselníky
+  - text: MVDr. Milan Kopp DOCTOR
+  - button "Odhlásit se"
+- main:
+  - img
+  - text: Slot pro tento čas už existuje (12. 7. 2025 8:30:00 - 12. 7. 2025 9:00:00)
+  - button:
+    - img
+  - heading "Správa slotů" [level=1]
+  - paragraph: Vytvářejte a spravujte své dostupné termíny.
+  - link "📅 Generovat sloty":
+    - /url: /slots/generovani
+  - button "+ Přidat slot"
+  - heading "Nový slot" [level=2]
+  - text: Začátek *
+  - textbox: 2025-07-12T08:30
+  - text: Konec * (automaticky podle služby)
+  - textbox [disabled]: 2025-07-12T09:00
+  - paragraph: Konec se automaticky vypočítá podle doby trvání vybrané služby
+  - text: Ordinace
+  - combobox:
+    - option "Vyberte ordinaci..."
+    - option "Operační sál (Sterilní prostředí pro chirurgické zákroky)"
+    - option "Ordinace 1 (Hlavní vyšetřovna pro základní vyšetření)" [selected]
+    - option "Ordinace 2 (Vedlejší ordinace pro rutinní výkony)"
+    - option "RTG místnost (Rentgenové vyšetření)"
+  - text: Druh služby
+  - combobox:
+    - option "Vyberte druh služby..."
+    - option "Chirurgický zákrok • 90 min"
+    - option "Dentální péče • 45 min"
+    - option "Očkování • 15 min"
+    - option "RTG vyšetření • 20 min"
+    - option "Ultrazvuk • 25 min"
+    - option "Základní vyšetření • 30 min" [selected]
+  - text: Poznámky
+  - textbox "Poznámky o vybavení": Testovací slot
+  - button "Vytvořit slot"
+  - button "Zrušit"
+  - heading "Filtry" [level=2]
+  - text: Druh služby
+  - combobox:
+    - option "Všechny služby" [selected]
+    - option "Chirurgický zákrok"
+    - option "Dentální péče"
+    - option "Očkování"
+    - option "RTG vyšetření"
+    - option "Ultrazvuk"
+    - option "Základní vyšetření"
+  - text: Ordinace
+  - combobox:
+    - option "Všechny ordinace" [selected]
+    - option "Operační sál"
+    - option "Ordinace 1"
+    - option "Ordinace 2"
+    - option "RTG místnost"
+  - text: Datum
+  - textbox
+  - text: Stav
+  - combobox:
+    - option "Všechny stavy" [selected]
+    - option "Volné"
+    - option "Rezervované"
+  - button "Vymazat filtry"
+  - text: "Rychlé filtry:"
+  - button "Dnes"
+  - button "Zítra"
+  - button "Za týden"
+  - button "Pouze volné"
+  - button "Pouze rezervované"
+  - text: "Zobrazeno: 345 z 345 slotů"
+  - heading "Vaše sloty" [level=2]
+  - heading "04. 07. 2025 08:00 - 04. 07. 2025 08:15" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Očkování Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 08:00 - 08. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 08:30 - 08. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 09:00 - 08. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 09:30 - 08. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 10:00 - 08. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 10:30 - 08. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 11:00 - 08. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 13:00 - 08. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 13:30 - 08. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 14:00 - 08. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 14:30 - 08. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 15:00 - 08. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 15:30 - 08. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "08. 07. 2025 16:00 - 08. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 08:00 - 09. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 08:30 - 09. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 09:00 - 09. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 09:30 - 09. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 10:00 - 09. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 10:30 - 09. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 11:00 - 09. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 13:00 - 09. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 13:30 - 09. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 14:00 - 09. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 14:30 - 09. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 15:00 - 09. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 15:30 - 09. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "09. 07. 2025 16:00 - 09. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 08:00 - 10. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 08:30 - 10. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 09:00 - 10. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 09:30 - 10. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 10:00 - 10. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 10:30 - 10. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 11:00 - 10. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 13:00 - 10. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 13:30 - 10. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 14:00 - 10. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 14:30 - 10. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 15:00 - 10. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 15:30 - 10. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "10. 07. 2025 16:00 - 10. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 08:00 - 11. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 08:30 - 11. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 09:00 - 11. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 09:30 - 11. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 10:00 - 11. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 10:30 - 11. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 11:00 - 11. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 13:00 - 11. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 13:30 - 11. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 14:00 - 11. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 14:30 - 11. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 15:00 - 11. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 15:30 - 11. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "11. 07. 2025 16:00 - 11. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "12. 07. 2025 08:30 - 12. 07. 2025 09:00" [level=3]
+  - text: 📍 Ordinace 1 (Hlavní vyšetřovna pro základní vyšetření) 🔧 Základní vyšetření 📋 Testovací slot Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "12. 07. 2025 08:30 - 12. 07. 2025 08:50" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 RTG vyšetření 📋 bbbb Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "12. 07. 2025 11:11 - 12. 07. 2025 12:41" [level=3]
+  - text: 📍 Operační sál (Sterilní prostředí pro chirurgické zákroky) 🔧 Chirurgický zákrok 📋 test pro auto testy Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "13. 07. 2025 08:00 - 13. 07. 2025 08:15" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Očkování 📋 aaa Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 08:00 - 14. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 08:00 - 14. 07. 2025 08:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 08:30 - 14. 07. 2025 08:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 08:30 - 14. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 09:00 - 14. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 09:00 - 14. 07. 2025 09:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 09:30 - 14. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 09:30 - 14. 07. 2025 09:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 10:00 - 14. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 10:00 - 14. 07. 2025 10:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 10:30 - 14. 07. 2025 10:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 10:30 - 14. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 11:00 - 14. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 13:00 - 14. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 13:30 - 14. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 14:00 - 14. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 14:30 - 14. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 15:00 - 14. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 15:30 - 14. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "14. 07. 2025 16:00 - 14. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 08:00 - 15. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 08:00 - 15. 07. 2025 08:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 08:30 - 15. 07. 2025 08:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 08:30 - 15. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 09:00 - 15. 07. 2025 09:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 09:00 - 15. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 09:30 - 15. 07. 2025 09:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 09:30 - 15. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 10:00 - 15. 07. 2025 10:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 10:00 - 15. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 10:30 - 15. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 10:30 - 15. 07. 2025 10:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 11:00 - 15. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 13:00 - 15. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 13:30 - 15. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 14:00 - 15. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 14:30 - 15. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 15:00 - 15. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 15:30 - 15. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "15. 07. 2025 16:00 - 15. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 08:00 - 16. 07. 2025 08:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 08:00 - 16. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 08:30 - 16. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 08:30 - 16. 07. 2025 08:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 09:00 - 16. 07. 2025 09:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 09:00 - 16. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 09:30 - 16. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 09:30 - 16. 07. 2025 09:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 10:00 - 16. 07. 2025 10:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 10:00 - 16. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 10:30 - 16. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 10:30 - 16. 07. 2025 10:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 11:00 - 16. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 13:00 - 16. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 13:30 - 16. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 14:00 - 16. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 14:30 - 16. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 15:00 - 16. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 15:30 - 16. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "16. 07. 2025 16:00 - 16. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 08:00 - 17. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 08:00 - 17. 07. 2025 08:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 08:30 - 17. 07. 2025 08:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 08:30 - 17. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 09:00 - 17. 07. 2025 09:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 09:00 - 17. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 09:30 - 17. 07. 2025 09:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 09:30 - 17. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 10:00 - 17. 07. 2025 10:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 10:00 - 17. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 10:30 - 17. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 10:30 - 17. 07. 2025 10:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 11:00 - 17. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 13:00 - 17. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 13:30 - 17. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 14:00 - 17. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 14:30 - 17. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 15:00 - 17. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 15:30 - 17. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "17. 07. 2025 16:00 - 17. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 08:00 - 18. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 08:00 - 18. 07. 2025 08:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 08:30 - 18. 07. 2025 08:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 08:30 - 18. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 09:00 - 18. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 09:00 - 18. 07. 2025 09:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 09:30 - 18. 07. 2025 09:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 09:30 - 18. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 10:00 - 18. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 10:00 - 18. 07. 2025 10:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 10:30 - 18. 07. 2025 10:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 10:30 - 18. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 11:00 - 18. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 13:00 - 18. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 13:30 - 18. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 14:00 - 18. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 14:30 - 18. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 15:00 - 18. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 15:30 - 18. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "18. 07. 2025 16:00 - 18. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 08:00 - 21. 07. 2025 08:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 08:00 - 21. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 08:30 - 21. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 08:30 - 21. 07. 2025 08:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 09:00 - 21. 07. 2025 09:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 09:00 - 21. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 09:30 - 21. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 09:30 - 21. 07. 2025 09:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 10:00 - 21. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 10:00 - 21. 07. 2025 10:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 10:30 - 21. 07. 2025 10:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 10:30 - 21. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 11:00 - 21. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 13:00 - 21. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 13:30 - 21. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 14:00 - 21. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 14:30 - 21. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 15:00 - 21. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 15:30 - 21. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "21. 07. 2025 16:00 - 21. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 08:00 - 22. 07. 2025 08:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 08:00 - 22. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 08:30 - 22. 07. 2025 08:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 08:30 - 22. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 09:00 - 22. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 09:00 - 22. 07. 2025 09:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 09:30 - 22. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 09:30 - 22. 07. 2025 09:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 10:00 - 22. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 10:00 - 22. 07. 2025 10:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 10:30 - 22. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 10:30 - 22. 07. 2025 10:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 11:00 - 22. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 13:00 - 22. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 13:30 - 22. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 14:00 - 22. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 14:30 - 22. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 15:00 - 22. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 15:30 - 22. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "22. 07. 2025 16:00 - 22. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 08:00 - 23. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 08:00 - 23. 07. 2025 08:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 08:30 - 23. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 08:30 - 23. 07. 2025 08:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 09:00 - 23. 07. 2025 09:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 09:00 - 23. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 09:30 - 23. 07. 2025 09:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 09:30 - 23. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 10:00 - 23. 07. 2025 10:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 10:00 - 23. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 10:30 - 23. 07. 2025 10:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 10:30 - 23. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 11:00 - 23. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 13:00 - 23. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 13:30 - 23. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 14:00 - 23. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 14:30 - 23. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 15:00 - 23. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 15:30 - 23. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "23. 07. 2025 16:00 - 23. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 08:00 - 24. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 08:00 - 24. 07. 2025 08:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 08:30 - 24. 07. 2025 08:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 08:30 - 24. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 09:00 - 24. 07. 2025 09:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 09:00 - 24. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 09:30 - 24. 07. 2025 09:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 09:30 - 24. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 10:00 - 24. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 10:00 - 24. 07. 2025 10:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 10:30 - 24. 07. 2025 10:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 10:30 - 24. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 11:00 - 24. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 13:00 - 24. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 13:30 - 24. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 14:00 - 24. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 14:30 - 24. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 15:00 - 24. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 15:30 - 24. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "24. 07. 2025 16:00 - 24. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 08:00 - 25. 07. 2025 08:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 08:00 - 25. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 08:30 - 25. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 08:30 - 25. 07. 2025 08:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 09:00 - 25. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 09:00 - 25. 07. 2025 09:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 09:30 - 25. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 09:30 - 25. 07. 2025 09:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 10:00 - 25. 07. 2025 10:25" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 10:00 - 25. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 10:30 - 25. 07. 2025 10:55" [level=3]
+  - text: 📍 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 Ultrazvuk Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 10:30 - 25. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 11:00 - 25. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 13:00 - 25. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 13:30 - 25. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 14:00 - 25. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 14:30 - 25. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 15:00 - 25. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 15:30 - 25. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "25. 07. 2025 16:00 - 25. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 08:00 - 28. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 08:30 - 28. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 09:00 - 28. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 09:30 - 28. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 10:00 - 28. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 10:30 - 28. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 11:00 - 28. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 13:00 - 28. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 13:30 - 28. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 14:00 - 28. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 14:30 - 28. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 15:00 - 28. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 15:30 - 28. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "28. 07. 2025 16:00 - 28. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 08:00 - 29. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 08:30 - 29. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 09:00 - 29. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 09:30 - 29. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 10:00 - 29. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 10:30 - 29. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 11:00 - 29. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 13:00 - 29. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 13:30 - 29. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 14:00 - 29. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 14:30 - 29. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 15:00 - 29. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 15:30 - 29. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "29. 07. 2025 16:00 - 29. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 08:00 - 30. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 08:30 - 30. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 09:00 - 30. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 09:30 - 30. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 10:00 - 30. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 10:30 - 30. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 11:00 - 30. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 13:00 - 30. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 13:30 - 30. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 14:00 - 30. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 14:30 - 30. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 15:00 - 30. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 15:30 - 30. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "30. 07. 2025 16:00 - 30. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 08:00 - 31. 07. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 08:30 - 31. 07. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 09:00 - 31. 07. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 09:30 - 31. 07. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 10:00 - 31. 07. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 10:30 - 31. 07. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 11:00 - 31. 07. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 13:00 - 31. 07. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 13:30 - 31. 07. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 14:00 - 31. 07. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 14:30 - 31. 07. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 15:00 - 31. 07. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 15:30 - 31. 07. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "31. 07. 2025 16:00 - 31. 07. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 08:00 - 01. 08. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 08:30 - 01. 08. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 09:00 - 01. 08. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 09:30 - 01. 08. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 10:00 - 01. 08. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 10:30 - 01. 08. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 11:00 - 01. 08. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 13:00 - 01. 08. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 13:30 - 01. 08. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 14:00 - 01. 08. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 14:30 - 01. 08. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 15:00 - 01. 08. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 15:30 - 01. 08. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "01. 08. 2025 16:00 - 01. 08. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 08:00 - 04. 08. 2025 08:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 08:30 - 04. 08. 2025 09:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 09:00 - 04. 08. 2025 09:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 09:30 - 04. 08. 2025 10:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 10:00 - 04. 08. 2025 10:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 10:30 - 04. 08. 2025 11:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 11:00 - 04. 08. 2025 11:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 13:00 - 04. 08. 2025 13:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 13:30 - 04. 08. 2025 14:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 14:00 - 04. 08. 2025 14:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 14:30 - 04. 08. 2025 15:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 15:00 - 04. 08. 2025 15:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 15:30 - 04. 08. 2025 16:15" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+  - heading "04. 08. 2025 16:00 - 04. 08. 2025 16:45" [level=3]
+  - text: 🔧 Dentální péče Volný
+  - button "Upravit slot":
+    - img
+  - button "Smazat slot":
+    - img
+- contentinfo:
+  - text: 🏥
+  - heading "Slotnito" [level=3]
+  - paragraph: Inteligentní rezervační systém pro efektivní správu termínů. Rezervujte si čas rychle a jednoduše.
+  - link "Email":
+    - /url: mailto:koppito.solutions@gmail.com
+    - img
+  - heading "Rychlé odkazy" [level=4]
+  - navigation:
+    - link "🏠 Domů":
+      - /url: /
+    - link "📅 Rezervace":
+      - /url: /rezervace
+    - link "❓ Jak to funguje":
+      - /url: /jak-to-funguje
+    - link "🔐 Přihlášení":
+      - /url: /login
+  - heading "Naše služby" [level=4]
+  - text: 🔍 Základní vyšetření 💉 Očkování 🏥 Chirurgické zákroky 📸 RTG vyšetření 🦷 Dentální péče
+  - heading "Kontakt" [level=4]
+  - img
+  - link "koppito.solutions@gmail.com":
+    - /url: mailto:koppito.solutions@gmail.com
+  - img
+  - text: Systém dostupný 24/7 Rezervace kdykoliv online © 2025 Slotnito. Všechna práva vyhrazena.
+  - link "Ochrana osobních údajů":
+    - /url: /privacy
+  - link "Obchodní podmínky":
+    - /url: /terms
+  - text: Vytvořeno s ❤️ pomocí
+  - link "Koppito Solutions":
+    - /url: mailto:koppito.solutions@gmail.com
+- alert
+- heading "Používáme cookies" [level=3]
+- paragraph:
+  - text: Tento web používá cookies pro zajištění základní funkčnosti a analytické cookies pro zlepšení uživatelského zážitku. Analytické cookies nám pomáhají pochopit, jak návštěvníci používají náš web. Více informací najdete v našich
+  - link "zásadách ochrany osobních údajů":
+    - /url: /privacy
+  - text: .
+- button "Odmítnout vše"
+- button "Nastavit preference"
+- button "Přijmout vše"
+```

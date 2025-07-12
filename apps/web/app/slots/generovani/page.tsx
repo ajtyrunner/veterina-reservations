@@ -185,7 +185,7 @@ export default function BulkSlotGenerationPage() {
       }
       
       const promises = [
-        getServiceTypes(session.user.tenantId),
+        getServiceTypes(session.user.tenant),
         getRooms(),
       ]
       

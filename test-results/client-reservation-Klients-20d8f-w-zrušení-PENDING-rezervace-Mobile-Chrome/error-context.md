@@ -1,0 +1,117 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link "Veterina Svahy Logo Veterinární ordinace Svahy":
+    - /url: /
+    - img "Veterina Svahy Logo"
+    - heading "Veterinární ordinace Svahy" [level=1]
+  - button "Otevřít menu":
+    - img
+  - text: Google Test Client 1 CLIENT
+  - link "🏠 Rezervovat termín":
+    - /url: /
+  - link "📅 Moje rezervace":
+    - /url: /rezervace
+  - button "Odhlásit se"
+- main:
+  - heading "Rezervace termínu" [level=3]
+  - paragraph:
+    - strong: "Datum:"
+    - text: 12. 07. 2025
+  - paragraph:
+    - strong: "Čas:"
+    - text: 08:30 - 08:50
+  - paragraph:
+    - strong: "Veterinář:"
+    - text: MVDr. Milan Kopp
+  - paragraph:
+    - strong: "Služba:"
+    - text: RTG vyšetření (20 min)
+  - paragraph:
+    - strong: "Místnost:"
+    - text: Ordinace 2
+  - text: Jméno zvířete *
+  - textbox "např. Rex": Testovací mazlíček
+  - text: Druh zvířete *
+  - combobox:
+    - option "Vyberte druh"
+    - option "Pes" [selected]
+    - option "Kočka"
+    - option "Králík"
+    - option "Pták"
+    - option "Hlodavec"
+    - option "Plaz"
+    - option "Jiné"
+  - text: Popis problému
+  - textbox "Popište prosím důvod návštěvy...": Test rezervace pro zrušení
+  - text: Telefonní číslo
+  - textbox "777 123 456 nebo +420 777 123 456"
+  - paragraph: Volitelné. Pro účely případného upřesnění požadavku.
+  - button "Zrušit"
+  - button "Potvrdit rezervaci"
+  - heading "Rezervace termínu" [level=2]
+  - img
+  - button "📅 Kalendář"
+  - button "📋 Seznam"
+  - heading "Filtry" [level=2]
+  - text: (288 dostupných termínů)
+  - img
+  - heading "Červenec 2025" [level=2]
+  - button:
+    - img
+  - button:
+    - img
+  - heading "Dostupné termíny pro sobota 12. července 2025" [level=3]
+  - button:
+    - img
+  - text: 08:30 - 08:50 MVDr. Milan Kopp • Malá zvířata ⚕️ RTG vyšetření • 20 min 🏥 Ordinace 2 (Vedlejší ordinace pro rutinní výkony) 🔧 bbbb
+  - button "Rezervovat"
+  - text: 08:30 - 09:00 MVDr. Milan Kopp • Malá zvířata ⚕️ Základní vyšetření • 30 min 🏥 Ordinace 1 (Hlavní vyšetřovna pro základní vyšetření) 🔧 Testovací slot
+  - button "Rezervovat"
+  - text: 11:11 - 12:41 MVDr. Milan Kopp • Malá zvířata ⚕️ Chirurgický zákrok • 90 min 🏥 Operační sál (Sterilní prostředí pro chirurgické zákroky) 🔧 test pro auto testy
+  - button "Rezervovat"
+  - text: Po Út St Čt Pá So Ne 30 1 2 3 4 5 6 7 8 9 10 11 12 3 termínů RTG vyšetř... Základní v... +1 dalších 13 1 termín Očkování 14 20 termínů Ultrazvuk Dentální p... 15 20 termínů Dentální p... Ultrazvuk 16 20 termínů Dentální p... Ultrazvuk 17 20 termínů Ultrazvuk Dentální p... 18 20 termínů Ultrazvuk Dentální p... 19 20 21 20 termínů Dentální p... Ultrazvuk 22 20 termínů Dentální p... Ultrazvuk 23 20 termínů Ultrazvuk Dentální p... 24 20 termínů Dentální p... Ultrazvuk 25 20 termínů Dentální p... Ultrazvuk 26 27 28 14 termínů Dentální p... 29 14 termínů Dentální p... 30 14 termínů Dentální p... 31 14 termínů Dentální p... 1 14 termínů Dentální p... 2 3
+- contentinfo:
+  - text: 🏥
+  - heading "Slotnito" [level=3]
+  - paragraph: Inteligentní rezervační systém pro efektivní správu termínů. Rezervujte si čas rychle a jednoduše.
+  - link "Email":
+    - /url: mailto:koppito.solutions@gmail.com
+    - img
+  - heading "Rychlé odkazy" [level=4]
+  - navigation:
+    - link "🏠 Domů":
+      - /url: /
+    - link "📅 Rezervace":
+      - /url: /rezervace
+    - link "❓ Jak to funguje":
+      - /url: /jak-to-funguje
+    - link "🔐 Přihlášení":
+      - /url: /login
+  - heading "Naše služby" [level=4]
+  - text: 🔍 Základní vyšetření 💉 Očkování 🏥 Chirurgické zákroky 📸 RTG vyšetření 🦷 Dentální péče
+  - heading "Kontakt" [level=4]
+  - img
+  - link "koppito.solutions@gmail.com":
+    - /url: mailto:koppito.solutions@gmail.com
+  - img
+  - text: Systém dostupný 24/7 Rezervace kdykoliv online © 2025 Slotnito. Všechna práva vyhrazena.
+  - link "Ochrana osobních údajů":
+    - /url: /privacy
+  - link "Obchodní podmínky":
+    - /url: /terms
+  - text: Vytvořeno s ❤️ pomocí
+  - link "Koppito Solutions":
+    - /url: mailto:koppito.solutions@gmail.com
+- alert: Veterinární ordinace Svahy - Rezervační systém
+- heading "Používáme cookies" [level=3]
+- paragraph:
+  - text: Tento web používá cookies pro zajištění základní funkčnosti a analytické cookies pro zlepšení uživatelského zážitku. Analytické cookies nám pomáhají pochopit, jak návštěvníci používají náš web. Více informací najdete v našich
+  - link "zásadách ochrany osobních údajů":
+    - /url: /privacy
+  - text: .
+- button "Odmítnout vše"
+- button "Nastavit preference"
+- button "Přijmout vše"
+```

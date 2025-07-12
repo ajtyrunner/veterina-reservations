@@ -1,0 +1,105 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link "Veterina Svahy Logo Veterinární ordinace Svahy":
+    - /url: /
+    - img "Veterina Svahy Logo"
+    - heading "Veterinární ordinace Svahy" [level=1]
+  - button "Otevřít menu":
+    - img
+  - text: MVDr. Milan Kopp DOCTOR
+  - link "🏠 Rezervovat termín":
+    - /url: /
+  - link "📅 Moje rezervace":
+    - /url: /rezervace
+  - text: Správa
+  - link "🕐 Správa slotů":
+    - /url: /slots
+  - link "📅 Generovat sloty":
+    - /url: /slots/generovani
+  - link "📋 Správa rezervací":
+    - /url: /rezervace/sprava
+  - link "🏥 Ordinace":
+    - /url: /ciselnik/ordinace
+  - link "🩺 Služby":
+    - /url: /ciselnik/sluzby
+  - button "Odhlásit se"
+- main:
+  - heading "Správa rezervací" [level=1]
+  - paragraph: Spravujte rezervace ve vaší ordinaci
+  - text: Filtrovat podle stavu
+  - combobox:
+    - option "Všechny stavy" [selected]
+    - option "Čeká na potvrzení"
+    - option "Potvrzeno"
+    - option "Zrušeno"
+    - option "Dokončeno"
+  - button "Obnovit"
+  - table:
+    - rowgroup:
+      - row "Klient Termín Zvíře Stav Akce":
+        - cell "Klient"
+        - cell "Termín"
+        - cell "Zvíře"
+        - cell "Stav"
+        - cell "Akce"
+    - rowgroup:
+      - row "Milan Kopp irbe85@gmail.com 04. 07. 2025 08:00 08:00 - 08:15 • Očkování Mepi hlodavec první rezervace Zrušeno Žádné akce":
+        - cell "Milan Kopp irbe85@gmail.com"
+        - cell "04. 07. 2025 08:00 08:00 - 08:15 • Očkování"
+        - cell "Mepi hlodavec první rezervace"
+        - cell "Zrušeno"
+        - cell "Žádné akce"
+      - row "Milan Kopp irbe85@gmail.com 04. 07. 2025 08:00 08:00 - 08:15 • Očkování Mepi hlodavec druha po canceld Zrušeno Žádné akce":
+        - cell "Milan Kopp irbe85@gmail.com"
+        - cell "04. 07. 2025 08:00 08:00 - 08:15 • Očkování"
+        - cell "Mepi hlodavec druha po canceld"
+        - cell "Zrušeno"
+        - cell "Žádné akce"
+      - row "Milan Kopp irbe85@gmail.com 04. 07. 2025 08:00 08:00 - 08:15 • Očkování Mepi hlodavec po resetu doktora Zrušeno Žádné akce":
+        - cell "Milan Kopp irbe85@gmail.com"
+        - cell "04. 07. 2025 08:00 08:00 - 08:15 • Očkování"
+        - cell "Mepi hlodavec po resetu doktora"
+        - cell "Zrušeno"
+        - cell "Žádné akce"
+      - row "Milan Kopp irbe85@gmail.com 04. 07. 2025 08:00 08:00 - 08:15 • Očkování aa kočka aaa Zrušeno Žádné akce":
+        - cell "Milan Kopp irbe85@gmail.com"
+        - cell "04. 07. 2025 08:00 08:00 - 08:15 • Očkování"
+        - cell "aa kočka aaa"
+        - cell "Zrušeno"
+        - cell "Žádné akce"
+- contentinfo:
+  - text: 🏥
+  - heading "Slotnito" [level=3]
+  - paragraph: Inteligentní rezervační systém pro efektivní správu termínů. Rezervujte si čas rychle a jednoduše.
+  - link "Email":
+    - /url: mailto:koppito.solutions@gmail.com
+    - img
+  - heading "Rychlé odkazy" [level=4]
+  - navigation:
+    - link "🏠 Domů":
+      - /url: /
+    - link "📅 Rezervace":
+      - /url: /rezervace
+    - link "❓ Jak to funguje":
+      - /url: /jak-to-funguje
+    - link "🔐 Přihlášení":
+      - /url: /login
+  - heading "Naše služby" [level=4]
+  - text: 🔍 Základní vyšetření 💉 Očkování 🏥 Chirurgické zákroky 📸 RTG vyšetření 🦷 Dentální péče
+  - heading "Kontakt" [level=4]
+  - img
+  - link "koppito.solutions@gmail.com":
+    - /url: mailto:koppito.solutions@gmail.com
+  - img
+  - text: Systém dostupný 24/7 Rezervace kdykoliv online © 2025 Slotnito. Všechna práva vyhrazena.
+  - link "Ochrana osobních údajů":
+    - /url: /privacy
+  - link "Obchodní podmínky":
+    - /url: /terms
+  - text: Vytvořeno s ❤️ pomocí
+  - link "Koppito Solutions":
+    - /url: mailto:koppito.solutions@gmail.com
+- alert
+```

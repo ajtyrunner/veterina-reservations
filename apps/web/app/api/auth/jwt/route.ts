@@ -2,23 +2,50 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 import jwt from 'jsonwebtoken'
+import { getTenantSlugFromHostname } from '@/lib/tenant'
+import { getToken } from 'next-auth/jwt'
 
 // Endpoint pro získání JWT tokenu pro volání Railway API
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    // Použij getToken místo getServerSession pro kontrolu tenant shody
+    const token = await getToken({ 
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET
+    })
     
-    if (!session?.user) {
+    if (!token) {
       return NextResponse.json({ error: 'Unauthorized - nejste přihlášeni' }, { status: 401 })
     }
+    
+    // Získej aktuální tenant z URL
+    const hostname = request.headers.get('host') || ''
+    const currentTenant = getTenantSlugFromHostname(hostname)
+    
+    // Zkontroluj tenant shodu
+    if (token.tenant && currentTenant && token.tenant !== currentTenant) {
+      console.log('🚫 Tenant mismatch in JWT endpoint:', {
+        currentTenant,
+        userTenant: token.tenant
+      })
+      return NextResponse.json({ error: 'Unauthorized - tenant mismatch' }, { status: 401 })
+    }
+
+    console.log('🔐 JWT session data:', {
+      userId: token.userId,
+      tenant: token.tenant,
+      tenantId: token.tenantId,
+      role: token.role
+    })
 
     // Vytvoř JWT token pro Railway API
-    const token = jwt.sign(
+    const jwtToken = jwt.sign(
       {
-        sub: session.user.userId,
-        email: session.user.email,
-        role: session.user.role,
-        tenant: session.user.tenantId,
+        sub: token.userId,
+        email: token.email,
+        role: token.role,
+        tenant: token.tenant, // Použij tenant slug, ne tenantId
+        tenantId: token.tenantId, // Přidej i tenantId pro kompatibilitu
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + (60 * 60), // 1 hodina
       },
@@ -26,12 +53,12 @@ export async function GET(request: NextRequest) {
     )
 
     return NextResponse.json({ 
-      token,
+      token: jwtToken,
       user: {
-        userId: session.user.userId,
-        email: session.user.email,
-        role: session.user.role,
-        tenantId: session.user.tenantId
+        userId: token.userId,
+        email: token.email,
+        role: token.role,
+        tenantId: token.tenantId
       }
     })
   } catch (error) {

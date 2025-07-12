@@ -1,0 +1,72 @@
+# Page snapshot
+
+```yaml
+- text: "📱 Mobil: 721 049 699 ✉️ veterina-svahy@email.cz"
+- link "👥 Facebook":
+  - /url: https://www.facebook.com/people/Veterina-Svahy/100049515202415/
+- banner:
+  - link "Veterina Svahy Logo Veterinární ordinace Svahy Veterinární ordinace":
+    - /url: /
+    - img "Veterina Svahy Logo"
+    - heading "Veterinární ordinace Svahy" [level=1]
+    - paragraph: Veterinární ordinace
+  - navigation:
+    - link "Rezervovat termín":
+      - /url: /
+    - link "Moje rezervace":
+      - /url: /rezervace
+    - link "Správa slotů":
+      - /url: /slots
+    - link "Správa rezervací":
+      - /url: /rezervace/sprava
+    - text: Číselníky
+  - text: MVDr. Milan Kopp DOCTOR
+  - button "Odhlásit se"
+- main:
+  - heading "Rezervace termínu" [level=2]
+  - img
+  - button "📅 Kalendář"
+  - button "📋 Seznam"
+  - heading "Filtry" [level=2]
+  - text: (345 dostupných termínů)
+  - img
+  - heading "Červenec 2025" [level=2]
+  - button:
+    - img
+  - button:
+    - img
+  - text: Po Út St Čt Pá So Ne 30 1 2 3 4 1 termín minulost Očkování 5 6 7 8 14 termínů minulost Dentální p... 9 14 termínů minulost Dentální p... 10 14 termínů minulost Dentální p... 11 14 termínů Dentální p... 12 3 termínů Základní v... RTG vyšetř... +1 dalších 13 1 termín Očkování 14 20 termínů Dentální p... Ultrazvuk 15 20 termínů Dentální p... Ultrazvuk 16 20 termínů Ultrazvuk Dentální p... 17 20 termínů Dentální p... Ultrazvuk 18 20 termínů Dentální p... Ultrazvuk 19 20 21 20 termínů Ultrazvuk Dentální p... 22 20 termínů Ultrazvuk Dentální p... 23 20 termínů Dentální p... Ultrazvuk 24 20 termínů Dentální p... Ultrazvuk 25 20 termínů Ultrazvuk Dentální p... 26 27 28 14 termínů Dentální p... 29 14 termínů Dentální p... 30 14 termínů Dentální p... 31 14 termínů Dentální p... 1 14 termínů Dentální p... 2 3
+- contentinfo:
+  - text: 🏥
+  - heading "Slotnito" [level=3]
+  - paragraph: Inteligentní rezervační systém pro efektivní správu termínů. Rezervujte si čas rychle a jednoduše.
+  - link "Email":
+    - /url: mailto:koppito.solutions@gmail.com
+    - img
+  - heading "Rychlé odkazy" [level=4]
+  - navigation:
+    - link "🏠 Domů":
+      - /url: /
+    - link "📅 Rezervace":
+      - /url: /rezervace
+    - link "❓ Jak to funguje":
+      - /url: /jak-to-funguje
+    - link "🔐 Přihlášení":
+      - /url: /login
+  - heading "Naše služby" [level=4]
+  - text: 🔍 Základní vyšetření 💉 Očkování 🏥 Chirurgické zákroky 📸 RTG vyšetření 🦷 Dentální péče
+  - heading "Kontakt" [level=4]
+  - img
+  - link "koppito.solutions@gmail.com":
+    - /url: mailto:koppito.solutions@gmail.com
+  - img
+  - text: Systém dostupný 24/7 Rezervace kdykoliv online © 2025 Slotnito. Všechna práva vyhrazena.
+  - link "Ochrana osobních údajů":
+    - /url: /privacy
+  - link "Obchodní podmínky":
+    - /url: /terms
+  - text: Vytvořeno s ❤️ pomocí
+  - link "Koppito Solutions":
+    - /url: mailto:koppito.solutions@gmail.com
+- alert: Veterinární ordinace Svahy - Rezervační systém
+```

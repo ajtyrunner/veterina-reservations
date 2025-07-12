@@ -24,7 +24,7 @@ const router = Router()
 router.get('/reservations', validateQueryParams, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { status } = req.query
 
@@ -119,7 +119,7 @@ router.get('/reservations', validateQueryParams, async (req: Request, res: Respo
 router.get('/user/profile', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
 
     if (!userId || !tenantId) {
       return res.status(400).json({ error: 'Chybí uživatelské údaje' })
@@ -151,7 +151,7 @@ router.get('/user/profile', async (req: Request, res: Response) => {
 router.post('/reservations', createOperationLimit, validateCreateReservation, validateReservationTiming, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const { slotId, petName, petType, description, phone } = req.body
 
     if (!userId || !tenantId) {
@@ -278,7 +278,7 @@ router.post('/reservations', createOperationLimit, validateCreateReservation, va
 router.patch('/reservations/:id', validateUpdateReservationStatus, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { id } = req.params
     const { status } = req.body
@@ -410,7 +410,7 @@ router.patch('/reservations/:id', validateUpdateReservationStatus, async (req: R
 router.delete('/reservations/:id', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const { id } = req.params
 
     if (!userId || !tenantId) {
@@ -459,7 +459,7 @@ router.delete('/reservations/:id', async (req: Request, res: Response) => {
 router.post('/doctor/slots', createOperationLimit, validateCreateSlot, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { startTime, endTime, equipment, doctorId, roomId, serviceTypeId } = req.body
 
@@ -597,7 +597,7 @@ router.post('/doctor/slots', createOperationLimit, validateCreateSlot, async (re
 router.get('/doctor/slots', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
 
     if (!userId || !tenantId) {
@@ -695,7 +695,7 @@ router.get('/doctor/slots', async (req: Request, res: Response) => {
 router.put('/doctor/slots/:id', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { id } = req.params
     const { startTime, endTime, equipment, roomId, serviceTypeId } = req.body
@@ -838,7 +838,7 @@ router.put('/doctor/slots/:id', async (req: Request, res: Response) => {
 router.delete('/doctor/slots/:id', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { id } = req.params
 
@@ -901,7 +901,7 @@ router.delete('/doctor/slots/:id', async (req: Request, res: Response) => {
 router.get('/doctor/reservations', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { status } = req.query
 
@@ -998,7 +998,7 @@ router.get('/doctor/reservations', async (req: Request, res: Response) => {
 router.put('/doctor/reservations/:id/status', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { id } = req.params
     const { status, notes } = req.body
@@ -1115,7 +1115,7 @@ router.put('/doctor/reservations/:id/status', async (req: Request, res: Response
 router.put('/doctor/reservations/:id/notes', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { id } = req.params
     const { notes } = req.body
@@ -1190,7 +1190,7 @@ router.put('/doctor/reservations/:id/notes', async (req: Request, res: Response)
 // Získání všech rooms
 router.get('/rooms', async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
 
     if (!tenantId) {
@@ -1216,7 +1216,7 @@ router.get('/rooms', async (req: Request, res: Response) => {
 // Vytvoření nové room
 router.post('/rooms', async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { name, description, capacity, isActive } = req.body
 
@@ -1252,7 +1252,7 @@ router.post('/rooms', async (req: Request, res: Response) => {
 // Aktualizace room
 router.put('/rooms/:id', async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { id } = req.params
     const { name, description, capacity, isActive } = req.body
@@ -1298,7 +1298,7 @@ router.put('/rooms/:id', async (req: Request, res: Response) => {
 // Vytvoření nového service type
 router.post('/service-types', async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { name, description, duration, durationMinutes, price, color, isActive } = req.body
 
@@ -1339,7 +1339,7 @@ router.post('/service-types', async (req: Request, res: Response) => {
 // Aktualizace service type
 router.put('/service-types/:id', async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { id } = req.params
     const { name, description, duration, durationMinutes, price, color, isActive } = req.body
@@ -1388,7 +1388,7 @@ router.put('/service-types/:id', async (req: Request, res: Response) => {
 router.get('/doctors', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
 
     if (process.env.NODE_ENV === 'development') {
@@ -1473,7 +1473,7 @@ router.get('/doctors', async (req: Request, res: Response) => {
 router.post('/doctor/slots/bulk-generate', bulkOperationLimit, validateBulkSlotGeneration, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { 
       weekdays, 
@@ -1682,7 +1682,7 @@ router.post('/doctor/slots/bulk-generate', bulkOperationLimit, validateBulkSlotG
 router.post('/doctor/slots/bulk-delete', bulkOperationLimit, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { 
       dateFrom, 
@@ -1949,7 +1949,7 @@ function generateDaySlots(
 router.post('/test/notifications', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
 
     if (!userId || !tenantId) {
@@ -1981,7 +1981,7 @@ router.post('/test/notifications', async (req: Request, res: Response) => {
 router.post('/notifications/send-reminders', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
 
     if (!userId || !tenantId) {
@@ -2016,7 +2016,7 @@ router.post('/notifications/send-reminders', async (req: Request, res: Response)
 router.post('/admin/doctors', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { name, email, username, phone, specialization, description, password } = req.body
 
@@ -2116,7 +2116,7 @@ router.post('/admin/doctors', async (req: Request, res: Response) => {
 router.put('/admin/doctors/:id', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { id } = req.params
     const { name, email, phone, specialization, description, password } = req.body
@@ -2212,7 +2212,7 @@ router.put('/admin/doctors/:id', async (req: Request, res: Response) => {
 router.patch('/admin/doctors/:id/status', async (req: Request, res: Response) => {
   try {
     const userId = req.user?.sub
-    const tenantId = req.user?.tenant
+    const tenantId = req.user?.tenantId || req.user?.tenant
     const userRole = req.user?.role
     const { id } = req.params
     const { isActive } = req.body

@@ -9,7 +9,7 @@ async function main() {
   // Vytvoření více testovacích tenantů
   const tenants = [
     {
-      slug: 'svahy',
+      slug: 'veterina-svahy',
       name: 'Veterinární ordinace Svahy',
       logoUrl: 'https://veterina-svahy.cz/logo.png',
       primaryColor: '#4F46E5',
@@ -61,7 +61,7 @@ async function main() {
   }
 
   // Hlavní tenant pro další seed data
-  const mainTenant = createdTenants[0] // svahy
+  const mainTenant = createdTenants[0] // veterina-svahy
 
   // Vytvoření admin uživatele
   const adminPassword = 'K9mX2nP7qE' // Náhodné 10místné heslo

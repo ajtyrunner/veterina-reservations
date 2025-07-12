@@ -4,11 +4,13 @@ import './globals.css'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth'
 import SessionProvider from './components/SessionProvider'
-import Header from './components/Header'
-import Footer from './components/Footer'
+import HeaderWithContent from './components/HeaderWithContent'
+import FooterWithContent from './components/FooterWithContent'
 import CookieConsent from './components/CookieConsent'
 import GoogleAnalytics from './components/GoogleAnalytics'
 import { TenantTimezoneInitializer } from './components/TenantTimezoneInitializer'
+import { ContentProvider } from '../lib/content-context'
+import { ContentStyleApplier } from './components/ContentStyleApplier'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,16 +33,19 @@ export default async function RootLayout({
       </head>
       <body className={inter.className}>
         <SessionProvider session={session}>
-          <TenantTimezoneInitializer>
-            <div className="min-h-screen bg-gray-50 flex flex-col">
-              <Header />
-              <main className="flex-1 container mx-auto px-4 py-8">
-                {children}
-              </main>
-              <Footer />
-            </div>
-            <CookieConsent />
-          </TenantTimezoneInitializer>
+          <ContentProvider>
+            <ContentStyleApplier />
+            <TenantTimezoneInitializer>
+              <div className="min-h-screen bg-gray-50 flex flex-col">
+                <HeaderWithContent />
+                <main className="flex-1 container mx-auto px-4 py-8">
+                  {children}
+                </main>
+                <FooterWithContent />
+              </div>
+              <CookieConsent />
+            </TenantTimezoneInitializer>
+          </ContentProvider>
         </SessionProvider>
       </body>
     </html>

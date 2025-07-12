@@ -57,20 +57,25 @@ router.post('/credentials',
   
   try {
     const { username, password, tenantSlug } = req.body
+    
+    // Preferuj x-tenant-slug hlavičku, jinak použij tenantSlug z body
+    const actualTenantSlug = req.headers['x-tenant-slug'] as string || tenantSlug
 
     if (!username || !password) {
       console.log('❌ Chybí username nebo heslo')
       return res.status(400).json({ error: 'Username a heslo jsou povinné' })
     }
 
+    console.log('🔐 Using tenant slug:', actualTenantSlug, 'from:', req.headers['x-tenant-slug'] ? 'header' : 'body')
+
     // Najdi tenant nejprve
     const tenant = await prisma.tenant.findUnique({
-      where: { slug: tenantSlug },
+      where: { slug: actualTenantSlug },
       select: { id: true, slug: true }
     })
 
     if (!tenant) {
-      console.log('❌ Tenant not found:', tenantSlug)
+      console.log('❌ Tenant not found:', actualTenantSlug)
       auditLog('LOGIN_FAILED', { username, reason: 'tenant_not_found', tenantSlug }, req)
       res.locals.trackFailedAttempt?.()
       return res.status(401).json({ error: 'Neplatné přihlašovací údaje' })
@@ -174,14 +179,19 @@ router.post('/credentials',
 router.post('/google-user', async (req, res) => {
   try {
     const { email, name, image, phone, tenantSlug } = req.body
+    
+    // Preferuj x-tenant-slug hlavičku, jinak použij tenantSlug z body
+    const actualTenantSlug = req.headers['x-tenant-slug'] as string || tenantSlug || 'svahy'
 
     if (!email) {
       return res.status(400).json({ error: 'Email je povinný' })
     }
 
+    console.log('🔐 Google OAuth - Using tenant slug:', actualTenantSlug, 'from:', req.headers['x-tenant-slug'] ? 'header' : 'body')
+
     // Najdi tenant
     const tenant = await prisma.tenant.findUnique({
-      where: { slug: tenantSlug || 'svahy' },
+      where: { slug: actualTenantSlug },
     })
 
     if (!tenant) {
@@ -223,7 +233,10 @@ router.post('/google-user', async (req, res) => {
         ip: clientIp
       }, req)
 
-      return res.json(existingUser)
+      return res.json({
+        ...existingUser,
+        tenant: tenant.slug
+      })
     }
 
     // Vytvoř nového uživatele s phone z OAuth
@@ -261,7 +274,10 @@ router.post('/google-user', async (req, res) => {
       lastLoginAt: newUser.lastLoginAt,
       loginCount: newUser.loginCount 
     })
-    res.json({ success: true })
+    res.json({
+      ...newUser,
+      tenant: tenant.slug
+    })
   } catch (error) {
     console.error('Chyba při vytváření Google uživatele:', error)
     res.status(500).json({ error: 'Interní chyba serveru' })
@@ -272,18 +288,43 @@ router.post('/google-user', async (req, res) => {
 router.post('/user-info', async (req, res) => {
   try {
     const { email } = req.body
+    const tenantSlug = req.headers['x-tenant-slug'] as string
 
     if (!email) {
       return res.status(400).json({ error: 'Email je povinný' })
     }
 
-    const user = await prisma.user.findFirst({
-      where: { email },
-      include: { 
-        tenant: true, 
-        doctor: true 
-      },
-    })
+    // Pokud máme tenant, hledej uživatele v konkrétním tenantu
+    let user
+    if (tenantSlug) {
+      const tenant = await prisma.tenant.findUnique({
+        where: { slug: tenantSlug }
+      })
+      
+      if (tenant) {
+        user = await prisma.user.findFirst({
+          where: { 
+            email,
+            tenantId: tenant.id 
+          },
+          include: { 
+            tenant: true, 
+            doctor: true 
+          },
+        })
+      }
+    }
+    
+    // Fallback na první nalezený uživatel (zpětná kompatibilita)
+    if (!user) {
+      user = await prisma.user.findFirst({
+        where: { email },
+        include: { 
+          tenant: true, 
+          doctor: true 
+        },
+      })
+    }
 
     if (!user) {
       return res.status(404).json({ error: 'Uživatel nenalezen' })
@@ -295,6 +336,7 @@ router.post('/user-info', async (req, res) => {
       tenant: user.tenant.slug,
       tenantId: user.tenantId,
       isDoctor: !!user.doctor,
+      username: user.username,
     })
   } catch (error) {
     console.error('Chyba při načítání uživatele:', error)

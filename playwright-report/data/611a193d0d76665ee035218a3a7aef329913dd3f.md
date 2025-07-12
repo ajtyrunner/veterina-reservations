@@ -1,0 +1,118 @@
+# Page snapshot
+
+```yaml
+- banner:
+  - link "Veterina Svahy Logo Veterinární ordinace Svahy":
+    - /url: /
+    - img "Veterina Svahy Logo"
+    - heading "Veterinární ordinace Svahy" [level=1]
+  - button "Otevřít menu":
+    - img
+  - text: MVDr. Milan Kopp DOCTOR
+  - link "🏠 Rezervovat termín":
+    - /url: /
+  - link "📅 Moje rezervace":
+    - /url: /rezervace
+  - text: Správa
+  - link "🕐 Správa slotů":
+    - /url: /slots
+  - link "📅 Generovat sloty":
+    - /url: /slots/generovani
+  - link "📋 Správa rezervací":
+    - /url: /rezervace/sprava
+  - link "🏥 Ordinace":
+    - /url: /ciselnik/ordinace
+  - link "🩺 Služby":
+    - /url: /ciselnik/sluzby
+  - button "Odhlásit se"
+- main:
+  - heading "Hromadné generování slotů" [level=1]
+  - paragraph: Vytvořte více slotů najednou podle rozvrhu a kritérií.
+  - button "🗑️ Hromadné smazání slotů"
+  - heading "🗓️ 1. Rozvrh - Dny v týdnu" [level=2]
+  - button "Po Pondělí"
+  - button "Út Úterý"
+  - button "St Středa"
+  - button "Čt Čtvrtek"
+  - button "Pá Pátek"
+  - button "So Sobota"
+  - button "Ne Neděle"
+  - heading "⏰ 2. Časové rozmezí" [level=2]
+  - text: Čas začátku
+  - textbox: 08:00
+  - text: Čas konce
+  - textbox: 17:00
+  - text: Interval mezi sloty
+  - combobox:
+    - option "Nepřetržitě (0 min)"
+    - option "5 minut"
+    - option "10 minut"
+    - option "15 minut"
+    - option "20 minut"
+    - option "30 minut" [selected]
+    - option "45 minut"
+    - option "1 hodina"
+  - heading "🏥 3. Služby a místnost" [level=2]
+  - text: Typ služby (volitelné)
+  - combobox:
+    - option "-- Bez typu služby --" [selected]
+    - option "Chirurgický zákrok (90 min)"
+    - option "Dentální péče (45 min)"
+    - option "Očkování (15 min)"
+    - option "RTG vyšetření (20 min)"
+    - option "Ultrazvuk (25 min)"
+    - option "Základní vyšetření (30 min)"
+  - text: Místnost (volitelné)
+  - combobox:
+    - option "-- Bez místnosti --" [selected]
+    - option "Operační sál"
+    - option "Ordinace 1"
+    - option "Ordinace 2"
+    - option "RTG místnost"
+  - heading "🔄 4. Opakování" [level=2]
+  - text: Počet týdnů
+  - spinbutton: "4"
+  - text: Datum začátku
+  - textbox: 2025-07-12
+  - heading "☕ 6. Přestávky" [level=2]
+  - textbox: 12:00
+  - text: "-"
+  - textbox: 13:00
+  - button "❌"
+  - button "+ Přidat přestávku"
+  - button "📋 Náhled (0 slotů)"
+  - button "💾 Generovat sloty"
+- contentinfo:
+  - text: 🏥
+  - heading "Slotnito" [level=3]
+  - paragraph: Inteligentní rezervační systém pro efektivní správu termínů. Rezervujte si čas rychle a jednoduše.
+  - link "Email":
+    - /url: mailto:koppito.solutions@gmail.com
+    - img
+  - heading "Rychlé odkazy" [level=4]
+  - navigation:
+    - link "🏠 Domů":
+      - /url: /
+    - link "📅 Rezervace":
+      - /url: /rezervace
+    - link "❓ Jak to funguje":
+      - /url: /jak-to-funguje
+    - link "🔐 Přihlášení":
+      - /url: /login
+  - heading "Naše služby" [level=4]
+  - text: 🔍 Základní vyšetření 💉 Očkování 🏥 Chirurgické zákroky 📸 RTG vyšetření 🦷 Dentální péče
+  - heading "Kontakt" [level=4]
+  - img
+  - link "koppito.solutions@gmail.com":
+    - /url: mailto:koppito.solutions@gmail.com
+  - img
+  - text: Systém dostupný 24/7 Rezervace kdykoliv online © 2025 Slotnito. Všechna práva vyhrazena.
+  - link "Ochrana osobních údajů":
+    - /url: /privacy
+  - link "Obchodní podmínky":
+    - /url: /terms
+  - text: Vytvořeno s ❤️ pomocí
+  - link "Koppito Solutions":
+    - /url: mailto:koppito.solutions@gmail.com
+- alert
+```

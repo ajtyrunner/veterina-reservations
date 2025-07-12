@@ -58,9 +58,24 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
     async function loadContent() {
       try {
         const tenantSlug = getTenantSlugFromUrl();
+        
+        // Pokud není specifický tenant, použij defaultní hodnoty
+        if (tenantSlug === 'default' || !tenantSlug) {
+          setContent(null);
+          setLoading(false);
+          return;
+        }
+        
         const response = await fetch(`/api/public/tenant/${tenantSlug}/content`);
         
         if (!response.ok) {
+          // Pokud tenant neexistuje, není to kritická chyba - použijeme defaultní hodnoty
+          if (response.status === 404) {
+            console.warn(`Tenant '${tenantSlug}' not found, using default content`);
+            setContent(null);
+            setLoading(false);
+            return;
+          }
           throw new Error('Failed to load content');
         }
         

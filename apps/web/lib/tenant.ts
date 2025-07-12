@@ -14,37 +14,21 @@ export interface TenantInfo {
  * Získá slug tenanta z hostname
  */
 export function getTenantSlugFromHostname(hostname: string): string {
-  // lvh.me development
-  if (hostname.includes('lvh.me')) {
-    const parts = hostname.split('.')
-    const subdomain = parts[0]
-    
-    // Pokud je to přímo lvh.me nebo www.lvh.me, použij defaultní tenant
-    if (subdomain === 'lvh' || subdomain === 'www') {
-      return 'veterina-svahy'
+  // Extrakce subdomény z hostname
+  const parts = hostname.split('.')
+  const subdomain = parts[0]
+  
+  // Pokud je subdoména platná (ne www, ne prázdná), použij ji
+  if (subdomain && subdomain !== 'www' && subdomain !== 'localhost') {
+    // Pro hlavní doménu (např. example.com) vrať null nebo speciální hodnotu
+    if (parts.length === 2 || (parts.length === 3 && subdomain === 'www')) {
+      return 'default' // Nebo můžete vrátit null a řešit to v aplikaci
     }
-    
     return subdomain
   }
   
-  // Pro localhost fallback
-  if (hostname.includes('localhost')) {
-    return 'veterina-svahy'
-  }
-  
-  // Pro produkční domény
-  if (hostname.includes('veterina-svahy.cz')) {
-    return 'veterina-svahy'
-  }
-  
-  // Pro slotnito.online domény - vezmi první část subdomény
-  if (hostname.includes('slotnito.online')) {
-    const parts = hostname.split('.')
-    return parts[0] // např. veterina-svahy, agility-nikol
-  }
-  
-  // Default tenant
-  return 'veterina-svahy'
+  // Pro localhost nebo když nelze určit tenant
+  return 'default'
 }
 
 /**

@@ -21,7 +21,7 @@ export function getTenantSlugFromHostname(hostname: string): string {
     
     // Pokud je to přímo lvh.me nebo www.lvh.me, použij defaultní tenant
     if (subdomain === 'lvh' || subdomain === 'www') {
-      return 'svahy'
+      return 'veterina-svahy'
     }
     
     return subdomain
@@ -29,16 +29,22 @@ export function getTenantSlugFromHostname(hostname: string): string {
   
   // Pro localhost fallback
   if (hostname.includes('localhost')) {
-    return 'svahy'
+    return 'veterina-svahy'
   }
   
   // Pro produkční domény
   if (hostname.includes('veterina-svahy.cz')) {
-    return 'svahy'
+    return 'veterina-svahy'
+  }
+  
+  // Pro slotnito.online domény - vezmi první část subdomény
+  if (hostname.includes('slotnito.online')) {
+    const parts = hostname.split('.')
+    return parts[0] // např. veterina-svahy, agility-nikol
   }
   
   // Default tenant
-  return 'svahy'
+  return 'veterina-svahy'
 }
 
 /**

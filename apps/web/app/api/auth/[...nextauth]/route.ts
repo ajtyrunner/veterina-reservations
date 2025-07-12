@@ -42,7 +42,7 @@ export async function GET(req: NextRequest, context: any) {
           ...params,
           tenantSlug: tenantSlug
         }
-        return authOptions.callbacks.signIn(modifiedParams)
+        return authOptions.callbacks?.signIn ? authOptions.callbacks.signIn(modifiedParams) : true
       },
       session: async (params) => {
         // Inject current tenant into session callback
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest, context: any) {
           ...params,
           currentTenant: tenantSlug
         }
-        return authOptions.callbacks.session(modifiedParams)
+        return authOptions.callbacks?.session ? authOptions.callbacks.session(modifiedParams) : params.session
       }
     }
   }
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest, context: any) {
           ...params,
           tenantSlug: tenantSlug
         }
-        return authOptions.callbacks.signIn(modifiedParams)
+        return authOptions.callbacks?.signIn ? authOptions.callbacks.signIn(modifiedParams) : true
       },
       session: async (params) => {
         // Inject current tenant into session callback
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest, context: any) {
           ...params,
           currentTenant: tenantSlug
         }
-        return authOptions.callbacks.session(modifiedParams)
+        return authOptions.callbacks?.session ? authOptions.callbacks.session(modifiedParams) : params.session
       }
     }
   }

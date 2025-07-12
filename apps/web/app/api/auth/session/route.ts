@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
         userId: token.userId,
         username: token.preferred_username
       },
-      expires: new Date(token.exp! * 1000).toISOString()
+      expires: new Date((token.exp as number) * 1000).toISOString()
     })
   } catch (error) {
     console.error('Session endpoint error:', error)

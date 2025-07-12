@@ -7,19 +7,19 @@ COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY prisma ./prisma/
 
-# Install dependencies without running postinstall
-RUN npm ci --ignore-scripts
+# Install only production dependencies without postinstall
+RUN npm ci --ignore-scripts --omit=dev
 
 # Install API dependencies
-RUN cd apps/api && npm ci
+RUN cd apps/api && npm ci --omit=dev
 
 COPY apps/api ./apps/api/
 
-# Generate Prisma Client
+# Generate Prisma Client in the root node_modules
 RUN npx prisma generate
 
-# Build API with its own build script
-RUN cd apps/api && npm run build
+# Build API directly without using npm script
+RUN cd apps/api && npx tsc
 
 FROM node:18-alpine AS runner
 

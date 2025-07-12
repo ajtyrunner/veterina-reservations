@@ -40,8 +40,7 @@ export async function GET(req: NextRequest, context: any) {
         // Inject tenant into params
         const modifiedParams = {
           ...params,
-          tenantSlug: tenantSlug,
-          callbackUrl: params.callbackUrl || req.nextUrl.searchParams.get('callbackUrl') || '/'
+          tenantSlug: tenantSlug
         }
         return authOptions.callbacks.signIn(modifiedParams)
       },
@@ -116,8 +115,7 @@ export async function POST(req: NextRequest, context: any) {
         // Inject tenant into params
         const modifiedParams = {
           ...params,
-          tenantSlug: tenantSlug,
-          callbackUrl: params.callbackUrl || '/'
+          tenantSlug: tenantSlug
         }
         return authOptions.callbacks.signIn(modifiedParams)
       },

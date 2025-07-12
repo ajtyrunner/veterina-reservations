@@ -20,7 +20,9 @@ RUN npx prisma generate
 
 # Debug: Check what was generated
 RUN ls -la node_modules/@prisma/client/
-RUN cat node_modules/@prisma/client/index.d.ts | grep -E "(AuthProvider|UserRole)" | head -10
+RUN cat node_modules/@prisma/client/index.d.ts
+RUN ls -la node_modules/.prisma/client/
+RUN cat node_modules/.prisma/client/index.d.ts | grep -E "(AuthProvider|UserRole)" | head -10
 
 # Create symlinks so API can find Prisma Client
 RUN cd apps/api && \

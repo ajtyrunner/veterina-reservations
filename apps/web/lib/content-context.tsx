@@ -66,7 +66,13 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
           return;
         }
         
-        const response = await fetch(`/api/public/tenant/${tenantSlug}/content`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://veterina-reservations-production.up.railway.app';
+        const response = await fetch(`${apiUrl}/api/public/tenant/${tenantSlug}/content`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-tenant-slug': tenantSlug
+          }
+        });
         
         if (!response.ok) {
           // Pokud tenant neexistuje, není to kritická chyba - použijeme defaultní hodnoty

@@ -121,7 +121,8 @@ export async function initializeTenantTimezone(tenantSlug: string) {
   }
   
   try {
-    const response = await fetch(`/api/public/tenant/${tenantSlug}`)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://veterina-reservations-production.up.railway.app';
+    const response = await fetch(`${apiUrl}/api/public/tenant/${tenantSlug}`)
     if (!response.ok) {
       throw new Error(`Failed to fetch tenant info: ${response.status}`)
     }

@@ -10,7 +10,6 @@ import { authMiddleware } from './middleware/auth'
 import { basicRateLimit, strictRateLimit } from './middleware/rateLimiter'
 import protectedRouter from './routes/protected'
 import authRouter from './routes/auth'
-import testAuthRouter from './routes/test-auth'
 import publicRouter from './routes/public'
 import { parsePragueDateTime, parseTimezoneDateTime, getStartOfDayInTimezone, getEndOfDayInTimezone } from './utils/timezone'
 import { getCachedTenantTimezone } from './utils/tenant'
@@ -453,7 +452,7 @@ app.use('/api/auth', strictRateLimit, authRouter)
 
 // Test routes - pouze v development/test prostředí
 if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
-  app.use('/', testAuthRouter)
+  // Test auth routes removed for production
   console.log('⚠️  Test auth routes enabled - DO NOT USE IN PRODUCTION')
 }
 

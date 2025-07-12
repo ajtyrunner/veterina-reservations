@@ -608,8 +608,7 @@ export default function HomePageWithContent() {
               value={selectedServiceType}
               onChange={(e) => setSelectedServiceType(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
-              style={{ focusRingColor: colors.primary }}
-            >
+                          >
               <option value="">Všechny služby</option>
               {serviceTypes.map(serviceType => (
                 <option key={serviceType.id} value={serviceType.id}>
@@ -630,8 +629,7 @@ export default function HomePageWithContent() {
               onChange={(e) => setSelectedDate(e.target.value)}
               min={new Date().toISOString().split('T')[0]}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
-              style={{ focusRingColor: colors.primary }}
-              placeholder=""
+                            placeholder=""
             />
           </div>
         </div>
